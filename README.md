@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *读图 · 生图 —— 为 DeepSeek Harness 而生的免费 Skill*
+### *Eyes & a brush for DeepSeek Harness — free image reading & generation skills.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -14,72 +14,74 @@
 
 <br>
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 装上「眼睛」和「画笔」——
-两个免费、无 Key 硬编码、开箱即用的 Skill。
+Give [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) "eyes" and a "brush" —
+two free, ready-to-use skills with no hardcoded keys.
+
+[**中文**](docs/lang/README_ZH.md)
 
 </div>
 
 ---
 
-## ✨ 能力一览
+## ✨ Capabilities
 
-| Skill | 作用 | 模型 | 费用 |
+| Skill | What it does | Model | Cost |
 |---|---|---|---|
-| 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字 | 智谱 GLM-4V-Flash | 免费 |
-| 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SiliconFlow Kolors | 免费、无水印 |
+| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text | Zhipu GLM-4V-Flash | Free |
+| 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SiliconFlow Kolors | Free, no watermark |
 
-## 🔑 密钥
+## 🔑 Keys
 
-Key **永不写进本仓库**。脚本按顺序读取：环境变量 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（兼容回退）。
+Keys are **never stored in this repo**. Scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback).
 
 ```sh
-# ~/.dsh/secrets/media-tools.env （chmod 600，每行 KEY=value）
+# ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
 ```
 
-## ⚡ 安装
+## ⚡ Install
 
 ```sh
 dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
 ```
 
-> 也可以不走 bundle：把 `skills/` 下的目录直接放进任意 skill 根目录（`~/.dsh/skills/` 或项目内 `.dsh/skills/`），DSH 会热加载。
+> No bundle needed either: drop the folders under `skills/` into any skill root (`~/.dsh/skills/` or a project's `.dsh/skills/`) and DSH hot-loads them.
 
-## 🚀 使用
+## 🚀 Usage
 
-装好后，两个 skill 会出现在 `dsh` 的 skill 目录里。直接说：
+Once enabled, both skills appear in the `dsh` skill catalog. Just say:
 
-- 「看看这张图 / 检查这个截图有没有视觉 bug」→ 走 `vision-review`
-- 「给我生成一张 XX 的图」→ 走 `media-tools`
+- "Look at this image / check this screenshot for visual bugs" → uses `vision-review`
+- "Generate an image of …" → uses `media-tools`
 
-## 🗺️ 目录结构
+## 🗺️ Layout
 
 ```
 dsh-media-skills/
-├── package.json           # dsh.bundle 清单
-├── cordis.patch.yml       # 插件层
-├── index.js               # 在 ctx.skills 上注册 provider
+├── package.json           # dsh.bundle manifest
+├── cordis.patch.yml       # plugin layer
+├── index.js               # registers the provider on ctx.skills
 ├── skills/
-│   ├── vision-review/     # 读图
+│   ├── vision-review/     # image reading
 │   │   ├── SKILL.md
 │   │   └── scripts/vision.py
-│   └── media-tools/       # 生图
+│   └── media-tools/       # image generation
 │       ├── SKILL.md
 │       └── scripts/generate.py
-├── scripts/make-banner.py # 复现 docs/social-preview.png
+├── scripts/make-banner.py # regenerates docs/social-preview.png
 └── docs/social-preview.png
 ```
 
-## 🤝 加入 DSH 插件生态
+## 🤝 Join the DSH plugin ecosystem
 
-DeepSeek Harness 开发者预览版仍处于面向 Harness 开发者的测试阶段，核心插件和基础 API 将持续迭代。我们期待与全球开发者一起，在开源、开放、可复用、可组合的基础设施之上，共同探索智能上限。
+DeepSeek Harness developer preview is still in its testing phase for Harness developers; core plugins and base APIs will keep iterating. We look forward to exploring the upper limits of intelligence together with developers worldwide, on top of open-source, open, reusable, and composable infrastructure.
 
-- [dsh-plugin 插件话题](https://github.com/topics/dsh-plugin)
-- [快速上手](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
-- [DeepSeek Harness 仓库](https://github.com/deepseek-ai/deepseek-harness)
+- [dsh-plugin topic](https://github.com/topics/dsh-plugin)
+- [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
+- [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
 
-> 给本仓库打上 [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic，方便被发现。
+> Tag this repo with [`dsh-plugin`](https://github.com/topics/dsh-plugin) so others can discover it.
 
 ## 📄 License
 
