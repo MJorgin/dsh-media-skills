@@ -54,7 +54,7 @@ even with a text-only model — and it gets read, described, and answered. No ha
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Supply your Zhipu key (free tier is enough) — either in the Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field) or in the credentials file:
+2. **Get a free key first**: sign up at [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash is free, no payment needed). For image generation, also create one at [siliconflow.cn](https://siliconflow.cn) (Kolors is free). Then supply it — Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field) or the credentials file:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -70,6 +70,8 @@ Full walkthrough, how-it-works, and troubleshooting: [docs/SETUP_VISION_EN.md](d
 ## 🔑 Keys
 
 Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store.
+
+Where to get the keys (both free): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)

@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. 填入智譜 Key（免費額度即可）——在 Web 介面（**設定 → 模型** → 找到 zhipu-vision 提供方的 **API Key 欄**）或憑證檔案裡填：
+2. **先去免費申請 Key**：註冊/登入 [open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免費）；要生圖再順便到 [siliconflow.cn](https://siliconflow.cn) 建立一個（Kolors 免費）。然後填入——Web 介面（**設定 → 模型** → 找到 zhipu-vision 提供方的 **API Key 欄**）或憑證檔案裡填：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）
@@ -60,6 +60,8 @@
 ## 🔑 金鑰
 
 Key **永不寫進本倉庫**。技能腳本按順序讀取：環境變數 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（相容回退）；視覺模型路由從 DSH 憑證庫讀取 `GLM_API_KEY`。
+
+Key 取得（皆免費）：智譜 [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）；SiliconFlow [siliconflow.cn](https://siliconflow.cn) → API 金鑰（Kolors）。
 
 ```sh
 # ~/.dsh/secrets/media-tools.env（chmod 600，每行 KEY=value）

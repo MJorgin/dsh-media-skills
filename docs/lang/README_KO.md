@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Zhipu 키 설정(무료 한도로 충분) — Web GUI(**설정 → 모델** → zhipu-vision 프로바이더의 **API Key 필드**) 또는 자격증명 파일:
+2. **먼저 무료로 키 발급**: [open.bigmodel.cn](https://open.bigmodel.cn)에 가입/로그인 → 「API Keys」(glm-4v-flash 무료). 생성도 쓸 거면 [siliconflow.cn](https://siliconflow.cn)에서도 발급(Kolors 무료). 그다음 Zhipu 키 설정 — Web GUI(**설정 → 모델** → zhipu-vision 프로바이더의 **API Key 필드**) 또는 자격증명 파일:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -60,6 +60,8 @@
 ## 🔑 키
 
 키는 **이 저장소에 절대 저장되지 않습니다**. 스킬 스크립트는 다음 순서로 읽습니다: 환경 변수 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`(레거시 폴백). 비전 모델 라우트는 DSH 자격증명 저장소에서 `GLM_API_KEY`를 읽습니다.
+
+키 발급처(모두 무료): Zhipu [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys(glm-4v-flash); SiliconFlow [siliconflow.cn](https://siliconflow.cn) → API Keys(Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, 줄마다 KEY=value)

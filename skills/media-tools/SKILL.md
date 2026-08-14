@@ -18,7 +18,7 @@ python3 scripts/generate.py "<提示词>" <输出路径.png> [尺寸=1024x1024]
 
 ## Key
 
-- `SILICONFLOW_API_KEY`（SiliconFlow，免费模型 `Kwai-Kolors/Kolors`）。
+- `SILICONFLOW_API_KEY`（SiliconFlow，免费模型 `Kwai-Kolors/Kolors`）。**获取**：注册/登录 [siliconflow.cn](https://siliconflow.cn) → 「API 密钥」→ 新建并复制（Kolors 免费）。
 - 优先读环境变量；否则依次读 `~/.dsh/secrets/media-tools.env`、`~/.codex/secrets/media-tools.env`（每行 `KEY=value`，权限 600）。
 - 永远不要把 key 提交到仓库、写进 skill 或粘贴到公开文件。
 

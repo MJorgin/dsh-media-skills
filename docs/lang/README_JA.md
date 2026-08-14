@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Zhipu のキーを設定（無料枠で十分）—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
+2. **まず無料でキーを取得**：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）
@@ -60,6 +60,8 @@
 ## 🔑 キー
 
 キーは**このリポジトリに一切保存されない**。スキルスクリプトは次の順で読み取る：環境変数 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（後方互換）。ビジョンモデルルートは DSH のクレデンシャルストアから `GLM_API_KEY` を読む。
+
+キー入手先（いずれも無料）：智譜 [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）；SiliconFlow [siliconflow.cn](https://siliconflow.cn) → API Keys（Kolors）。
 
 ```sh
 # ~/.dsh/secrets/media-tools.env（chmod 600、1 行に KEY=value）

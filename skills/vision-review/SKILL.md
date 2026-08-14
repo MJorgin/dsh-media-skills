@@ -20,7 +20,7 @@ python3 scripts/vision.py <图片路径...> [--prompt="..."]
 
 ## Key
 
-- `GLM_API_KEY`（智谱，免费视觉模型 `glm-4v-flash`）。
+- `GLM_API_KEY`（智谱，免费视觉模型 `glm-4v-flash`）。**获取**：注册/登录 [open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」→ 新建并复制（`glm-4v-flash` 免费，无需付费）。
 - 优先读环境变量；否则依次读 `~/.dsh/secrets/media-tools.env`、`~/.codex/secrets/media-tools.env`（每行 `KEY=value`，权限 600）。
 - 永远不要把 key 提交到仓库、写进 skill 或粘贴到公开文件。
 

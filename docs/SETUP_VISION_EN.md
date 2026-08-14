@@ -36,8 +36,9 @@ After install and restart:
 ## 2. Prerequisites
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) installed and able to run `dsh web` (default port 3080).
-- A **Zhipu API key** (GLM series; the free tier is enough). Get one at [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys → create.
-- The key is never written into this repo; it lives only in your DSH credential store as `GLM_API_KEY`.
+- A **Zhipu API key** (for reading images; free). **How to get it**: sign up / log in at [open.bigmodel.cn](https://open.bigmodel.cn) → console → **API Keys** → create & copy (`glm-4v-flash` is free, no payment needed).
+- (Optional) a **SiliconFlow API key** (only if you also want free generation with `media-tools`). **How to get it**: sign up / log in at [siliconflow.cn](https://siliconflow.cn) → **API Keys** → create & copy (the Kolors model is free).
+- Keys are never written into this repo; they live only in your DSH credential store as `GLM_API_KEY` / `SILICONFLOW_API_KEY`.
 
 ## 3. Install & configure (4 steps)
 
@@ -51,7 +52,9 @@ dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
 >
 > You can also skip the bundle: drop the folders under `skills/` into any skill root (`~/.dsh/skills/` or a project's `.dsh/skills/`). You only get the two skills that way — the vision model route is **not** seeded; configure it manually (see section 7).
 
-### Step 2 — Supply GLM_API_KEY (either way)
+### Step 2 — Get and supply GLM_API_KEY (either way)
+
+> No key yet? Sign up at [open.bigmodel.cn](https://open.bigmodel.cn) and create one (glm-4v-flash is free). For generation, also create one at [siliconflow.cn](https://siliconflow.cn).
 
 **Option A (recommended): the Web GUI**
 

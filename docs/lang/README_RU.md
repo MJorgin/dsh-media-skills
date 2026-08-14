@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Укажите ключ Zhipu (бесплатного тарифа достаточно) — в веб-интерфейсе (**Настройки → Модели** → поле **API Key** у провайдера zhipu-vision) или в файле учётных данных:
+2. **Сначала бесплатно получите ключ**: зарегистрируйтесь на [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash бесплатен). Для генерации создайте ещё один на [siliconflow.cn](https://siliconflow.cn) (Kolors бесплатен). Затем укажите — веб-интерфейс (**Настройки → Модели** → поле **API Key** у провайдера zhipu-vision) или файл учётных данных:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -60,6 +60,8 @@
 ## 🔑 Ключи
 
 Ключи **никогда не хранятся в этом репозитории**. Скрипты читают их по порядку: переменные окружения → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (устаревший запасной вариант). Маршрут модели зрения читает `GLM_API_KEY` из хранилища учётных данных DSH.
+
+Где получить (оба бесплатны): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, одна пара KEY=value в строке)

@@ -44,7 +44,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Configura tu clave de Zhipu (el plan gratis basta) — en la GUI web (**Ajustes → Modelos** → el campo **API Key** del proveedor zhipu-vision) o en el archivo de credenciales:
+2. **Primero consigue la clave gratis**: regístrate en [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash es gratis). Si también quieres generar, crea otra en [siliconflow.cn](https://siliconflow.cn) (Kolors es gratis). Luego configúrala — GUI web (**Ajustes → Modelos** → el campo **API Key** del proveedor zhipu-vision) o archivo de credenciales:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -60,6 +60,8 @@ Guía completa, funcionamiento y resolución de problemas: **[../SETUP_VISION.md
 ## 🔑 Claves
 
 Las claves **nunca se guardan en este repo**. Los scripts leen, en orden: variables de entorno → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (fallback legado). La ruta del modelo de visión lee `GLM_API_KEY` del almacén de credenciales de DSH.
+
+Dónde conseguirlas (ambas gratis): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, una KEY=value por línea)

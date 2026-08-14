@@ -44,7 +44,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Zhipu-Key hinterlegen (Free-Tier genügt) — in der Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder in der Credentials-Datei:
+2. **Zuerst kostenlos einen Key holen**: Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -60,6 +60,8 @@ Komplette Anleitung, Funktionsweise und Fehlerbehebung: **[../SETUP_VISION.md](.
 ## 🔑 Keys
 
 Keys werden **nie in diesem Repo gespeichert**. Die Skripte lesen in dieser Reihenfolge: Umgebungsvariablen → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (Legacy-Fallback). Die Vision-Modell-Route liest `GLM_API_KEY` aus dem DSH-Credential-Speicher.
+
+Bezugsquellen (beide kostenlos): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, eine KEY=value pro Zeile)
