@@ -94,6 +94,14 @@ SILICONFLOW_API_KEY=...
 - 「看看这张图 / 检查这个截图有没有视觉 bug」→ 走 `vision-review`
 - 「给我生成一张 XX 的图」→ 走 `media-tools`
 
+## 🎁 示例
+
+开箱即用的示例素材——6 张 AI 生成图（附提示词）+ 一张专门构造的读图测试卡（标题、按钮、柱状图数值，用于检验读图准确度）：
+
+<img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
+
+→ [examples/README.md](../../examples/README.md)
+
 ## 🗺️ 目录结构
 
 ```
@@ -104,6 +112,7 @@ dsh-media-skills/
 ├── skills/
 │   ├── vision-review/     # 读图
 │   └── media-tools/       # 生图
+├── examples/              # 示例图片 + 读图测试卡
 ├── docs/
 │   ├── screenshots/       # 演示截图与原理图
 │   ├── SETUP_VISION.md    # 视觉模型详细配置指南（中文）

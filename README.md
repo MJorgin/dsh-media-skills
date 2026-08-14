@@ -94,6 +94,14 @@ Also just say:
 - “Look at this image / check this screenshot for visual bugs” → `vision-review`
 - “Generate an image of …” → `media-tools`
 
+## 🎁 Examples
+
+Sample material to try instantly — 6 AI-generated images with their prompts, plus a purpose-built vision test card (title, buttons, bar-chart values) for checking reading accuracy:
+
+<img src="examples/generated/fox-forest.jpg" width="30%"> <img src="examples/generated/cat-astronaut.jpg" width="30%"> <img src="examples/vision-test-card.png" width="30%">
+
+→ [examples/README.md](examples/README.md)
+
 ## 🗺️ Layout
 
 ```
@@ -104,6 +112,7 @@ dsh-media-skills/
 ├── skills/
 │   ├── vision-review/     # image reading
 │   └── media-tools/       # image generation
+├── examples/              # sample images + vision test card
 ├── docs/
 │   ├── screenshots/       # demo screenshots & how-it-works diagram
 │   ├── SETUP_VISION_EN.md # detailed setup guide (English)
