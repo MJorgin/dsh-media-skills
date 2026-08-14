@@ -42,7 +42,7 @@
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. 填入智谱 Key（免费额度即可）——在 Web 界面（设置 → 凭据 → `GLM_API_KEY`）或凭据文件里填：
+2. 填入智谱 Key（免费额度即可）——在 Web 界面（**设置 → 模型** → 找到 zhipu-vision 提供方的 **API Key 栏**）或凭据文件里填：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）
@@ -51,7 +51,7 @@
 
 3. **彻底重启** `dsh web`，然后 `Cmd+Shift+R` 强刷页面。
 
-4. 验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**，输入框左下角出现 **📎「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
+4. 验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **📎「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
 
 完整步骤、工作原理与排错：**[docs/SETUP_VISION.md](docs/SETUP_VISION.md)**
 

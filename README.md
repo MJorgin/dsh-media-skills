@@ -17,7 +17,7 @@
 Give [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) "eyes" and a "brush" —
 two free skills, a free vision model, and paste-an-image reading — with no hardcoded keys.
 
-[Capabilities](#-capabilities) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION.md) · [**中文**](docs/lang/README_ZH.md)
+[Capabilities](#-capabilities) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md) · [**中文**](docs/lang/README_ZH.md)
 
 </div>
 
@@ -42,7 +42,7 @@ two free skills, a free vision model, and paste-an-image reading — with no har
    dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
    ```
 
-2. Supply your Zhipu key (free tier is enough) — either in the Web GUI (Settings → Credentials → `GLM_API_KEY`) or in the credentials file:
+2. Supply your Zhipu key (free tier is enough) — either in the Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field) or in the credentials file:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -51,9 +51,9 @@ two free skills, a free vision model, and paste-an-image reading — with no har
 
 3. Restart `dsh web`, then hard-refresh the page (`Cmd+Shift+R`).
 
-4. Verify: the model selector shows **智谱 GLM-4V-Flash（视觉）**, and the input bar has a 📎 **Add image** button. Paste an image in any session — it arrives as a text description.
+4. Verify: the model selector shows **智谱 GLM-4V-Flash（视觉）**. If your Harness build supports paste-image reading, the input bar also has a 📎 **Add image** button — paste an image in any session and it arrives as a text description.
 
-Full walkthrough, how-it-works, and troubleshooting: [docs/SETUP_VISION.md](docs/SETUP_VISION.md).
+Full walkthrough, how-it-works, and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
 
 ## 🔑 Keys
 

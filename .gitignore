@@ -2,5 +2,10 @@ node_modules/
 *.log
 .DS_Store
 
+# Secrets and env files — keys never belong in the repo
+.env
+*.env
+secrets/
+
 # AI-generated banner source (regenerated via scripts/make-banner.py + media-tools)
 docs/bg-raw.png

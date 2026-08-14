@@ -2,7 +2,7 @@
 
 > 本文是 `dsh-media-skills` 的详细安装与配置指南：装完后，你的 DeepSeek Harness 会多出一个**免费的视觉模型**「智谱 GLM-4V-Flash（视觉）」，并且**在纯文本模型（如 deepseek-v4-pro）的会话里直接拖/贴图片，图片会被自动转述成文字**，不用存文件、不用切会话。
 >
-> 如果只想快速开始，看 [README](../README.md) 的「Quick start」；遇到问题翻到本文最后的「常见问题」。
+> 如果只想快速开始，看 [README](../README.md) 的「Quick start」；遇到问题翻到本文最后的「常见问题」。[English version](SETUP_VISION_EN.md)
 
 ---
 
@@ -53,7 +53,7 @@ dsh plugin --profile web add github:akqwpeter-prog/dsh-media-skills
 
 **方式 A（推荐）：在 Web 界面填**
 
-打开 `http://127.0.0.1:3080` → 设置（Settings）→ 凭据（Credentials / API Keys）→ 给 `GLM_API_KEY` 填上你的智谱 Key → 保存。
+打开 `http://127.0.0.1:3080` → **设置（Settings）→ 模型（Models）** → 找到 zhipu-vision 提供方（智谱 GLM-4V-Flash（视觉））→ 在它的 **API Key 栏**填上你的智谱 Key → 保存。
 
 **方式 B：直接写凭据文件**
 
@@ -83,7 +83,7 @@ dsh web
 
 1. 浏览器 `Cmd+Shift+R` 强刷页面。
 2. 打开**模型选择器**（Models 页 / 顶部模型菜单）：应能看到 **「智谱 GLM-4V-Flash（视觉）」**。
-3. 在任意会话（包括纯文本模型会话）看**输入框左下角**：应有一个 **回形针「添加图片」按钮**。
+3. 若你的 DSH 版本支持贴图转述：在任意会话（包括纯文本模型会话）看**输入框左下角**，应有一个 **回形针「添加图片」按钮**。
 4. 直接选一张图发送：纯文本会话里，你会看到消息变成「[图片「xxx.png」，已由视觉模型读取] + 文字描述」，模型基于描述正常回答。
 
 到这一步就全部就绪了。
