@@ -1,23 +1,32 @@
 <div align="center">
 
-<img src="docs/social-preview.png" alt="dsh-media-skills — Free image reading & generation for DeepSeek Harness" width="100%">
+<img src="docs/social-preview.png" alt="dsh-media-skills — free image reading & generation for DeepSeek Harness" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### *Paste an image straight into the chat box — free vision model, image reading & generation for DeepSeek Harness.*
+### *Give DeepSeek Harness eyes — and a brush. Read images in any chat, generate new ones, all with free models.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Free vision](https://img.shields.io/badge/vision-GLM--4V--Flash-2EA44F)](docs/SETUP_VISION_EN.md)
+[![Free generation](https://img.shields.io/badge/generation-Kolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
+[![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
+[![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
 
 <br>
 
-Give [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) real eyes: paste any image in the chat —
-even with a text-only model — and it gets read, described, and answered. No hardcoded keys.
+DeepSeek Harness is brilliant at reasoning — but a text-only model can't see the image you just dragged into the chat. This bundle fixes that with **two free skills** and a **free vision model route**:
 
-[Paste-image reading](#-paste-image-reading) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md) · [More free vision models](docs/FREE_VISION_PROVIDERS_EN.md) · [Core patch notes](docs/HARNESS_PATCH_EN.md)
+- 📎 **Paste to read** — paste, drag, or pick an image in any session; the free vision model turns it into text your current model understands.
+- 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
+- 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners with a free, watermark-free model.
+
+No hardcoded keys, no paid API, no file saving, no session switching.
+
+[Why](#-why) · [Quick start](#-quick-start) · [See it in action](#-see-it-in-action) · [Usage](#-usage) · [Keys & privacy](#-keys--privacy) · [FAQ](#-faq) · [Examples](#-examples)
 
 [**English**](README.md) · [**简体中文**](docs/lang/README_ZH.md) · [**繁體中文**](docs/lang/README_ZH_TW.md) · [**日本語**](docs/lang/README_JA.md) · [**한국어**](docs/lang/README_KO.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**Português**](docs/lang/README_PT.md) · [**Русский**](docs/lang/README_RU.md)
 
@@ -25,17 +34,20 @@ even with a text-only model — and it gets read, described, and answered. No ha
 
 ---
 
-## 📸 Paste-image reading
+## 🤔 Why
 
-**The core capability.** In any chat — including sessions with a text-only model like deepseek-v4-pro — paste, drag, or pick an image and just send it. A free vision model (Zhipu GLM-4V-Flash) reads the image and turns it into a text description your current model understands. No file saving, no session switching.
+Most DSH vision plugins only **read** images — and many push you through a shared third-party endpoint. `dsh-media-skills` takes a different stance:
 
-<img src="docs/screenshots/demo-paste.png" alt="Pasting an image in a deepseek-v4-pro session: the vision model auto-describes it as text and the model answers" width="100%">
+| | This bundle | Typical vision-only plugin |
+|---|---|---|
+| Read images for free | ✅ Zhipu GLM-4V-Flash | ✅ |
+| **Generate** images for free | ✅ SiliconFlow Kolors | ❌ usually absent |
+| Auto model route in the picker | ✅ installed automatically | sometimes |
+| Keys committed to the repo | ❌ never — keys stay local | ⚠️ often required |
+| Docs in multiple languages | ✅ 9 languages | ❌ usually English only |
+| Privacy | ✅ you choose the provider; images only go to your provider | shared free endpoints can see your images |
 
-*Left: the pasted image becomes a text description (`已由视觉模型读取`). Right: the paperclip button that opens the image picker.*
-
-<img src="docs/screenshots/how-it-works.png" alt="How paste-image reading works: paste → vision model describes → text arrives" width="100%">
-
-> ⚠️ Honest note: the auto-describe pipeline lives in the DeepSeek Harness **core** (image-admission logic in `api-proxy`; see [docs/HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md)). This bundle ships the **model route + skills**; the vision model works on any DSH build, but paste-image reading requires a Harness build with that core support — see FAQ Q1 in [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
+**Why bring your own free key instead of a built-in anonymous endpoint?** Privacy and reliability. Your images go only to the provider you choose, under your account and your rate limits — no shared third-party service in the middle.
 
 ## ✨ What you get
 
@@ -48,36 +60,35 @@ even with a text-only model — and it gets read, described, and answered. No ha
 
 ## ⚡ Quick start
 
-1. Install the bundle:
+```sh
+dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+```
 
-   ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
-   ```
-
-2. **Get a free key first**: sign up at [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash is free, no payment needed). For image generation, also create one at [siliconflow.cn](https://siliconflow.cn) (Kolors is free). Then supply it — Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field) or the credentials file:
+1. **Get two free keys** (~2 minutes, no payment):
+   - Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (`glm-4v-flash` is free)
+   - SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → **API Keys** (Kolors is free)
+2. **Add them** in the Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field), or use the credentials file:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
    GLM_API_KEY: <your key>
    ```
 
-3. Restart `dsh web`, then hard-refresh the page (`Cmd+Shift+R`).
+3. **Restart** `dsh web`, then hard-refresh (`Cmd+Shift+R`).
 
-4. Verify: the model selector shows **智谱 GLM-4V-Flash（视觉）**. If your Harness build supports paste-image reading, the input bar also has a 📎 **Add image** button — paste an image in any session and it arrives as a text description.
+Verify: the model selector shows **智谱 GLM-4V-Flash（视觉）**. If your Harness build supports paste-image reading, the input bar also has a 📎 **Add image** button — paste an image in any session and it arrives as a text description.
 
-Full walkthrough, how-it-works, and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
+Full walkthrough and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
 
-## 🔑 Keys
+## 📸 See it in action
 
-Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store.
+*Paste an image in a text-only session → the free vision model describes it → your model answers. The same bundle also generates new images on demand.*
 
-Where to get the keys (both free): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
+<img src="docs/screenshots/demo-paste.png" alt="Demo: paste an image into a text-only DeepSeek Harness session, the vision model reads it, and the model answers; the same bundle can also generate images" width="100%">
 
-```sh
-# ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
-GLM_API_KEY=...
-SILICONFLOW_API_KEY=...
-```
+*How it works in one picture:*
+
+<img src="docs/screenshots/how-it-works.png" alt="How paste-image reading works: paste → vision model describes → text description arrives at the current model" width="100%">
 
 ## 🚀 Usage
 
@@ -95,6 +106,29 @@ Also just say:
 
 - “Look at this image / check this screenshot for visual bugs” → `vision-review`
 - “Generate an image of …” → `media-tools`
+
+## 🔑 Keys & privacy
+
+Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store.
+
+```sh
+# ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
+GLM_API_KEY=...
+SILICONFLOW_API_KEY=...
+```
+
+Your images are sent only to the provider you configure — never to this repo, never to a shared anonymous endpoint.
+
+## ❓ FAQ
+
+**Does paste-image reading require a DeepSeek Harness core patch?**
+The auto-describe pipeline lives in the Harness **core** (`api-proxy` image-admission logic; see [docs/HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md)). This bundle ships the **model route + skills**: the vision model works on any DSH build, but paste-image reading requires a Harness build with that core support — see FAQ Q1 in [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
+
+**Why not just use a built-in free endpoint with no key at all?**
+We prefer to let you own the route: your images go to the provider you pick, under your rate limits, with no shared middleman. The keys are free and take about two minutes to create.
+
+**Is `media-tools` really free?**
+Yes — SiliconFlow Kolors is free and watermark-free. If a model is temporarily disabled, the skill lists available models and you can switch.
 
 ## 🎁 Examples
 
@@ -116,7 +150,7 @@ dsh-media-skills/
 │   └── media-tools/       # image generation
 ├── examples/              # sample images + vision test card
 ├── docs/
-│   ├── screenshots/       # demo screenshots & how-it-works diagram
+│   ├── screenshots/       # demo mockup & how-it-works diagram
 │   ├── SETUP_VISION_EN.md # detailed setup guide (English)
 │   ├── SETUP_VISION.md    # 详细配置指南（中文）
 │   ├── HARNESS_PATCH_EN.md# core patch notes (English)
@@ -134,7 +168,7 @@ DeepSeek Harness developer preview is still in its testing phase for Harness dev
 - [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
 - [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
 
-> Tag this repo with [`dsh-plugin`](https://github.com/topics/dsh-plugin) so others can discover it.
+> Tag this repo with [`dsh-plugin`](https://github.com/topics/dsh-plugin) so others can discover it. PRs, issues and translations are welcome.
 
 ## 📄 License
 
