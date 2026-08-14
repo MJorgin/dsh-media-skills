@@ -17,7 +17,9 @@
 Give [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) "eyes" and a "brush" —
 two free skills, a free vision model, and paste-an-image reading — with no hardcoded keys.
 
-[Capabilities](#-capabilities) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md) · [**中文**](docs/lang/README_ZH.md)
+[Capabilities](#-capabilities) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md)
+
+[**English**](README.md) · [**简体中文**](docs/lang/README_ZH.md) · [**繁體中文**](docs/lang/README_ZH_TW.md) · [**日本語**](docs/lang/README_JA.md) · [**한국어**](docs/lang/README_KO.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**Português**](docs/lang/README_PT.md) · [**Русский**](docs/lang/README_RU.md)
 
 </div>
 
