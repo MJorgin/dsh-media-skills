@@ -3,6 +3,8 @@
 > 本文是 `dsh-media-skills` 的详细安装与配置指南：装完后，你的 DeepSeek Harness 会多出一个**免费的视觉模型**「智谱 GLM-4V-Flash（视觉）」，并且**在纯文本模型（如 deepseek-v4-pro）的会话里直接拖/贴图片，图片会被自动转述成文字**，不用存文件、不用切会话。
 >
 > 如果只想快速开始，看 [README](../README.md) 的「Quick start」；遇到问题翻到本文最后的「常见问题」。[English version](SETUP_VISION_EN.md)
+>
+> 💡 不想用智谱？[其他免费视觉模型](FREE_VISION_PROVIDERS.md)（SiliconFlow / 魔搭 / 百炼 / Gemini / OpenRouter / Groq…）
 
 ---
 

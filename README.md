@@ -17,7 +17,7 @@
 Give [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) real eyes: paste any image in the chat —
 even with a text-only model — and it gets read, described, and answered. No hardcoded keys.
 
-[Paste-image reading](#-paste-image-reading) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md) · [Core patch notes](docs/HARNESS_PATCH_EN.md)
+[Paste-image reading](#-paste-image-reading) · [Quick start](#-quick-start) · [Usage](#-usage) · [Detailed Vision Setup](docs/SETUP_VISION_EN.md) · [More free vision models](docs/FREE_VISION_PROVIDERS_EN.md) · [Core patch notes](docs/HARNESS_PATCH_EN.md)
 
 [**English**](README.md) · [**简体中文**](docs/lang/README_ZH.md) · [**繁體中文**](docs/lang/README_ZH_TW.md) · [**日本語**](docs/lang/README_JA.md) · [**한국어**](docs/lang/README_KO.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**Português**](docs/lang/README_PT.md) · [**Русский**](docs/lang/README_RU.md)
 

@@ -17,7 +17,7 @@
 给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 装上真正的「眼睛」：在聊天框里贴一张图——
 即使当前是纯文本模型——图片就会被自动读取、转述并回答。全程无 Key 硬编码。
 
-[贴图直读](#-贴图直读) · [快速开始](#-快速开始) · [使用方式](#-使用方式) · [视觉模型详细配置](../SETUP_VISION.md) · [本体补丁说明](../HARNESS_PATCH.md)
+[贴图直读](#-贴图直读) · [快速开始](#-快速开始) · [使用方式](#-使用方式) · [视觉模型详细配置](../SETUP_VISION.md) · [更多免费视觉模型](../FREE_VISION_PROVIDERS.md) · [本体补丁说明](../HARNESS_PATCH.md)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 

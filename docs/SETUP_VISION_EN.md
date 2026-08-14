@@ -5,6 +5,8 @@
 > For a quick start see the [README](../README.md). For troubleshooting jump to the [FAQ](#6-faq) below.
 >
 > [**中文版（简体中文）**](SETUP_VISION.md)
+>
+> 💡 Prefer a different provider? [Free vision models beyond Zhipu](FREE_VISION_PROVIDERS_EN.md) (SiliconFlow / ModelScope / Bailian / Gemini / OpenRouter / Groq…)
 
 ---
 
