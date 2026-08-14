@@ -1,3 +1,6 @@
 node_modules/
 *.log
 .DS_Store
+
+# AI-generated banner source (regenerated via scripts/make-banner.py + media-tools)
+docs/bg-raw.png
