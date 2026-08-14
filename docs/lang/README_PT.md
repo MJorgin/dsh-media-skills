@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *Olhos e um pincel para o DeepSeek Harness — leitura e geração de imagens grátis.*
+### *Cole imagens direto no chat — modelo de visão, leitura e geração de imagens grátis.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -29,8 +29,8 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 | Recurso | O que faz | Modelo | Custo |
 |---|---|---|---|
-| 🧠 Rota de modelo de visão | Após instalar, adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos; use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
 | 📎 Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (clipe); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto | Zhipu GLM-4V-Flash | Grátis |
+| 🧠 Rota de modelo de visão | Após instalar, adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos; use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
 | 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto | Zhipu GLM-4V-Flash | Grátis |
 | 🎨 `media-tools` | Gerar imagens, ilustrações, avatares, fundos e banners | SiliconFlow Kolors | Grátis, sem marca d'água |
 

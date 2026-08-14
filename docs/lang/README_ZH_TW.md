@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *讀圖 · 生圖 —— 為 DeepSeek Harness 而生的免費 Skill*
+### *直接把圖片貼進聊天框 —— DeepSeek Harness 的免費視覺模型與讀圖·生圖 Skill*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -29,8 +29,8 @@
 
 | 能力 | 說明 | 模型 | 費用 |
 |---|---|---|---|
-| 🧠 視覺模型路由 | 安裝後**自動**在模型選擇器寫入「智譜 GLM-4V-Flash（視覺）」，新工作階段選它即可直接看圖對話 | 智譜 GLM-4V-Flash | 免費 |
 | 📎 貼圖自動轉述 | **純文字工作階段**（如 deepseek-v4-pro）的輸入框會多出「新增圖片」按鈕（迴紋針）；貼圖後由視覺模型自動轉成文字描述發給目前模型 | 智譜 GLM-4V-Flash | 免費 |
+| 🧠 視覺模型路由 | 安裝後**自動**在模型選擇器寫入「智譜 GLM-4V-Flash（視覺）」，新工作階段選它即可直接看圖對話 | 智譜 GLM-4V-Flash | 免費 |
 | 👁️ `vision-review` | 分析 / 辨識 / 描述圖片與截圖；找出介面視覺 bug（重疊、溢出、錯位）；偵測浮水印 Logo；圖片轉文字 | 智譜 GLM-4V-Flash | 免費 |
 | 🎨 `media-tools` | 產生圖片、插畫、頭像、背景、banner | SiliconFlow Kolors | 免費、無浮水印 |
 

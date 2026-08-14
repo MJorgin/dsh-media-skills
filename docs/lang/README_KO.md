@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *DeepSeek Harness에 「눈」과 「붓」을 —— 무료 이미지 읽기·생성 스킬*
+### *채팅창에 이미지를 바로 붙여넣기 —— 무료 비전 모델과 이미지 읽기·생성 스킬*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -29,8 +29,8 @@
 
 | 기능 | 설명 | 모델 | 비용 |
 |---|---|---|---|
-| 🧠 비전 모델 라우트 | 설치 후 모델 선택기에 **자동으로** 「智譜 GLM-4V-Flash（視覚）」이 등록되어, 새 세션에서 이미지에 대해 바로 대화 가능 | Zhipu GLM-4V-Flash | 무료 |
 | 📎 이미지 붙여넣기 자동 읽기 | **텍스트 전용 세션**(예: deepseek-v4-pro)의 입력창에 「이미지 추가」 버튼(클립)이 생기고, 붙여넣은 이미지는 비전 모델이 자동으로 텍스트 설명으로 변환해 현재 모델에 전달 | Zhipu GLM-4V-Flash | 무료 |
+| 🧠 비전 모델 라우트 | 설치 후 모델 선택기에 **자동으로** 「智譜 GLM-4V-Flash（視覚）」이 등록되어, 새 세션에서 이미지에 대해 바로 대화 가능 | Zhipu GLM-4V-Flash | 무료 |
 | 👁️ `vision-review` | 이미지·스크린샷 분석/인식/설명, UI 시각 버그(겹침·넘침·어긋남) 탐지, 워터마크/로고 감지, 이미지 텍스트화 | Zhipu GLM-4V-Flash | 무료 |
 | 🎨 `media-tools` | 이미지·일러스트·아바타·배경·배너 생성 | SiliconFlow Kolors | 무료, 워터마크 없음 |
 

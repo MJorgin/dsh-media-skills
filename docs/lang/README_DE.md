@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *Augen und ein Pinsel für DeepSeek Harness — kostenloses Bildlesen und Bildgenerierung.*
+### *Bilder direkt ins Chatfeld einfügen — kostenloses Vision-Modell, Bildlesen und Bildgenerierung.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
@@ -29,8 +29,8 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 | Funktion | Beschreibung | Modell | Kosten |
 |---|---|---|---|
-| 🧠 Vision-Modell-Route | Nach der Installation erscheint **automatisch** „智譜 GLM-4V-Flash（視覚）“ im Modell-Auswahlmenü; in neuen Unterhaltungen direkt über Bilder sprechen | Zhipu GLM-4V-Flash | Kostenlos |
 | 📎 Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Büroklammer); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben | Zhipu GLM-4V-Flash | Kostenlos |
+| 🧠 Vision-Modell-Route | Nach der Installation erscheint **automatisch** „智譜 GLM-4V-Flash（視覚）“ im Modell-Auswahlmenü; in neuen Unterhaltungen direkt über Bilder sprechen | Zhipu GLM-4V-Flash | Kostenlos |
 | 👁️ `vision-review` | Bilder/Screenshots analysieren, erkennen, beschreiben; visuelle UI-Bugs finden (Überlappung, Überlauf, Fehlausrichtung); Wasserzeichen/Logos erkennen; Bilder in Text umwandeln | Zhipu GLM-4V-Flash | Kostenlos |
 | 🎨 `media-tools` | Bilder, Illustrationen, Avatare, Hintergründe und Banner generieren | SiliconFlow Kolors | Kostenlos, ohne Wasserzeichen |
 
