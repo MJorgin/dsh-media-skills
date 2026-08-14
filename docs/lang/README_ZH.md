@@ -6,18 +6,27 @@
 
 # 🎨 dsh-media-skills
 
-### *把图片直接贴进聊天框 —— DeepSeek Harness 的免费视觉模型、读图与生图 Skill*
+### *给 DeepSeek Harness 装上眼睛和画笔 —— 任意会话直接贴图，还能免费生成图片。*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Free vision](https://img.shields.io/badge/vision-GLM--4V--Flash-2EA44F)](../SETUP_VISION.md)
+[![Free generation](https://img.shields.io/badge/generation-Kolors-2EA44F)](../FREE_VISION_PROVIDERS.md)
+[![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README_ZH.md#-密钥与隐私)
+[![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](README_ZH.md)
 
 <br>
 
-给 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) 装上真正的「眼睛」：在聊天框里贴一张图——
-即使当前是纯文本模型——图片就会被自动读取、转述并回答。全程无 Key 硬编码。
+DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条免费视觉模型路由**解决这件事：
 
-[贴图直读](#-贴图直读) · [快速开始](#-快速开始) · [使用方式](#-使用方式) · [视觉模型详细配置](../SETUP_VISION.md) · [更多免费视觉模型](../FREE_VISION_PROVIDERS.md) · [本体补丁说明](../HARNESS_PATCH.md)
+- 📎 **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。
+- 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
+- 🎨 **`media-tools`** —— 免费生成插画、头像、背景、Banner，无水印。
+
+无 Key 硬编码、无需付费、不用存文件、不用切会话。
+
+[为什么](#-为什么) · [快速开始](#-快速开始) · [效果预览](#-效果预览) · [使用方式](#-使用方式) · [密钥与隐私](#-密钥与隐私) · [常见问题](#-常见问题) · [示例](#-示例)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -25,17 +34,20 @@
 
 ---
 
-## 📸 贴图直读
+## 🤔 为什么
 
-**核心能力。** 在任意会话——包括 deepseek-v4-pro 这类纯文本模型的会话——粘贴、拖拽或点选一张图片直接发送。免费的视觉模型（智谱 GLM-4V-Flash）会读取图片并把它转述成文字描述，交给你的当前模型理解。不用存文件，不用切会话。
+市面上的 DSH 视觉插件大多只能**读图**，而且很多让你走一个共享的第三方端点。`dsh-media-skills` 的思路不一样：
 
-<img src="../screenshots/demo-paste.png" alt="在 deepseek-v4-pro 会话里贴图：视觉模型自动转述为文字，模型基于描述回答" width="100%">
+| 对比项 | 本 bundle | 常见「只读图」插件 |
+|---|---|---|
+| 免费读图 | ✅ 智谱 GLM-4V-Flash | ✅ |
+| **免费生图** | ✅ SiliconFlow Kolors | ❌ 通常没有 |
+| 自动写入模型路由 | ✅ 安装即自动配置 | 视插件而定 |
+| Key 是否入库 | ❌ 绝不，密钥只留在本地 | ⚠️ 经常要求配置 |
+| 多语言文档 | ✅ 9 种语言 | ❌ 通常只有英文 |
+| 隐私 | ✅ 图片只发给你自己选的提供方 | 共享免费端点可能看到你的图片 |
 
-*上：贴进去的图片变成了文字描述（「已由视觉模型读取」），模型照常回答。左下角：打开图片选择器的回形针按钮。*
-
-<img src="../screenshots/how-it-works.png" alt="贴图直读原理：贴图 → 视觉模型转述 → 文字描述到达当前模型" width="100%">
-
-> ⚠️ 诚实说明：「贴图自动转述」的管道属于 DeepSeek Harness **本体**（`api-proxy` 的图片准入逻辑，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）。本 bundle 负责**模型配置 + 读图/生图技能**；任何 DSH 版本装上后视觉模型都可用，但贴图直读需要你的 DSH 本体包含对应支持——判断方法见 [../SETUP_VISION.md](../SETUP_VISION.md) 常见问题 Q1。
+**为什么用「自带免费 Key」而不是内置匿名端点？** 为了隐私和稳定性。你的图片只发给你选的提供方，走你自己的账号和速率限制，中间没有任何共享第三方服务。
 
 ## ✨ 能力一览
 
@@ -48,13 +60,14 @@
 
 ## ⚡ 快速开始
 
-1. 安装 bundle：
+```sh
+dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+```
 
-   ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
-   ```
-
-2. **先去免费申请 Key**：注册/登录 [open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费，无需付费）；要生图再顺便到 [siliconflow.cn](https://siliconflow.cn) 创建一个（Kolors 免费）。然后填入——Web 界面（**设置 → 模型** → 找到 zhipu-vision 提供方的 **API Key 栏**）或凭据文件里填：
+1. **申请两个免费 Key**（约 2 分钟，无需付费）：
+   - 智谱：[open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费）
+   - SiliconFlow：[siliconflow.cn](https://siliconflow.cn) → 「API 密钥」（Kolors 免费）
+2. **填入**：Web 界面（**设置 → 模型** → 找到 zhipu-vision 提供方的 **API Key 栏**），或写在凭据文件里：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）
@@ -63,21 +76,19 @@
 
 3. **彻底重启** `dsh web`，然后 `Cmd+Shift+R` 强刷页面。
 
-4. 验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **📎「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
+验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **📎「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
 
-完整步骤、工作原理与排错：**[../SETUP_VISION.md](../SETUP_VISION.md)**
+完整步骤与排错：**[../SETUP_VISION.md](../SETUP_VISION.md)**
 
-## 🔑 密钥
+## 📸 效果预览
 
-Key **永不写进本仓库**。技能脚本按顺序读取：环境变量 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（兼容回退）；视觉模型路由从 DSH 凭据库读取 `GLM_API_KEY`。
+*纯文本会话里贴一张图 → 免费视觉模型转述 → 当前模型回答；同一个 bundle 还能按需生成新图。*
 
-Key 获取（都免费）：智谱 [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）；SiliconFlow [siliconflow.cn](https://siliconflow.cn) → API 密钥（Kolors）。
+<img src="../screenshots/demo-paste.png" alt="演示：纯文本 DSH 会话中贴图，视觉模型读取并转述，模型回答；同一 bundle 还能生成图片" width="100%">
 
-```sh
-# ~/.dsh/secrets/media-tools.env （chmod 600，每行 KEY=value）
-GLM_API_KEY=...
-SILICONFLOW_API_KEY=...
-```
+*工作原理一图流：*
+
+<img src="../screenshots/how-it-works.png" alt="贴图直读原理：贴图 → 视觉模型转述 → 文字描述到达当前模型" width="100%">
 
 ## 🚀 使用方式
 
@@ -95,6 +106,29 @@ SILICONFLOW_API_KEY=...
 
 - 「看看这张图 / 检查这个截图有没有视觉 bug」→ 走 `vision-review`
 - 「给我生成一张 XX 的图」→ 走 `media-tools`
+
+## 🔑 密钥与隐私
+
+Key **永不写进本仓库**。技能脚本按顺序读取：环境变量 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（兼容回退）；视觉模型路由从 DSH 凭据库读取 `GLM_API_KEY`。
+
+```sh
+# ~/.dsh/secrets/media-tools.env （chmod 600，每行 KEY=value）
+GLM_API_KEY=...
+SILICONFLOW_API_KEY=...
+```
+
+你的图片只发给你自己配置的提供方——绝不会发到本仓库，也不会经过共享匿名端点。
+
+## ❓ 常见问题
+
+**贴图直读需要给 DeepSeek Harness 本体打补丁吗？**
+「贴图自动转述」的管道属于 DeepSeek Harness **本体**（`api-proxy` 的图片准入逻辑，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）。本 bundle 负责**模型配置 + 读图/生图技能**；任何 DSH 版本装上后视觉模型都可用，但贴图直读需要你的 DSH 本体包含对应支持——判断方法见 [../SETUP_VISION.md](../SETUP_VISION.md) 常见问题 Q1。
+
+**为什么不用内置免费端点、完全免 Key？**
+我们更希望路由掌握在你自己手里：图片只发给你选的提供方，走你的速率限制，中间没有共享第三方。Key 全免费，申请大约两分钟。
+
+**`media-tools` 真的免费吗？**
+是的——SiliconFlow Kolors 免费且无水印。如果某个模型暂时不可用，Skill 会列出可用模型供切换。
 
 ## 🎁 示例
 
@@ -116,7 +150,7 @@ dsh-media-skills/
 │   └── media-tools/       # 生图
 ├── examples/              # 示例图片 + 读图测试卡
 ├── docs/
-│   ├── screenshots/       # 演示截图与原理图
+│   ├── screenshots/       # 演示图与原理图
 │   ├── SETUP_VISION.md    # 视觉模型详细配置指南（中文）
 │   ├── SETUP_VISION_EN.md # detailed setup guide (English)
 │   ├── HARNESS_PATCH.md   # 本体补丁说明（中文）
@@ -134,7 +168,7 @@ DeepSeek Harness 开发者预览版仍处于面向 Harness 开发者的测试阶
 - [快速上手](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
 - [DeepSeek Harness 仓库](https://github.com/deepseek-ai/deepseek-harness)
 
-> 给本仓库打上 [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic，方便被发现。
+> 给本仓库打上 [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic，方便被发现。欢迎 PR、Issue 和翻译贡献。
 
 ## 📄 License
 
