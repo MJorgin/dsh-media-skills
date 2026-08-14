@@ -32,7 +32,7 @@ two free skills, a free vision model, and paste-an-image reading — with no har
 | 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text | Zhipu GLM-4V-Flash | Free |
 | 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SiliconFlow Kolors | Free, no watermark |
 
-> ⚠️ Honest note: paste-image reading lives in the DeepSeek Harness core (the image-admission logic in `api-proxy`). This bundle ships the **model route + skills**; the vision model works on any DSH build, but the auto-describe convenience requires a Harness build that includes that core support. See [docs/SETUP_VISION.md](docs/SETUP_VISION.md) → FAQ Q1.
+> ⚠️ Honest note: paste-image reading lives in the DeepSeek Harness core (the image-admission logic in `api-proxy`). This bundle ships the **model route + skills**; the vision model works on any DSH build, but the auto-describe convenience requires a Harness build that includes that core support. See [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md) → FAQ Q1.
 
 ## ⚡ Quick start
 
@@ -97,7 +97,8 @@ dsh-media-skills/
 │       ├── SKILL.md
 │       └── scripts/generate.py
 ├── docs/
-│   ├── SETUP_VISION.md    # detailed vision-model setup guide
+│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
+│   ├── SETUP_VISION.md    # 详细配置指南（中文）
 │   └── lang/README_ZH.md  # Chinese README
 ├── scripts/make-banner.py # regenerates docs/social-preview.png
 └── docs/social-preview.png

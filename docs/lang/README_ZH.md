@@ -97,7 +97,8 @@ dsh-media-skills/
 │       ├── SKILL.md
 │       └── scripts/generate.py
 ├── docs/
-│   ├── SETUP_VISION.md    # 视觉模型详细配置指南
+│   ├── SETUP_VISION.md    # 视觉模型详细配置指南（中文）
+│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
 │   └── lang/README_ZH.md  # 中文 README（本文件）
 ├── scripts/make-banner.py # 复现 docs/social-preview.png
 └── docs/social-preview.png
