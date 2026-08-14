@@ -44,19 +44,49 @@ def main() -> None:
     cjk_font = ImageFont.truetype(FONT_CJK, 23)
     tag_font = ImageFont.truetype(FONT_CJK, 17)
 
-    x = 62
+    x = 60
     # Accent bar + title
-    draw.rectangle((x, 236, x + 8, 300), fill=ACCENT)
-    draw.text((x + 26, 226), "dsh-media-skills", font=title_font, fill=(255, 255, 255))
-    draw.text((x + 26, 300), "Free image reading & generation for DeepSeek Harness",
+    draw.rectangle((x, 208, x + 8, 272), fill=ACCENT)
+    draw.text((x + 26, 198), "dsh-media-skills", font=title_font, fill=(255, 255, 255))
+    draw.text((x + 26, 272), "Free image reading & generation for DeepSeek Harness",
               font=en_font, fill=(215, 224, 255))
-    draw.text((x + 26, 342), "读图 · 生图 —— 为 DeepSeek Harness 而生的免费 Skill",
+    draw.text((x + 26, 314), "贴图直读 · AI 生图 —— 给 DeepSeek Harness 一双免费的眼睛",
               font=cjk_font, fill=(159, 176, 224))
 
-    # Small pill tag bottom-left
-    tag = "DeepSeek Harness  ·  dsh-plugin"
-    draw.rounded_rectangle((x + 26, 540, x + 26 + 330, 576), radius=18, outline=ACCENT, width=2)
-    draw.text((x + 44, 548), tag, font=tag_font, fill=(215, 224, 255))
+    # Pill tags
+    tags = [("Paste to read", (255, 255, 255)), ("Free image generation", (255, 255, 255)),
+            ("No hardcoded keys", (255, 255, 255)), ("9 languages", (255, 255, 255))]
+    tx, ty = x + 26, 384
+    for label, color in tags:
+        w = draw.textlength(label, font=tag_font) + 36
+        draw.rounded_rectangle((tx, ty, tx + w, ty + 36), radius=18, outline=ACCENT, width=2)
+        draw.text((tx + 18, ty + 9), label, font=tag_font, fill=color)
+        tx += w + 12
+
+    # Right side: chat card mock
+    card_x, card_y, card_w, card_h = 706, 108, 500, 424
+    card = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    cdraw = ImageDraw.Draw(card)
+    cdraw.rounded_rectangle((card_x, card_y, card_x + card_w, card_y + card_h), radius=22, fill=(16, 24, 56, 235), outline=(77, 107, 254, 255), width=2)
+    # header
+    cdraw.ellipse((card_x + 24, card_y + 22, card_x + 34, card_y + 32), fill=(255, 94, 94))
+    cdraw.ellipse((card_x + 42, card_y + 22, card_x + 52, card_y + 32), fill=(255, 199, 92))
+    cdraw.ellipse((card_x + 60, card_y + 22, card_x + 70, card_y + 32), fill=(94, 216, 130))
+    cdraw.text((card_x + 24, card_y + 48), "deepseek-v4-pro  ·  纯文本模型也能看图",
+              font=cjk_font, fill=(159, 176, 224))
+    # image bubble (user)
+    cdraw.rounded_rectangle((card_x + 24, card_y + 86, card_x + 240, card_y + 190), radius=12, fill=(38, 51, 102, 255))
+    thumb = cover_crop(bg, 190, 84)
+    card.paste(thumb, (card_x + 37, card_y + 99))
+    cdraw.text((card_x + 24, card_y + 202), "看看这张图 👀", font=cjk_font, fill=(215, 224, 255))
+    # vision note
+    cdraw.rounded_rectangle((card_x + 24, card_y + 238, card_x + 352, card_y + 274), radius=10, fill=(44, 36, 86, 255))
+    cdraw.text((card_x + 36, card_y + 247), "🔎 已由视觉模型读取 · GLM-4V-Flash", font=cjk_font, fill=(168, 200, 255))
+    # assistant answer
+    cdraw.rounded_rectangle((card_x + 24, card_y + 290, card_x + 452, card_y + 342), radius=12, fill=(77, 107, 254, 120))
+    cdraw.text((card_x + 36, card_y + 299), "It\'s a cat astronaut floating in space 🚀",
+              font=en_font, fill=(255, 255, 255))
+    canvas = Image.alpha_composite(canvas, card)
 
     out = ROOT / "docs/social-preview.png"
     canvas.convert("RGB").save(out)
