@@ -1,10 +1,10 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Free image reading (vision) and image generation skills for DeepSeek Harness — Zhipu GLM-4V-Flash for reading, SiliconFlow Kolors for generation.",
   "type": "module",
   "main": "index.js",
-  "files": ["index.js", "cordis.patch.yml", "skills"],
+  "files": ["index.js", "cordis.patch.yml", "skills", "docs/SETUP_VISION.md"],
   "license": "MIT",
   "dsh": {
     "bundle": {

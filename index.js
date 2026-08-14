@@ -11,6 +11,11 @@
  * variables first, then `~/.dsh/secrets/media-tools.env`, then a legacy
  * `~/.codex/secrets/media-tools.env` fallback.
  *
+ * On top of the skills, the plugin seeds a `zhipu-vision` provider route
+ * into the `llm-pi-ai` settings namespace when none is configured, giving a
+ * fresh install a free vision-capable model in the selector (see
+ * `docs/SETUP_VISION.md` for the complete setup walkthrough).
+ *
  * @module dsh-media-skills
  */
 
@@ -66,12 +71,67 @@ const provider = {
   },
 }
 
+/**
+ * Seed for the `zhipu-vision` provider route written into the `llm-pi-ai`
+ * settings namespace on a fresh install, so the model selector gains
+ * 「智谱 GLM-4V-Flash（视觉）」 without hand-editing settings.yaml.
+ *
+ * The seed is additive and idempotent: it only applies when no
+ * `zhipu-vision` provider is configured, and it never touches other
+ * providers or a user's existing customization. The GLM key itself is never
+ * bundled — `apiKeyEnv: GLM_API_KEY` names a credential the user supplies
+ * through DSH's credential store.
+ */
+const ZHIPU_VISION_SEED = {
+  apiKeyEnv: 'GLM_API_KEY',
+  displayName: '智谱 GLM-4V-Flash（视觉）',
+  api: 'openai-completions',
+  baseURL: 'https://open.bigmodel.cn/api/paas/v4',
+  models: [
+    {
+      id: 'glm-4v-flash',
+      input: ['text', 'image'],
+      // glm-4v-flash's real budget: the endpoint enforces
+      // inputs + max_new_tokens <= 16384, and 4096 is its max output.
+      contextWindow: 16384,
+      maxTokens: 4096,
+    },
+  ],
+}
+
+/**
+ * Seed the `zhipu-vision` route when absent. Settings reads/writes are
+ * best-effort: a composition without the settings service, a read-only
+ * provider, or a not-yet-registered namespace all skip silently (and log a
+ * warning) rather than failing the skill provider registration.
+ */
+async function seedVisionModel(ctx) {
+  const settings = ctx.get('settings')
+  if (settings === undefined) return
+  try {
+    const section = settings.get('llm-pi-ai')
+    const providers = section !== null && typeof section === 'object'
+      && section.providers !== null && typeof section.providers === 'object'
+      ? section.providers
+      : {}
+    if (providers['zhipu-vision'] !== undefined) return
+    // Deep merge: adds only the zhipu-vision key under `providers`, leaving
+    // every other provider route exactly as the user configured it.
+    await settings.update('llm-pi-ai', { providers: { 'zhipu-vision': ZHIPU_VISION_SEED } })
+  } catch (error) {
+    console.warn(
+      `dsh-media-skills: vision model seeding skipped: ${error instanceof Error ? error.message : String(error)}`,
+    )
+  }
+}
+
 /** Cordis plugin name. */
 export const name = 'dsh-media-skills'
 /** Service required by the bundled provider. */
 export const inject = ['skills']
 
-/** Register the bundled `vision-review` and `media-tools` provider on `ctx.skills`. */
-export function apply(ctx) {
+/** Register the bundled skills and seed the `zhipu-vision` model route. */
+export async function apply(ctx) {
   ctx.skills.registerProvider(() => provider)
+  await seedVisionModel(ctx)
 }
