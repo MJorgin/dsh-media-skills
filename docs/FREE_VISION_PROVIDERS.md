@@ -9,7 +9,7 @@
 | 供应商 | 模型 | Key 去哪申请 | 免费额度 | 备注 |
 |---|---|---|---|---|
 | 智谱（当前默认） | glm-4v-flash | [open.bigmodel.cn](https://open.bigmodel.cn) | 长期免费 | 通用视觉、中文友好 |
-| SiliconFlow | Qwen/Qwen2.5-VL-7B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API 密钥 | 注册送额度 + 部分模型免费 | **你已有生图 Key，同一个 key 就能用** |
+| SiliconFlow | Qwen/Qwen3-VL-8B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API 密钥 | 注册送额度 + 部分模型免费 | **你已有生图 Key，同一个 key 就能用**（2026-08 实测：Qwen2.5-VL 系列已下架，Qwen3-VL 可用） |
 | ModelScope 魔搭 | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → 访问令牌 | 免费推理额度 | 国内直连、中文友好 |
 | 阿里云百炼 | qwen-vl-plus | [百炼控制台](https://bailian.console.aliyun.com) → API-KEY | 新用户免费额度（百万 token 级） | 中文/OCR 强 |
 | Google | gemini-3.6-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | 免费档约 1500 次/天 | 视觉推理最强的一档；`vision-review` 技能引擎的默认 Gemini 型号（`GEMINI_MODEL` 可换） |
@@ -26,11 +26,11 @@
 ```yaml
     siliconflow-vision:
       apiKeyEnv: SILICONFLOW_API_KEY
-      displayName: SiliconFlow Qwen2.5-VL（视觉）
+      displayName: SiliconFlow Qwen3-VL（视觉）
       api: openai-completions
       baseURL: https://api.siliconflow.cn/v1
       models:
-        - id: Qwen/Qwen2.5-VL-7B-Instruct
+        - id: Qwen/Qwen3-VL-8B-Instruct
           input: [ text, image ]
           contextWindow: 32768
           maxTokens: 4096

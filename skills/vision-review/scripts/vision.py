@@ -36,6 +36,17 @@ PRIMARY = {
     "jsonObject": True,   # 智谱端点支持 response_format=json_object
 }
 
+# 备用引擎：SiliconFlow Qwen3-VL（免费额度，国内直连；实测 8B/30B-A3B 可用），走 OpenAI 兼容端点。
+def siliconflow_engine():
+    return {
+        "name": "siliconflow-qwen",
+        "baseUrl": "https://api.siliconflow.cn/v1",
+        "apiKeyEnv": "SILICONFLOW_API_KEY",
+        "model": os.environ.get("SILICONFLOW_VISION_MODEL", "Qwen/Qwen3-VL-8B-Instruct"),
+        "maxTokens": 1024,
+        "jsonObject": False,
+    }
+
 # 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
 def gemini_engine():
     return {
@@ -83,6 +94,8 @@ def load_fallbacks():
 def engines():
     """Active failover chain: only engines with a usable key join."""
     chain = [PRIMARY]
+    if load_key("SILICONFLOW_API_KEY"):
+        chain.append(siliconflow_engine())
     if load_key("GEMINI_API_KEY"):
         chain.append(gemini_engine())
     chain.extend(load_fallbacks())
@@ -90,7 +103,7 @@ def engines():
 
 def available_engines():
     """Every candidate engine, configured or not (for listing, pinning, doctor)."""
-    chain = [PRIMARY, gemini_engine()]
+    chain = [PRIMARY, siliconflow_engine(), gemini_engine()]
     chain.extend(load_fallbacks())
     return chain
 
