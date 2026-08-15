@@ -55,7 +55,7 @@ Most DSH vision plugins only **read** images — and many push you through a sha
 |---|---|---|---|
 | 📎 Paste-image reading | In a **text-only** session, the input bar gains an “Add image” button (paperclip); pasted images are auto-described by the vision model and handed to the current model as text | Zhipu GLM-4V-Flash | Free |
 | 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」 appears in the model selector automatically — pick it for a new conversation and talk about images directly | Zhipu GLM-4V-Flash | Free |
-| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text | Zhipu GLM-4V-Flash | Free |
+| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → Google Gemini (auto-joins with a free `GEMINI_API_KEY`) → any OpenAI-compatible endpoint | Zhipu GLM-4V-Flash + Google Gemini | Free |
 | 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SiliconFlow Kolors | Free, no watermark |
 
 ## ⚡ Quick start
@@ -90,6 +90,7 @@ Full walkthrough and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISIO
 
 <img src="docs/screenshots/how-it-works.png" alt="How paste-image reading works: paste → vision model describes → text description arrives at the current model" width="100%">
 
+
 ## 🚀 Usage
 
 Three ways to read images:
@@ -111,10 +112,13 @@ Also just say:
 
 Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store.
 
+Where to get the keys (all free): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors). Google (optional, joins the vision failover chain automatically) — [aistudio.google.com](https://aistudio.google.com) → Get API key.
+
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
+GEMINI_API_KEY=...   # optional
 ```
 
 Your images are sent only to the provider you configure — never to this repo, never to a shared anonymous endpoint.
@@ -155,10 +159,15 @@ dsh-media-skills/
 │   ├── SETUP_VISION.md    # 详细配置指南（中文）
 │   ├── HARNESS_PATCH_EN.md# core patch notes (English)
 │   ├── HARNESS_PATCH.md   # 本体补丁说明（中文）
+│   ├── COMPARE_MODLENS.md # 与 ModLens 的对比/共存（中文）
 │   └── lang/              # READMEs in 9 languages
 ├── scripts/make-banner.py # regenerates docs/social-preview.png
 └── docs/social-preview.png
 ```
+
+## 🧩 Using ModLens alongside?
+
+Both this bundle and [ModLens](https://github.com/liustack/modlens) give text-only models vision. Installed together they do not conflict: ModLens intercepts pastes first (path → `modlens_read_image` tool), and this bundle's api-proxy fallback handles anything it doesn't take over. See [docs/COMPARE_MODLENS.md](docs/COMPARE_MODLENS.md) (中文) for the full comparison, the paste routing order, and how to point ModLens at the same free Zhipu endpoint.
 
 ## 🤝 Join the DSH plugin ecosystem
 
