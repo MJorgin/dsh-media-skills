@@ -23,6 +23,9 @@ SECRET_FILES = (
     Path.home() / ".codex/secrets/media-tools.env",
 )
 
+# glm-4v-flash 单请求图片数上限（实测：6 张即报 1210「输入图片数量超过限制」）。
+MAX_IMAGES_PER_CALL = 5
+
 # 主引擎：智谱 GLM-4V-Flash（免费）。
 PRIMARY = {
     "name": "zhipu-glm",
@@ -221,7 +224,6 @@ def main():
             paths.append(a)
     if not paths:
         sys.exit("用法: vision.py <图片...> [--prompt=...] [--provider=NAME] [--structured] [--doctor]")
-    images = [b64_jpeg(p) for p in paths]
     chain = engines()
     if pinned:
         candidates = {e["name"]: e for e in available_engines()}
@@ -229,26 +231,49 @@ def main():
             sys.exit(f"未知引擎 {pinned}；可用：{', '.join(e['name'] for e in available_engines())}")
         chain = [candidates[pinned]]
     attempts = []
-    for eng in chain:
-        print(f"[vision] engine: {eng['name']}", file=sys.stderr)
-        try:
-            text = call_engine(eng, images, prompt, structured=structured)
-            if structured:
-                result = parse_structured(text)
-                attempts.append({"engine": eng["name"], "model": eng["model"], "ok": True})
-                print(json.dumps({
-                    "image": paths[0] if len(paths) == 1 else paths,
-                    "engine": eng["name"],
-                    "result": result,
-                    "meta": {"model": eng["model"], "attempts": attempts},
-                }, ensure_ascii=False, indent=2))
-            else:
-                print(text)
-            return
-        except Exception as e:
-            attempts.append({"engine": eng["name"], "model": eng["model"], "ok": False, "error": str(e)})
-            print(f"[vision] {eng['name']} failed: {e}", file=sys.stderr)
-    sys.exit(f"所有引擎都失败：{attempts[-1]['error'] if attempts else '无可用引擎'}")
+    structured_results = []
+    total = len(paths)
+    last_model = chain[0]["model"]
+    for start in range(0, total, MAX_IMAGES_PER_CALL):
+        chunk_paths = paths[start:start + MAX_IMAGES_PER_CALL]
+        n = len(chunk_paths)
+        # 边长随本批张数自适应：GLM-4V-Flash 输入+输出共 16384 token，超过 5 张直接 400。
+        max_side = 1024 if n <= 2 else (768 if n <= 4 else 512)
+        chunk_images = [b64_jpeg(p, max_side=max_side) for p in chunk_paths]
+        done = False
+        for eng in chain:
+            print(f"[vision] engine: {eng['name']} ({n} 图)", file=sys.stderr)
+            try:
+                text = call_engine(eng, chunk_images, prompt, structured=structured)
+                if structured:
+                    result = parse_structured(text)
+                    attempts.append({"engine": eng["name"], "model": eng["model"], "ok": True})
+                    structured_results.append({
+                        "image": chunk_paths[0] if n == 1 else chunk_paths,
+                        "engine": eng["name"],
+                        "result": result,
+                    })
+                else:
+                    if total > MAX_IMAGES_PER_CALL:
+                        print(f"【图片 {start + 1}-{min(start + MAX_IMAGES_PER_CALL, total)}】")
+                    print(text)
+                last_model = eng["model"]
+                done = True
+                break
+            except Exception as e:
+                attempts.append({"engine": eng["name"], "model": eng["model"], "ok": False, "error": str(e)})
+                print(f"[vision] {eng['name']} failed: {e}", file=sys.stderr)
+        if not done:
+            sys.exit(f"所有引擎都失败：{attempts[-1]['error'] if attempts else '无可用引擎'}")
+    if structured:
+        out = {"image": paths[0] if total == 1 else paths,
+               "meta": {"model": last_model, "attempts": attempts}}
+        if len(structured_results) == 1:
+            out["engine"] = structured_results[0]["engine"]
+            out["result"] = structured_results[0]["result"]
+        else:
+            out["results"] = structured_results
+        print(json.dumps(out, ensure_ascii=False, indent=2))
 
 if __name__ == "__main__":
     main()

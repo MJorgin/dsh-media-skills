@@ -11,7 +11,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
-[![Free vision](https://img.shields.io/badge/vision-GLM--4V--Flash-2EA44F)](docs/SETUP_VISION_EN.md)
+[![Free vision](https://img.shields.io/badge/vision-GLM%2BGemini-2EA44F)](docs/SETUP_VISION_EN.md)
 [![Free generation](https://img.shields.io/badge/generation-Kolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
 [![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
@@ -67,6 +67,7 @@ dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
 1. **Get two free keys** (~2 minutes, no payment):
    - Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (`glm-4v-flash` is free)
    - SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → **API Keys** (Kolors is free)
+   - *(optional third)* Google Gemini — [aistudio.google.com](https://aistudio.google.com) → **Get API key**; joins the vision failover chain automatically
 2. **Add them** in the Web GUI (**Settings → Models** → the zhipu-vision provider's **API Key** field), or use the credentials file:
 
    ```sh
@@ -177,7 +178,7 @@ DeepSeek Harness developer preview is still in its testing phase for Harness dev
 - [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
 - [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
 
-> Tag this repo with [`dsh-plugin`](https://github.com/topics/dsh-plugin) so others can discover it. PRs, issues and translations are welcome.
+> This repo is tagged [`dsh-plugin`](https://github.com/topics/dsh-plugin) and listed in the [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) curated list. PRs, issues and translations are welcome.
 
 ## 📄 License
 

@@ -12,7 +12,7 @@
 | SiliconFlow | Qwen/Qwen2.5-VL-7B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API 密钥 | 注册送额度 + 部分模型免费 | **你已有生图 Key，同一个 key 就能用** |
 | ModelScope 魔搭 | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → 访问令牌 | 免费推理额度 | 国内直连、中文友好 |
 | 阿里云百炼 | qwen-vl-plus | [百炼控制台](https://bailian.console.aliyun.com) → API-KEY | 新用户免费额度（百万 token 级） | 中文/OCR 强 |
-| Google | gemini-2.5-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | 免费档约 1500 次/天 | 视觉推理最强的一档 |
+| Google | gemini-3.6-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | 免费档约 1500 次/天 | 视觉推理最强的一档；`vision-review` 技能引擎的默认 Gemini 型号（`GEMINI_MODEL` 可换） |
 | OpenRouter | qwen/qwen2.5-vl-72b-instruct:free 等 | [openrouter.ai/keys](https://openrouter.ai/keys) | 部分模型带 `:free` 后缀免费 | 一个 key 通吃多家 |
 | Groq | llama-3.2-11b-vision-preview | [console.groq.com/keys](https://console.groq.com/keys) | 免费档（限速） | 速度极快 |
 | Cloudflare Workers AI | @cf/llava-hf/llava-1.5-7b-hf | [dash.cloudflare.com](https://dash.cloudflare.com) | 每天 1 万 neurons 免费 | 非 OpenAI 兼容，配置略不同 |
@@ -68,14 +68,16 @@
 
 ### Google Gemini（OpenAI 兼容端点）
 
+> `vision-review` 技能引擎默认用 `gemini-3.6-flash`（可用 `GEMINI_MODEL` 环境变量换型号），配好 `GEMINI_API_KEY` 即自动加入读图回退链；下面的路由配置则是把 Gemini 放进模型选择器当会话模型用。
+
 ```yaml
     gemini-vision:
       apiKeyEnv: GEMINI_API_KEY
-      displayName: Gemini 2.5 Flash（视觉）
+      displayName: Gemini 3.6 Flash（视觉）
       api: openai-completions
       baseURL: https://generativelanguage.googleapis.com/v1beta/openai
       models:
-        - id: gemini-2.5-flash
+        - id: gemini-3.6-flash
           input: [ text, image ]
           contextWindow: 262144
           maxTokens: 8192
