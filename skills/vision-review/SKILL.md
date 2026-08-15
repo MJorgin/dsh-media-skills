@@ -34,3 +34,4 @@ python3 scripts/vision.py <图片路径...> [--prompt="..."] [--provider=NAME] [
 - 只发送用户愿意分享给服务商 API 的图片。
 - 未经授权，不要把图片内容、截图或转写写进公开仓库。
 - 不要在公开产物中复述图片里的个人信息（人脸、电话、证件号）。
+- **Gemini 免费档数据条款**：Google AI Studio 免费 key 的请求数据可能被 Google 用于改进产品；涉及敏感图片（证件、内部文档、客户数据）时优先用智谱/SiliconFlow 等国内直连引擎，不要走 Gemini。

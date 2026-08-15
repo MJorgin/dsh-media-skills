@@ -125,6 +125,8 @@ GEMINI_API_KEY=...   # optional
 
 Your images are sent only to the provider you configure — never to this repo, never to a shared anonymous endpoint.
 
+> Privacy note on Gemini: Google's free-tier key comes with data-use terms — requests may be used to improve Google products. For sensitive images (IDs, internal docs, customer data), prefer the direct domestic engines (Zhipu / SiliconFlow).
+
 ## ❓ FAQ
 
 **Does paste-image reading require a DeepSeek Harness core patch?**
