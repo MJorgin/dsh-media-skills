@@ -63,31 +63,6 @@ def main() -> None:
         draw.text((tx + 18, ty + 9), label, font=tag_font, fill=color)
         tx += w + 12
 
-    # Right side: chat card mock
-    card_x, card_y, card_w, card_h = 706, 108, 500, 424
-    card = Image.new("RGBA", (W, H), (0, 0, 0, 0))
-    cdraw = ImageDraw.Draw(card)
-    cdraw.rounded_rectangle((card_x, card_y, card_x + card_w, card_y + card_h), radius=22, fill=(16, 24, 56, 235), outline=(77, 107, 254, 255), width=2)
-    # header
-    cdraw.ellipse((card_x + 24, card_y + 22, card_x + 34, card_y + 32), fill=(255, 94, 94))
-    cdraw.ellipse((card_x + 42, card_y + 22, card_x + 52, card_y + 32), fill=(255, 199, 92))
-    cdraw.ellipse((card_x + 60, card_y + 22, card_x + 70, card_y + 32), fill=(94, 216, 130))
-    cdraw.text((card_x + 24, card_y + 48), "deepseek-v4-pro  ·  纯文本模型也能看图",
-              font=cjk_font, fill=(159, 176, 224))
-    # image bubble (user)
-    cdraw.rounded_rectangle((card_x + 24, card_y + 86, card_x + 240, card_y + 190), radius=12, fill=(38, 51, 102, 255))
-    thumb = cover_crop(bg, 190, 84)
-    card.paste(thumb, (card_x + 37, card_y + 99))
-    cdraw.text((card_x + 24, card_y + 202), "看看这张图 👀", font=cjk_font, fill=(215, 224, 255))
-    # vision note
-    cdraw.rounded_rectangle((card_x + 24, card_y + 238, card_x + 352, card_y + 274), radius=10, fill=(44, 36, 86, 255))
-    cdraw.text((card_x + 36, card_y + 247), "🔎 已由视觉模型读取 · GLM-4V-Flash", font=cjk_font, fill=(168, 200, 255))
-    # assistant answer
-    cdraw.rounded_rectangle((card_x + 24, card_y + 290, card_x + 452, card_y + 342), radius=12, fill=(77, 107, 254, 120))
-    cdraw.text((card_x + 36, card_y + 299), "It\'s a cat astronaut floating in space 🚀",
-              font=en_font, fill=(255, 255, 255))
-    canvas = Image.alpha_composite(canvas, card)
-
     out = ROOT / "docs/social-preview.png"
     canvas.convert("RGB").save(out)
     print("wrote:", out, f"({W}x{H})")
