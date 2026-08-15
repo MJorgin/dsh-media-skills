@@ -25,7 +25,7 @@ python3 scripts/vision.py <图片路径...> [--prompt="..."] [--provider=NAME] [
 
 - `GLM_API_KEY`（智谱，免费视觉模型 `glm-4v-flash`）。**获取**：注册/登录 [open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」→ 新建并复制（`glm-4v-flash` 免费，无需付费）。
 - `SILICONFLOW_API_KEY`（硅基流动，免费额度，可选）。**和 `media-tools` 生图同一个 key**，无需新申请；配好后自动加入回退链。
-- `GEMINI_API_KEY`（Google，免费，可选）。**获取**：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」（约三分钟，无需信用卡）；配好后自动加入回退链。注意：Google 域名在本机网络可能不可直连，需要代理才可用。
+- `GEMINI_API_KEY`（Google，免费，可选）。**获取**：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」（约三分钟，无需信用卡）；配好后自动加入回退链。注意：Google 域名在本机网络可能不可直连，需要代理才可用——在同一个 secrets 文件里写 `GEMINI_PROXY=http://127.0.0.1:7897`（换成你的代理地址）即可，只有 Gemini 引擎走代理，智谱等国内引擎保持直连。
 - 优先读环境变量；否则依次读 `~/.dsh/secrets/media-tools.env`、`~/.codex/secrets/media-tools.env`（每行 `KEY=value`，权限 600）。
 - 永远不要把 key 提交到仓库、写进 skill 或粘贴到公开文件。
 

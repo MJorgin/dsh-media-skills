@@ -48,7 +48,10 @@ def siliconflow_engine():
     }
 
 # 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
+# Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
+# 仅该引擎走代理，智谱等国内引擎保持直连。
 def gemini_engine():
+    proxy = load_key("GEMINI_PROXY") or os.environ.get("HTTPS_PROXY")
     return {
         "name": "gemini",
         "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -56,6 +59,7 @@ def gemini_engine():
         "model": os.environ.get("GEMINI_MODEL", "gemini-3.6-flash"),
         "maxTokens": 1024,
         "jsonObject": True,
+        "proxy": proxy or None,
     }
 
 def load_key(name):
@@ -129,6 +133,19 @@ STRUCTURED_PROMPT = """请分析图片并**只输出一个 JSON 对象**（不�
 - "uncertainty": [所有不确定项；不确定就写进这里，不要编造]。
 内容语言跟随图片语言。"""
 
+def _opener(eng):
+    """Per-engine opener: engines with a `proxy` field route through it."""
+    proxy = eng.get("proxy")
+    if not proxy:
+        return None
+    return urllib.request.build_opener(
+        urllib.request.ProxyHandler({"http": proxy, "https": proxy}))
+
+def _open(opener, req, timeout):
+    if opener:
+        return opener.open(req, timeout=timeout)
+    return urllib.request.urlopen(req, timeout=timeout)
+
 def call_engine(eng, b64_images, prompt, structured=False):
     """One OpenAI-compatible chat/completions call; raises on any failure."""
     key = load_key(eng["apiKeyEnv"])
@@ -140,11 +157,12 @@ def call_engine(eng, b64_images, prompt, structured=False):
             "max_tokens": eng["maxTokens"]}
     if structured and eng.get("jsonObject"):
         body["response_format"] = {"type": "json_object"}
+    opener = _opener(eng)
     req = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
     try:
-        with urllib.request.urlopen(req, timeout=300) as r:
+        with _open(opener, req, 300) as r:
             return json.load(r)["choices"][0]["message"]["content"]
     except urllib.error.HTTPError as e:
         # 端点不认 response_format（400）时，退回到纯 prompt 约束再试一次。
@@ -153,7 +171,7 @@ def call_engine(eng, b64_images, prompt, structured=False):
             retry = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
                 data=json.dumps(body).encode(),
                 headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
-            with urllib.request.urlopen(retry, timeout=300) as r2:
+            with _open(opener, retry, 300) as r2:
                 return json.load(r2)["choices"][0]["message"]["content"]
         raise
 
@@ -185,7 +203,7 @@ def ping_engine(eng):
     req = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
-    with urllib.request.urlopen(req, timeout=60) as r:
+    with _open(_opener(eng), req, 60) as r:
         data = json.load(r)
         if not data.get("choices"):
             return "无响应内容"
