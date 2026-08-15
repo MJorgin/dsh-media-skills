@@ -18,11 +18,12 @@
 
 <br>
 
-DeepSeek Harness is brilliant at reasoning — but a text-only model can't see the image you just dragged into the chat. This bundle fixes that with **two free skills** and a **free vision model route**:
+DeepSeek Harness is brilliant at reasoning — but a text-only model can't see the image you just dragged into the chat. This bundle fixes that with **two free skills**, a **free vision model route**, and a **vision engine failover chain**:
 
 - 📎 **Paste to read** — paste, drag, or pick an image in any session; the free vision model turns it into text your current model understands.
 - 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
 - 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners with a free, watermark-free model.
+- 🔀 **Engine failover** — GLM-4V-Flash → Google Gemini (free key from [AI Studio](https://aistudio.google.com)) → any OpenAI-compatible endpoint, with ModLens-style structured evidence output.
 
 No hardcoded keys, no paid API, no file saving, no session switching.
 
