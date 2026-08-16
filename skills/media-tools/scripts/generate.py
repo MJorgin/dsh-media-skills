@@ -10,7 +10,7 @@ from pathlib import Path
 
 SILICONFLOW_URL = "https://api.siliconflow.com/v1/images/generations"
 SILICONFLOW_MODEL = "Kwai-Kolors/Kolors"
-SENSENOVA_URL = "https://token.sensenova.cn/v1/images/generations"
+SENSENOVA_URL = "https://token.sensenova.ai/v1/images/generations"
 SENSENOVA_MODEL = "sensenova-u1-fast"
 
 # SenseNova U1 Fast supported sizes (WxH -> aspect ratio).
