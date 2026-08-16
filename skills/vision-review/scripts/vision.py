@@ -3,9 +3,11 @@
 
 Engines (tried in order):
 1. Zhipu GLM-4V-Flash (free) — primary.
-2. Google Gemini (free key) — auto-joins the chain when GEMINI_API_KEY is set;
+2. SiliconFlow Qwen3-VL — auto-joins when SILICONFLOW_API_KEY is set.
+3. SenseNova (商汤日日新) — auto-joins when SENSENOVA_API_KEY is set.
+4. Google Gemini (free key) — auto-joins when GEMINI_API_KEY is set;
    the OpenAI-compatible Gemini endpoint carries the same code path.
-3. VISION_FALLBACKS — any extra OpenAI-compatible multimodal endpoints (JSON).
+5. VISION_FALLBACKS — any extra OpenAI-compatible multimodal endpoints (JSON).
 
 `--structured` mirrors the ModLens evidence contract: a JSON object with
 summary / ocr.full_text / layout regions in reading order / semantics
@@ -43,7 +45,7 @@ PRIMARY = {
 def siliconflow_engine():
     return {
         "name": "siliconflow-qwen",
-        "baseUrl": "https://api.siliconflow.cn/v1",
+        "baseUrl": "https://api.siliconflow.com/v1",
         "apiKeyEnv": "SILICONFLOW_API_KEY",
         "model": os.environ.get("SILICONFLOW_VISION_MODEL", "Qwen/Qwen3-VL-8B-Instruct"),
         # Qwen3-VL-8B 端点接受更大的 max_tokens（实测 4096 可用），
@@ -67,6 +69,17 @@ def gemini_engine():
         "maxTokens": 4096,
         "jsonObject": True,
         "proxy": proxy or None,
+    }
+
+# 备用引擎：商汤 SenseNova（Token Plan，OpenAI 兼容；sensenova-6.7-flash-lite 支持图文输入）。
+def sensenova_engine():
+    return {
+        "name": "sensenova",
+        "baseUrl": "https://token.sensenova.cn/v1",
+        "apiKeyEnv": "SENSENOVA_API_KEY",
+        "model": os.environ.get("SENSENOVA_VISION_MODEL", "sensenova-6.7-flash-lite"),
+        "maxTokens": 1024,
+        "jsonObject": False,
     }
 
 def load_key(name):
@@ -107,6 +120,8 @@ def engines():
     chain = [PRIMARY]
     if load_key("SILICONFLOW_API_KEY"):
         chain.append(siliconflow_engine())
+    if load_key("SENSENOVA_API_KEY"):
+        chain.append(sensenova_engine())
     if load_key("GEMINI_API_KEY"):
         chain.append(gemini_engine())
     chain.extend(load_fallbacks())
@@ -114,7 +129,7 @@ def engines():
 
 def available_engines():
     """Every candidate engine, configured or not (for listing, pinning, doctor)."""
-    chain = [PRIMARY, siliconflow_engine(), gemini_engine()]
+    chain = [PRIMARY, siliconflow_engine(), sensenova_engine(), gemini_engine()]
     chain.extend(load_fallbacks())
     return chain
 
@@ -251,9 +266,9 @@ def doctor():
     all_ok = True
     for eng in available_engines():
         name = eng["name"]
-        if not load_key(eng["apiKeyEnv"]) and name == "gemini":
+        if not load_key(eng["apiKeyEnv"]) and name in ("gemini", "sensenova"):
             print(f"  [--] {name}: {eng['model']} @ {eng['baseUrl']} → 缺少 {eng['apiKeyEnv']}"
-                  f"（免费领取：https://aistudio.google.com，配好后自动加入回退链）")
+                  f"（配置后自动加入回退链）")
             continue
         try:
             status = ping_engine(eng)
