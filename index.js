@@ -104,10 +104,10 @@ const SENSENOVA_VISION_SEED = {
   apiKeyEnv: 'SENSENOVA_API_KEY',
   displayName: '商汤 SenseNova（视觉）',
   api: 'openai-completions',
-  baseURL: 'https://token.sensenova.cn/v1',
+  baseURL: 'https://token.sensenova.ai/v1',
   models: [
     {
-      id: 'sensenova-6.7-flash-lite',
+      id: 'sensenova-6.8-flash-lite',
       input: ['text', 'image'],
       contextWindow: 262144,
       maxTokens: 65536,

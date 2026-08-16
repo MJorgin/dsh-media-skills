@@ -64,13 +64,13 @@ def gemini_engine():
         "proxy": proxy or None,
     }
 
-# 备用引擎：商汤 SenseNova（Token Plan，OpenAI 兼容；sensenova-6.7-flash-lite 支持图文输入）。
+# 备用引擎：商汤 SenseNova（Token Plan，OpenAI 兼容；sensenova-6.8-flash-lite 支持图文输入）。
 def sensenova_engine():
     return {
         "name": "sensenova",
-        "baseUrl": "https://token.sensenova.cn/v1",
+        "baseUrl": "https://token.sensenova.ai/v1",
         "apiKeyEnv": "SENSENOVA_API_KEY",
-        "model": os.environ.get("SENSENOVA_VISION_MODEL", "sensenova-6.7-flash-lite"),
+        "model": os.environ.get("SENSENOVA_VISION_MODEL", "sensenova-6.8-flash-lite"),
         "maxTokens": 1024,
         "jsonObject": False,
     }
