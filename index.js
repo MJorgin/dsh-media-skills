@@ -2,8 +2,9 @@
  * Bundled `vision-review` and `media-tools` skill provider.
  *
  * Ships two free, self-contained skills for DeepSeek Harness:
- * - `vision-review`: read / analyze images via Zhipu GLM-4V-Flash.
- * - `media-tools`: generate images via SiliconFlow Kolors.
+ * - `vision-review`: read / analyze images via Zhipu GLM-4V-Flash,
+ *   with optional SiliconFlow / SenseNova / Gemini fallbacks.
+ * - `media-tools`: generate images via SenseNova U1 Fast or SiliconFlow Kolors.
  *
  * The plugin registers a single provider on `ctx.skills`. Skill bodies live
  * under `skills/<name>/SKILL.md` and their scripts under `skills/<name>/scripts/`.
@@ -28,14 +29,14 @@ const SKILLS = [
   {
     name: 'vision-review',
     description:
-      '免费读图与视觉检查。当用户要分析、识别、检查或描述图片/截图，检查界面或布局的视觉问题（文字重叠、溢出、错位），检测水印/Logo，或把图片内容转成文字时使用。基于智谱 GLM-4V-Flash（免费）；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。',
+      '免费读图与视觉检查。当用户要分析、识别、检查或描述图片/截图，检查界面或布局的视觉问题（文字重叠、溢出、错位），检测水印/Logo，或把图片内容转成文字时使用。基于智谱 GLM-4V-Flash（免费），可选 SenseNova / SiliconFlow / Gemini；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。',
     body: new URL('./skills/vision-review/SKILL.md', import.meta.url),
     resourceDir: './skills/vision-review/',
   },
   {
     name: 'media-tools',
     description:
-      '免费生成图片。当用户要生成图片、插画、头像、背景、banner 等（包括付费图片额度不可用时）使用。基于 SiliconFlow Kolors（免费、无水印）；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。',
+      '免费生成图片。当用户要生成图片、插画、头像、背景、banner 等（包括付费图片额度不可用时）使用。优先 SenseNova U1 Fast，其次 SiliconFlow Kolors；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。',
     body: new URL('./skills/media-tools/SKILL.md', import.meta.url),
     resourceDir: './skills/media-tools/',
   },
@@ -72,15 +73,15 @@ const provider = {
 }
 
 /**
- * Seed for the `zhipu-vision` provider route written into the `llm-pi-ai`
- * settings namespace on a fresh install, so the model selector gains
- * 「智谱 GLM-4V-Flash（视觉）」 without hand-editing settings.yaml.
+ * Seeds for the `zhipu-vision` and `sensenova-vision` provider routes written
+ * into the `llm-pi-ai` settings namespace on a fresh install, so the model
+ * selector gains 「智谱 GLM-4V-Flash（视觉）」 and 「商汤 SenseNova（视觉）」
+ * without hand-editing settings.yaml.
  *
- * The seed is additive and idempotent: it only applies when no
- * `zhipu-vision` provider is configured, and it never touches other
- * providers or a user's existing customization. The GLM key itself is never
- * bundled — `apiKeyEnv: GLM_API_KEY` names a credential the user supplies
- * through DSH's credential store.
+ * The seed is additive and idempotent: it only applies when a provider is not
+ * configured, and it never touches other providers or a user's existing
+ * customization. API keys themselves are never bundled — `apiKeyEnv` names a
+ * credential the user supplies through DSH's credential store.
  */
 const ZHIPU_VISION_SEED = {
   apiKeyEnv: 'GLM_API_KEY',
@@ -99,11 +100,26 @@ const ZHIPU_VISION_SEED = {
   ],
 }
 
+const SENSENOVA_VISION_SEED = {
+  apiKeyEnv: 'SENSENOVA_API_KEY',
+  displayName: '商汤 SenseNova（视觉）',
+  api: 'openai-completions',
+  baseURL: 'https://token.sensenova.cn/v1',
+  models: [
+    {
+      id: 'sensenova-6.7-flash-lite',
+      input: ['text', 'image'],
+      contextWindow: 262144,
+      maxTokens: 65536,
+    },
+  ],
+}
+
 /**
- * Seed the `zhipu-vision` route when absent. Settings reads/writes are
- * best-effort: a composition without the settings service, a read-only
- * provider, or a not-yet-registered namespace all skip silently (and log a
- * warning) rather than failing the skill provider registration.
+ * Seed the `zhipu-vision` / `sensenova-vision` routes when absent. Settings
+ * reads/writes are best-effort: a composition without the settings service, a
+ * read-only provider, or a not-yet-registered namespace all skip silently
+ * (and log a warning) rather than failing the skill provider registration.
  */
 async function seedVisionModel(ctx) {
   const settings = ctx.get('settings')
@@ -114,10 +130,14 @@ async function seedVisionModel(ctx) {
       && section.providers !== null && typeof section.providers === 'object'
       ? section.providers
       : {}
-    if (providers['zhipu-vision'] !== undefined) return
-    // Deep merge: adds only the zhipu-vision key under `providers`, leaving
+    // Deep merge: adds only missing provider keys under `providers`, leaving
     // every other provider route exactly as the user configured it.
-    await settings.update('llm-pi-ai', { providers: { 'zhipu-vision': ZHIPU_VISION_SEED } })
+    const missing = {}
+    if (providers['zhipu-vision'] === undefined) missing['zhipu-vision'] = ZHIPU_VISION_SEED
+    if (providers['sensenova-vision'] === undefined) missing['sensenova-vision'] = SENSENOVA_VISION_SEED
+    if (Object.keys(missing).length > 0) {
+      await settings.update('llm-pi-ai', { providers: missing })
+    }
   } catch (error) {
     console.warn(
       `dsh-media-skills: vision model seeding skipped: ${error instanceof Error ? error.message : String(error)}`,
