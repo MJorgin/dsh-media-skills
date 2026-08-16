@@ -128,7 +128,7 @@ Two possibilities:
 
 ### Q2: The vision model returns 400 / `1210` / "inputs tokens + max_new_tokens must be <= 16384"
 
-GLM-4V-Flash's total context is **16384** (input + output). The seeded model config already carries `contextWindow: 16384` and `maxTokens: 4096`, which triggers DSH's history compaction. If it still fails:
+GLM-4V-Flash has two real limits: **input + output ≤ 16384**, and the API rejects `max_tokens` above 1024 (error `1210` «max_tokens参数非法：限制数值范围[1,1024]»). The seeded model config carries `contextWindow: 16384` and `maxTokens: 1024`, which triggers DSH's history compaction. If it still fails:
 
 - You probably pasted into a session with a very long history — try a **new conversation**;
 - Confirm `~/.dsh/settings.yaml`'s zhipu-vision entry carries `contextWindow: 16384` (see section 7).
@@ -162,7 +162,7 @@ llm-pi-ai:
         - id: glm-4v-flash
           input: [ text, image ]
           contextWindow: 16384
-          maxTokens: 4096
+          maxTokens: 1024
 ```
 
 - Credentials: `~/.dsh/.credentials.yaml` (key only, chmod 600)

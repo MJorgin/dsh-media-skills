@@ -14,7 +14,7 @@ python3 scripts/vision.py <图片路径...> [--prompt="..."] [--provider=NAME] [
 ```
 
 - 可一次传多张图；每张自动压成 JPEG 再发送，边长随批内张数自适应（1-2 张 1024px，3-4 张 768px，5 张 512px）。超过 5 张自动分批（GLM 单请求上限 5 张），自然语言模式按「【图片 X-Y】」标注批次，结构化模式输出 `results` 数组。
-- `max_tokens` 固定为 1024（模型上限），prompt 请保持聚焦。
+- 每引擎输出预算：智谱 GLM-4V-Flash 为 **1024**（API 硬上限，超出报 1210）；SiliconFlow Qwen3-VL 与 Gemini 为 **4096**。结构化输出较大时，主引擎截断会自动回退到更大预算的引擎；prompt 请保持聚焦。
 - 默认 prompt 检查渲染完整性、文字重叠/溢出/错位、配色层次、水印和视觉 bug。
 - 指定具体任务时，用 `--prompt="..."` 写清楚指令。
 - `--structured`：输出 modlens 同款结构化证据 JSON（summary / ocr.full_text / layout 阅读顺序区块 / semantics 实体与关系 / visual / uncertainty），供程序化消费。

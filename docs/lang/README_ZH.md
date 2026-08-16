@@ -22,7 +22,7 @@
 
 DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条免费视觉模型路由 + 一条视觉引擎故障转移链**解决这件事：
 
-- 📎 **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。
+- 📎 **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。*（依赖 DeepSeek Harness 本体的自动转述管道，本 bundle 提供其所需的视觉模型路由与读图技能，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）*
 - 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
 - 🎨 **`media-tools`** —— 免费生成插画、头像、背景、Banner，无水印。
 - 🔀 **引擎故障转移** —— GLM-4V-Flash → SiliconFlow Qwen3-VL → Google Gemini（免费 key 从 [AI Studio](https://aistudio.google.com) 领取）→ 任意 OpenAI 兼容端点，支持 modlens 同款结构化证据输出。
@@ -56,7 +56,7 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 能力 | 说明 | 模型 | 费用 |
 |---|---|---|---|
-| 📎 贴图自动转述 | **纯文本会话**的输入框会多出「添加图片」按钮（回形针）；贴图后由视觉模型自动转成文字描述发给当前模型 | 智谱 GLM-4V-Flash | 免费 |
+| 📎 贴图自动转述 | **纯文本会话**的输入框会多出「添加图片」按钮（回形针）；贴图后由视觉模型自动转成文字描述发给当前模型。*（Harness 本体功能，需 api-proxy 准入补丁；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
 | 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」，新会话选它即可直接看图对话 | 智谱 GLM-4V-Flash | 免费 |
 | 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → SiliconFlow Qwen3-VL / Google Gemini（有免费 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + Qwen3-VL + Gemini | 免费 |
 | 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SiliconFlow Kolors | 免费、无水印 |

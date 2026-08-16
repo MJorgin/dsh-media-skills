@@ -27,6 +27,9 @@ SECRET_FILES = (
 MAX_IMAGES_PER_CALL = 5
 
 # 主引擎：智谱 GLM-4V-Flash（免费）。
+# 实测（2026-08）：glm-4v-flash 端点硬性要求 max_tokens ∈ [1,1024]，
+# 传 1024 以上直接报 1210「max_tokens参数非法：限制数值范围[1,1024]」。
+# 因此本引擎输出上限钉死 1024；结构化契约装不下时靠回退链里更大的引擎兜底。
 PRIMARY = {
     "name": "zhipu-glm",
     "baseUrl": "https://open.bigmodel.cn/api/paas/v4",
@@ -43,7 +46,9 @@ def siliconflow_engine():
         "baseUrl": "https://api.siliconflow.cn/v1",
         "apiKeyEnv": "SILICONFLOW_API_KEY",
         "model": os.environ.get("SILICONFLOW_VISION_MODEL", "Qwen/Qwen3-VL-8B-Instruct"),
-        "maxTokens": 1024,
+        # Qwen3-VL-8B 端点接受更大的 max_tokens（实测 4096 可用），
+        # 结构化契约超出 GLM 的 1024 上限时由本引擎接住。
+        "maxTokens": 4096,
         "jsonObject": False,
     }
 
@@ -57,7 +62,9 @@ def gemini_engine():
         "baseUrl": "https://generativelanguage.googleapis.com/v1beta/openai",
         "apiKeyEnv": "GEMINI_API_KEY",
         "model": os.environ.get("GEMINI_MODEL", "gemini-3.6-flash"),
-        "maxTokens": 1024,
+        # Gemini 3.6 Flash 输出预算远大于 1024（实测 4096 可用），
+        # 与 SiliconFlow 一起作为大输出结构化契约的兜底引擎。
+        "maxTokens": 4096,
         "jsonObject": True,
         "proxy": proxy or None,
     }
@@ -147,7 +154,12 @@ def _open(opener, req, timeout):
     return urllib.request.urlopen(req, timeout=timeout)
 
 def call_engine(eng, b64_images, prompt, structured=False):
-    """One OpenAI-compatible chat/completions call; raises on any failure."""
+    """One OpenAI-compatible chat/completions call.
+
+    Returns `(text, finish_reason)`; raises on any failure. Empty content is
+    reported as its own error instead of surfacing as a bare JSON parse failure,
+    so the failover log says what actually happened.
+    """
     key = load_key(eng["apiKeyEnv"])
     if not key:
         raise RuntimeError(f"缺少 {eng['apiKeyEnv']}（环境变量或 ~/.dsh/secrets/media-tools.env）")
@@ -158,21 +170,26 @@ def call_engine(eng, b64_images, prompt, structured=False):
     if structured and eng.get("jsonObject"):
         body["response_format"] = {"type": "json_object"}
     opener = _opener(eng)
-    req = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
-        data=json.dumps(body).encode(),
-        headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
-    try:
+
+    def send(payload):
+        req = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
+            data=json.dumps(payload).encode(),
+            headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
         with _open(opener, req, 300) as r:
-            return json.load(r)["choices"][0]["message"]["content"]
+            data = json.load(r)
+        choice = data["choices"][0]
+        content = choice["message"].get("content")
+        if content is None or not str(content).strip():
+            raise RuntimeError("模型返回空内容（可能受 response_format 约束或限流影响），换下一个引擎")
+        return str(content), choice.get("finish_reason")
+
+    try:
+        return send(body)
     except urllib.error.HTTPError as e:
         # 端点不认 response_format（400）时，退回到纯 prompt 约束再试一次。
         if structured and eng.get("jsonObject") and e.code == 400:
             body.pop("response_format", None)
-            retry = urllib.request.Request(eng["baseUrl"] + "/chat/completions",
-                data=json.dumps(body).encode(),
-                headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
-            with _open(opener, retry, 300) as r2:
-                return json.load(r2)["choices"][0]["message"]["content"]
+            return send(body)
         raise
 
 def parse_structured(text):
@@ -192,6 +209,20 @@ def parse_structured(text):
     if not isinstance(data["layout"].get("regions"), list) or not isinstance(data["uncertainty"], list):
         raise ValueError("layout.regions/uncertainty 必须是数组")
     return data
+
+def parse_structured_result(eng, text, finish):
+    """Parse the structured contract; when the model hit its token budget
+    (`finish_reason == "length"`), report the truncation instead of a cryptic
+    JSON error so the failover log and the caller both know what happened."""
+    try:
+        return parse_structured(text)
+    except Exception as e:
+        if finish == "length":
+            raise ValueError(
+                f"{eng['name']} 输出被截断（finish_reason=length，max_tokens={eng['maxTokens']}）："
+                "结构化 JSON 未写完，需要更大输出预算的引擎或更简化的契约"
+            ) from e
+        raise
 
 def ping_engine(eng):
     """Doctor probe: one tiny text-only call — validates key + endpoint, near-zero cost."""
@@ -275,9 +306,9 @@ def main():
         for eng in chain:
             print(f"[vision] engine: {eng['name']} ({n} 图)", file=sys.stderr)
             try:
-                text = call_engine(eng, chunk_images, prompt, structured=structured)
+                text, finish = call_engine(eng, chunk_images, prompt, structured=structured)
                 if structured:
-                    result = parse_structured(text)
+                    result = parse_structured_result(eng, text, finish)
                     attempts.append({"engine": eng["name"], "model": eng["model"], "ok": True})
                     structured_results.append({
                         "image": chunk_paths[0] if n == 1 else chunk_paths,

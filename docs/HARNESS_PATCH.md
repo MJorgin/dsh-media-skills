@@ -72,7 +72,7 @@ npx vitest run packages/client/ui-conversation/tests/input-bar.client.spec.tsx p
 
 ## 六、依赖与兼容性
 
-- 需要至少一个声明 `input: [text, image]` 的模型路由（`dsh-media-skills` 会自动写入 zhipu-vision/glm-4v-flash，配置含 `contextWindow: 16384`、`maxTokens: 4096`，避免智谱 1210 上下文超限）。
+- 需要至少一个声明 `input: [text, image]` 的模型路由（`dsh-media-skills` 会自动写入 zhipu-vision/glm-4v-flash，配置含 `contextWindow: 16384`、`maxTokens: 1024`）。注意智谱 glm-4v-flash 的真实限制：输入+输出 ≤ 16384，且 API 拒绝 max_tokens > 1024（报 1210「max_tokens参数非法：限制数值范围[1,1024]」）；把 maxTokens 写成 4096 反而会触发 1210。
 - 无视觉路由时行为与旧版完全一致（贴图被拒），不影响现有部署。
 - 视觉模型会话（模型本身支持图片）不受影响，走原有图片链路。
 - 自动转述路径不产生图片块 → 历史可自由切换模型；仅视觉模型会话直接贴图的历史才会被「切回纯文本」守卫拦截（新开会话即可）。

@@ -127,7 +127,7 @@ dsh web
 
 ### Q2：视觉模型报 400 / `1210` / "inputs tokens + max_new_tokens must be <= 16384"
 
-智谱 GLM-4V-Flash 的上下文上限是 **16384**（输入 + 输出）。本 bundle 写入的模型配置已带 `contextWindow: 16384` 和 `maxTokens: 4096`，正常会触发 DSH 自动压缩历史。如果仍报错：
+智谱 GLM-4V-Flash 的真实限制有两条：**输入 + 输出 ≤ 16384**，且 API 拒绝 `max_tokens` 大于 1024（报 `1210`「max_tokens参数非法：限制数值范围[1,1024]」）。本 bundle 写入的模型配置为 `contextWindow: 16384`、`maxTokens: 1024`，正常会触发 DSH 自动压缩历史。如果仍报错：
 
 - 大概率是在一个**超长历史会话**里第一次贴图：换个**新会话**贴图即可；
 - 确认 `~/.dsh/settings.yaml` 里 `zhipu-vision` 的模型条目带 `contextWindow: 16384`（第 7 节有示例）。
@@ -161,7 +161,7 @@ llm-pi-ai:
         - id: glm-4v-flash
           input: [ text, image ]
           contextWindow: 16384
-          maxTokens: 4096
+          maxTokens: 1024
 ```
 
 - 凭据：`~/.dsh/.credentials.yaml`（只放 Key，权限 600）

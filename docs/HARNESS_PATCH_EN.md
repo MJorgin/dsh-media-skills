@@ -72,7 +72,7 @@ Deploy: **fully restart** `dsh web` (a page refresh alone does not load the new 
 
 ## 6. Dependencies & compatibility
 
-- Requires at least one model route declaring `input: [text, image]` (`dsh-media-skills` seeds zhipu-vision/glm-4v-flash with `contextWindow: 16384` and `maxTokens: 4096` to avoid Zhipu's 1210 context errors).
+- Requires at least one model route declaring `input: [text, image]` (`dsh-media-skills` seeds zhipu-vision/glm-4v-flash with `contextWindow: 16384` and `maxTokens: 1024`). Note glm-4v-flash's real limits: input + output ≤ 16384, and the API rejects max_tokens > 1024 (error 1210 «max_tokens参数非法：限制数值范围[1,1024]»); seeding maxTokens: 4096 triggers 1210 rather than avoiding it.
 - Without a vision route, behavior is identical to the old build (upload rejected) — no impact on existing deployments.
 - Vision-model sessions (the model itself accepts images) are untouched and keep the original image path.
 - The auto-describe path produces no image blocks → history stays switchable between models; only direct pastes inside a vision-model session trip the switch-back guard (open a new conversation).

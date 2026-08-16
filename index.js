@@ -91,10 +91,12 @@ const ZHIPU_VISION_SEED = {
     {
       id: 'glm-4v-flash',
       input: ['text', 'image'],
-      // glm-4v-flash's real budget: the endpoint enforces
-      // inputs + max_new_tokens <= 16384, and 4096 is its max output.
+      // glm-4v-flash's real budget (live-verified against the endpoint):
+      // inputs + max_tokens <= 16384, and the API rejects max_tokens > 1024
+      // with error 1210 («max_tokens参数非法：限制数值范围[1,1024]»).
+      // 1024 is therefore the output cap, not 4096.
       contextWindow: 16384,
-      maxTokens: 4096,
+      maxTokens: 1024,
     },
   ],
 }
