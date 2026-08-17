@@ -180,6 +180,7 @@ DeepSeek Harness developer preview is still in its testing phase for Harness dev
 - [dsh-plugin topic](https://github.com/topics/dsh-plugin)
 - [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
 - [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
+- [dsh-agent-conductor](https://github.com/akqwpeter-prog/dsh-agent-conductor) — 同作者的指挥家：在 DSH 里派活给 11 种外部 agent CLI（Codex / Claude Code / TraeCode…）
 
 > This repo is tagged [`dsh-plugin`](https://github.com/topics/dsh-plugin) and listed in the [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) curated list. PRs, issues and translations are welcome.
 
