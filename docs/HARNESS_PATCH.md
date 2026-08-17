@@ -13,7 +13,7 @@
 
 | # | 文件 | 改动 |
 |---|---|---|
-| 1 | `packages/host/apiproxy/src/api-proxy.ts` | 图片准入：当前模型不支持图片时，自动找视觉模型转述，图片替换为文字描述；失败兜底存文件 |
+| 1 | `packages/host/apiproxy/src/api-proxy.ts` | 图片准入：**先上屏**（落盘 + 「读取中」占位，消息立即渲染），`agent/pre-step` 钩子按故障转移链转述（GLM → SiliconFlow → …，单路由 15s 超时），图片块替换为文字描述；全部路由失败才降级为提示文本 |
 | 2 | `packages/client/ui-conversation/src/client/skeleton/InputBar.tsx` | 输入框加「添加图片」按钮（回形针）+ 隐藏文件选择器 |
 | 3 | `packages/client/ui-conversation/src/client/locales.ts`、`.../image-labels.ts` | 新增 `input.addImage` 与 `image.visionDescriptionFailed` 文案（中英） |
 
@@ -22,11 +22,21 @@
 ### 新增的常量和辅助函数
 
 - `VISION_DESCRIPTION_PROMPT`：转述提示词——「请描述这张图片的内容…使用与用户消息相同的语言回答；若用户消息没有文字，默认用中文」。
-- `VISION_DESCRIPTION_TIMEOUT_MS = 60_000`、`VISION_DESCRIPTION_MAX_TOKENS = 1024`。
-- `findVisionRoute(ctx)`：遍历 `ctx.llm.listProviders()`，返回第一个声明 `inputModalities` 含 `image` 的模型路由；单条路由异常不影响扫描。
+- `VISION_DESCRIPTION_TIMEOUT_MS = 15_000`（单路由尝试上限）、`VISION_DESCRIPTION_MAX_TOKENS = 1024`。
+- `findVisionRoutes(ctx)`：遍历 `ctx.llm.listProviders()`，返回**所有**声明 `inputModalities` 含 `image` 的模型路由（注册顺序即故障转移顺序）；单条路由异常不影响扫描。
 - `describeImage(ctx, route, attachment, userText)`：把图片块 + 用户文字 + 提示词作为一条 user 消息，经 `ctx.llm.stream` 调视觉模型，用 `BlockAssembler` 收集文本。
-- `describeImagesForTextModel(ctx, content, route, cwd)`：先 `durablePromptContent` 校验并存图，再逐张转述；单张转述失败时（`cwd` 可用）调 `saveImageFallback` 把图写入工作区 `.dsh/scratch/inbox/`，并把该部分替换为「请用 vision-review 读取」的指引文本。
-- `saveImageFallback(part, cwd)` / `imageExtension(mediaType)`：文件名消毒（保留中文）、`wx` 独占写、同名自动加序号。
+- `contentHasImage`（dsh-llm 导出）：递归检查消息内容是否含图片块（含 tool-result 嵌套）。
+
+### 先上屏 + pre-step 转述流程
+
+1. **准入（admit）**：当前模型是纯文本时，只做 `durablePromptContent` 落盘校验，然后消息 = 图片块 + 文本「🖼️ 图片读取中…」，立即 `followup`——**消息瞬间上屏**（带缩略图和读取中占位）。
+2. **转述（`agent/pre-step` 钩子）**：进入模型前，把消息里的图片块替换为转述文本：
+   - 只有**确认**模型支持图片时才跳过（拿不到模型信息时也转述，宁可转述也不裸发图片块被上游序列化器剥掉）；
+   - 按 `findVisionRoutes` 的顺序逐个尝试路由，单路由 15s 超时，失败的自动换下一个；
+   - 全部路由失败 → 该图片块降级为提示文本（图片已存附件库，不会丢）。
+3. **落史**：agent 循环会把 pre-step 改写后的消息写入会话历史，历史里没有图片块，不触发「会话含图片」的切换限制。
+
+> 建议在 DSH 里配第二个视觉路由做故障转移（`~/.dsh/settings.yaml` 的 `llm-pi-ai.providers` 加 `siliconflow-vision`，见 [FREE_VISION_PROVIDERS.md](FREE_VISION_PROVIDERS.md) 现成配置片段）。
 
 ### prompt 准入逻辑改动
 
