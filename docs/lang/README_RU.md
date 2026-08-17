@@ -41,7 +41,7 @@
 1. Установите бандл:
 
    ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
 2. **Сначала бесплатно получите ключ**: зарегистрируйтесь на [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash бесплатен). Для генерации создайте ещё один на [siliconflow.cn](https://siliconflow.cn) (Kolors бесплатен). Затем укажите — веб-интерфейс (**Настройки → Модели** → поле **API Key** у провайдера zhipu-vision) или файл учётных данных:

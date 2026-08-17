@@ -41,7 +41,7 @@
 1. 번들 설치:
 
    ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
 2. **먼저 무료로 키 발급**: [open.bigmodel.cn](https://open.bigmodel.cn)에 가입/로그인 → 「API Keys」(glm-4v-flash 무료). 생성도 쓸 거면 [siliconflow.cn](https://siliconflow.cn)에서도 발급(Kolors 무료). 그다음 Zhipu 키 설정 — Web GUI(**설정 → 모델** → zhipu-vision 프로바이더의 **API Key 필드**) 또는 자격증명 파일:

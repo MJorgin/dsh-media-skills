@@ -46,7 +46,7 @@
 ### 第 1 步：安装 bundle
 
 ```sh
-dsh plugin --profile web add github:akqwpeter-prog/dsh-media-skills
+dsh plugin --profile web add github:MJorgin/dsh-media-skills
 ```
 
 > 已装过旧版本？升级：`dsh plugin --profile web update dsh-media-skills`
@@ -175,4 +175,4 @@ llm-pi-ai:
 
 ---
 
-Created by [@akqwpeter-prog](https://github.com/akqwpeter-prog) · Powered by [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+Created by [@MJorgin](https://github.com/MJorgin) · Powered by [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)

@@ -41,7 +41,7 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 1. Instale o bundle:
 
    ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
 2. **Primeiro consiga a chave grátis**: cadastre-se em [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash é grátis). Para gerar, crie também uma em [siliconflow.cn](https://siliconflow.cn) (Kolors é grátis). Depois configure — GUI web (**Configurações → Modelos** → o campo **API Key** do provedor zhipu-vision) ou arquivo de credenciais:

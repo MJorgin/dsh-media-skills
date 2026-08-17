@@ -47,7 +47,7 @@ After install and restart:
 ### Step 1 — Install the bundle
 
 ```sh
-dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 > Upgrading an existing install: `dsh plugin --profile <name> update dsh-media-skills`
@@ -172,4 +172,4 @@ llm-pi-ai:
 
 ---
 
-Created by [@akqwpeter-prog](https://github.com/akqwpeter-prog) · Powered by [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+Created by [@MJorgin](https://github.com/MJorgin) · Powered by [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)

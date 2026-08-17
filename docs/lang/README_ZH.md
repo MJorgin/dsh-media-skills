@@ -64,7 +64,7 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 ## ⚡ 快速开始
 
 ```sh
-dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 1. **申请两个免费 Key**（约 2 分钟，无需付费）：

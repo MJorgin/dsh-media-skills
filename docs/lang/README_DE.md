@@ -41,7 +41,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 1. Bundle installieren:
 
    ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
 2. **Zuerst kostenlos einen Key holen**: Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:

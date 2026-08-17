@@ -41,7 +41,7 @@
 1. バンドルをインストール：
 
    ```sh
-   dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
 2. **まず無料でキーを取得**：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：

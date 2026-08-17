@@ -62,7 +62,7 @@ DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你
 ## ⚡ 快速開始
 
 ```sh
-dsh plugin --profile <name> add github:akqwpeter-prog/dsh-media-skills
+dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 1. **取得兩個免費金鑰**（約 2 分鐘，無需付款）：
