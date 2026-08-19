@@ -13,9 +13,10 @@
 
 | # | File | Change |
 |---|---|---|
-| 1 | `packages/host/apiproxy/src/api-proxy.ts` | Image admission: when the current model cannot read images, auto-describe via a vision-capable model and replace the image with text; on failure, save the file and hand the agent a pointer |
-| 2 | `packages/client/ui-conversation/src/client/skeleton/InputBar.tsx` | Add an «Add image» button (paperclip) + hidden file picker to the composer |
-| 3 | `packages/client/ui-conversation/src/client/locales.ts`, `.../image-labels.ts` | New strings `input.addImage` and `image.visionDescriptionFailed` (zh + en) |
+| 1 | `packages/host/apiproxy/src/api-proxy.ts` | Image admission: instant on-screen (durable image block + «reading» placeholder, rendered immediately); the `agent/pre-step` hook transcribes via the vision-route failover chain (GLM → SiliconFlow → …, 15s per route) and appends the description **next to the image block** — the persisted message keeps the thumbnail; all routes failing degrades to a notice text; `selectModel` guard relaxed: described history images may switch back to text-only models (undescribed vision-session images still refuse); the vision-model skip branch clears the «reading» placeholder; `VISION_DESCRIPTION_PROMPT` gains anti-role-play constraints |
+| 2 | `packages/llm/llm/src/index.ts` | New image projection at the adapter boundary: models without image input get image blocks stripped (the transcription sibling remains); `inputModalities` resolve once during `prepareCall` and ride the prepared call — no second model lookup |
+| 3 | `packages/client/ui-conversation/src/client/skeleton/InputBar.tsx` | Add an «Add image» button (image icon, not a paperclip) + hidden file picker to the composer; image pastes dropped while the machine is busy now raise a toast instead of vanishing silently |
+| 4 | `packages/client/ui-conversation/src/client/locales.ts`, `.../image-labels.ts`, `.../chat/MessageItem.tsx` | New strings `input.addImage`, `image.visionDescriptionFailed`, `image.pasteWhileBusy` (zh + en); `MessageItem` hides the transcription marker block when the message renders its thumbnail, showing only «thumbnail + user text» (old image-block-free history still shows its text) |
 
 ## 2. Change 1: vision-description admission (api-proxy.ts)
 
@@ -23,10 +24,9 @@
 
 - `VISION_DESCRIPTION_PROMPT`: «Describe the image… answer in the same language as the user message; default to Chinese when there is no text.»
 - `VISION_DESCRIPTION_TIMEOUT_MS = 60_000`, `VISION_DESCRIPTION_MAX_TOKENS = 1024`.
-- `findVisionRoute(ctx)`: scans `ctx.llm.listProviders()` and returns the first model whose `inputModalities` includes `image`; one broken route never hides a healthy one.
+- `findVisionRoutes(ctx)`: scans `ctx.llm.listProviders()` and returns every model whose `inputModalities` includes `image`, in registration order; one broken route never hides a healthy one.
 - `describeImage(ctx, route, attachment, userText)`: sends image block + user text + prompt as one user message through `ctx.llm.stream`, collecting text with `BlockAssembler`.
-- `describeImagesForTextModel(ctx, content, route, cwd)`: validates and durably stores via `durablePromptContent` first, then describes each image; when one call fails (and `cwd` is available) it saves the image into the workspace under `.dsh/scratch/inbox/` and replaces that part with a «read it with vision-review» pointer.
-- `saveImageFallback(part, cwd)` / `imageExtension(mediaType)`: sanitized filenames (CJK preserved), exclusive `wx` writes, auto-suffixed on collision.
+- `VISION_DESCRIPTION_MARKER`: regex matching the transcription block `[图片，已由视觉模型读取]…` and its failure forms — the client uses it to hide the block behind the thumbnail, and `selectModel` uses it to allow switching to text-only models.
 
 ### prompt admission flow
 
@@ -34,20 +34,21 @@ Before: current model without image input → reject with `MODEL_DOES_NOT_SUPPOR
 After:
 
 1. Current model supports images → unchanged path (`durablePromptContent`);
-2. Otherwise → `findVisionRoute`:
-   - no vision route → keep the old rejection (`MODEL_DOES_NOT_SUPPORT_IMAGES`);
-   - route found → `describeImagesForTextModel` yields a text-only message; on failure (`undefined`) reject with the new code `VISION_DESCRIPTION_FAILED` (client copy included).
+2. Otherwise → admission stores the durable image block plus a «reading» placeholder and queues the message immediately (instant thumbnail on screen). The `agent/pre-step` hook then transcribes each image through the vision-route failover chain and **appends** the description next to the image block — the image block stays in the message. All routes failing degrades to a notice text (the image remains in the attachment store).
+
+> **Display vs model content:** the persisted message keeps the original image thumbnail, the transcription text block (marked `[图片，已由视觉模型读取]`), and the user’s own text. The llm layer projects at the adapter boundary — text-only models receive the transcription and never a raw image block; vision models receive both. The client hides the transcription marker block when the thumbnail renders, showing only «thumbnail + user text». Model switching allows described history images; only undescribed vision-session images refuse.
 
 ### import changes
 
 - `BlockAssembler` and `LlmModelInfo` (type) join the `@deepseek-ai/dsh-llm` import;
-- `writeFile` joins `node:fs/promises`, `join` joins `node:path`.
+- `randomUUID`, `mkdir`, `stat` join `node:fs/promises`; `dirname` joins `node:path` (the older `writeFile`/`join` imports left with the removed inbox fallback).
 
 ## 3. Change 2: «Add image» button (InputBar.tsx)
 
-- import `IconPaperclipOutline16`;
+- import an image/photo icon (e.g. `IconImageOutline16` or the project’s existing image/photo icon; **do not use a paperclip**, which reads as generic file attachment);
 - add `fileRef` (`useRef<HTMLInputElement | null>`) and an `onPickImages` callback (collect files → reset input → `intakeImages(files)`, reusing the existing intake checks);
-- render a paperclip button next to the commands (+) button in `.tools`: `disabled={addImages === undefined || locked || machineBusy}`, opening `fileRef.current?.click()`;
+- render an image button next to the commands (+) button in `.tools`: `disabled={addImages === undefined || locked || machineBusy}`, opening `fileRef.current?.click()`;
+- add `title={t('input.addImage')}` and `aria-label={t('input.addImage')}` to the image button so the icon-only control is identifiable as “Add image” on hover and to screen readers, and is not mistaken for voice input or generic file upload;
 - append a hidden `<input type=file accept=image/png,image/jpeg,image/webp,image/gif multiple hidden onChange={onPickImages} />`.
 
 ## 4. Change 3: strings (locales.ts / image-labels.ts)
@@ -75,9 +76,9 @@ Deploy: **fully restart** `dsh web` (a page refresh alone does not load the new 
 - Requires at least one model route declaring `input: [text, image]` (`dsh-media-skills` seeds zhipu-vision/glm-4v-flash with `contextWindow: 16384` and `maxTokens: 1024`). Note glm-4v-flash's real limits: input + output ≤ 16384, and the API rejects max_tokens > 1024 (error 1210 «max_tokens参数非法：限制数值范围[1,1024]»); seeding maxTokens: 4096 triggers 1210 rather than avoiding it.
 - Without a vision route, behavior is identical to the old build (upload rejected) — no impact on existing deployments.
 - Vision-model sessions (the model itself accepts images) are untouched and keep the original image path.
-- The auto-describe path produces no image blocks → history stays switchable between models; only direct pastes inside a vision-model session trip the switch-back guard (open a new conversation).
+- The auto-describe path keeps the image block plus a marked transcription block in history; the llm-layer projection keeps text-only models feedable, and the switch-back guard now allows described images — only direct pastes inside a vision-model session (undescribed) trip it (open a new conversation).
 
 ## 7. Upstream submission suggestions
 
 - Suggested title: `feat(web): auto-describe pasted images via a vision-capable model for text-only sessions`
-- PR description: problem (text-model pastes rejected at the gate), solution (admission-time vision description + file-save fallback + paperclip entry), behavior matrix (with/without vision route, describe success/failure), tests (the two specs above), docs links.
+- PR description: problem (text-model pastes rejected at the gate), solution (admission-time vision description + file-save fallback + image button entry + keep thumbnail on screen), behavior matrix (with/without vision route, describe success/failure), tests (the two specs above), docs links.

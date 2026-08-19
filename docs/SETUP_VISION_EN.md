@@ -29,7 +29,7 @@ After install and restart:
 | Capability | What it does | Cost |
 |---|---|---|
 | 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」appears in the model selector; new conversations can use it as their model | Free |
-| 📎 Paste-image reading | In a **text-only** session, the input bar gains an "Add image" button (paperclip); pasted images are auto-described by the vision model and delivered to the current model as text | Free |
+| 🖼️ Paste-image reading | In a **text-only** session, the input bar gains an "Add image" button (image icon); pasted images are auto-described by the vision model and delivered to the current model as text | Free |
 | 👁️ `vision-review` skill | Lets the agent read local image files and run visual checks | Free |
 | 🎨 `media-tools` skill | Free image generation | Free |
 
@@ -90,7 +90,7 @@ dsh web
 
 1. Hard-refresh the page (`Cmd+Shift+R`).
 2. Open the **model selector** (Models page / top model menu): 「智谱 GLM-4V-Flash（视觉）」 should be listed.
-3. If your Harness build supports paste-image reading, any session's input bar shows a 📎 **Add image** button.
+3. If your Harness build supports paste-image reading, any session's input bar shows a 🖼️ **Add image** button.
 4. Send an image: in a text-only session it arrives as "[image «xxx.png», read by the vision model] + text description", and the model answers from the description.
 
 Done.
@@ -99,7 +99,7 @@ Done.
 
 | Way | How | When |
 |---|---|---|
-| **A. Paste directly (recommended)** | In any session, click the 📎 button / drag / paste an image and send | Everyday image questions — no file saving, no model switching |
+| **A. Paste directly (recommended)** | In any session, click the 🖼️ button / drag / paste an image and send | Everyday image questions — no file saving, no model switching |
 | **B. Vision model session** | New conversation, pick 智谱 GLM-4V-Flash（视觉）, paste images and chat | Multi-turn image conversations, native `read_image` |
 | **C. Files + skill** | Put the image in the workspace and say "read this image with vision-review" | Batch review, scripted workflows |
 
@@ -112,10 +112,10 @@ For way A, one paste goes through:
 1. You paste an image in a text-only session and send it;
 2. DSH sees the current model cannot read images → looks up the registered vision route (`zhipu-vision / glm-4v-flash`, seeded by this bundle);
 3. The vision model reads the image and writes a text description in the language of your message;
-4. The image is **replaced** by that description before reaching your current model — so even a text-only model "sees" it;
-5. Because the history contains only text, the session can switch between text and vision models at any time — the "session contains images, cannot switch" guard never triggers.
+4. The description is **appended next to the image block** in the persisted message — the visible bubble keeps the original thumbnail, while the llm layer projects image blocks away for text-only models (they read the transcription, vision models read both);
+5. History images carry a transcription marker, so the session can switch between text and vision models at any time — the "session contains undescribed images, cannot switch" guard only trips for direct pastes inside a vision-model session.
 
-**Failure fallback**: if step 3 fails, the image is saved to `.dsh/scratch/inbox/` inside the workspace, the message becomes an instruction, and the agent reads the file with the `vision-review` skill automatically — no action needed from you.
+**Failure fallback**: if step 3 fails, the message degrades to a notice text («image could not be transcribed: vision routes unavailable…»); the image stays in the session's attachment store — nothing is lost. Wait a minute and resend, or add a second vision route for failover (see Q4).
 
 ## 6. FAQ
 
@@ -135,11 +135,15 @@ GLM-4V-Flash has two real limits: **input + output ≤ 16384**, and the API reje
 
 ### Q3: After pasting images in a session, I can't switch back to a text-only model?
 
-That is DSH's guard: a session whose history contains **image blocks** cannot switch to a model without image input. Paste-image reading (way A) produces **no image blocks**, so it never triggers this — only way B (pasting inside a vision-model session) locks history to vision models. In that case, just **open a new conversation**.
+That is DSH's guard, refined by whether each history image carries a transcription: images marked `[图片，已由视觉模型读取]` are safe for text-only models — the llm-layer projection strips the image block and keeps the transcription, so **way A (paste-image reading) switches freely**. Only way B (pasting inside a vision-model session) leaves history images undescribed, and switching is refused; in that case, just **open a new conversation**.
 
-### Q4: The message says "image … could not be auto-described, saved to …"?
+### Q4: The message says "image could not be transcribed: vision routes unavailable…"?
 
-The auto-description failed and the fallback path ran. Wait for the agent to read the file with `vision-review`; if it doesn't, just say "read the image in .dsh/scratch/inbox/ with vision-review".
+Every vision route failed (commonly a transient GLM hiccup or a network wobble). The image remains in the session's attachment store — nothing is lost. What to do:
+
+1. Wait a minute or two and resend (GLM hiccups are usually minute-scale);
+2. Configure a second vision route for failover (`siliconflow-vision` — ready-made snippets in [FREE_VISION_PROVIDERS_EN.md](FREE_VISION_PROVIDERS_EN.md)); afterwards a GLM outage falls over to SiliconFlow automatically;
+3. Diagnose the engines: run `python3 ~/.dsh/skills/vision-review/scripts/vision.py --doctor` to see which ones answer.
 
 ### Q5: How do I remove the vision model config?
 
@@ -167,7 +171,7 @@ llm-pi-ai:
 
 - Credentials: `~/.dsh/.credentials.yaml` (key only, chmod 600)
 - Skill scripts read the key from: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`
-- Fallback images land at `<workspace>/.dsh/scratch/inbox/`
+- Failed transcriptions keep the image in the session's attachment store (nothing is lost, nothing to do manually)
 - Seeding happens only when no `zhipu-vision` config exists — it never overwrites your edits
 
 ---
