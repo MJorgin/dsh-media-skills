@@ -1,23 +1,33 @@
-# Harness core patch notes (paste-image auto-transcription · v2 for rc.8)
+# Harness core patch notes (paste-image auto-transcription · v2)
 
 > This document records the **DeepSeek Harness core** changes needed for the
-> "text-only model can still see pasted images" capability, targeting
-> `dsh-v0.1.0-rc.8` (released 2026-08-19). The `dsh-media-skills` bundle only ships
-> the model route and the skills; this core capability is not in the bundle.
+> "text-only model can still see pasted images" capability.
+> The `dsh-media-skills` bundle only ships the model route and the skills;
+> this core capability is not in the bundle.
 >
-> v2 changes versus the old rc.7-era HARNESS_PATCH:
-> - rc.8's `agent/pre-step` hook semantics are finalized (waterfall, can
->   **replace the messages entering a step**), so transcription happens right
->   there — the old two-stage "admit with placeholder + transcribe in pre-step"
->   is gone;
-> - rc.8's client already supports **paste / drag-and-drop image intake**
->   (`addImages` pipeline, `imageLimits` pre-check in `InputBar`) — **no client
->   code changes are needed**;
-> - rc.8's llm package structure differs from the old version, so the image
->   projection was rewritten against the actual rc.8 code (`adapterStream`).
+> **Version matrix**
 >
-> Full patch: `docs/patches/dsh-v0.1.0-rc.8-vision-transcription.patch` (`git apply`
-> on a clean rc.8 checkout).
+> | Harness version | Patch file | Status |
+> |---|---|---|
+> | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
+> | `dsh-v0.1.0-rc.7` (2026-08-12) | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean) |
+>
+> The two patches are nearly identical: rc.7 and rc.8 `packages/llm/llm/src/index.ts`
+> are **byte-identical**, and `packages/host/apiproxy/src/api-proxy.ts` differs only in
+> import context unrelated to this patch (rc.8 adds `homedir` and the
+> `admitEncodedImages` attachment refactor) — every anchor this patch touches is
+> textually identical in both versions. Behavior is therefore the same: relaxed
+> admission + `agent/pre-step` transcription + request-level image projection +
+> `selectModel` guard relaxation.
+>
+> Apply with `git apply <patch>` on a clean checkout of the matching tag
+> (round-trip verified).
+>
+> **v2 vs the old v1**: v1 targeted earlier pre-rc.7 builds (admit-with-placeholder
+> flow + client-side button). rc.7 / rc.8 already ship native paste/drag-drop image
+> intake (`addImages` pipeline, `imageLimits` pre-check in `InputBar`), and
+> `agent/pre-step` semantics are finalized (waterfall, can replace the messages
+> entering a step), so v2 needs only two host-side changes — **no client changes**.
 
 ---
 
@@ -25,7 +35,7 @@
 
 | # | File | Change |
 |---|---|---|
-| 1 | `packages/host/apiproxy/src/api-proxy.ts` | Image admission **no longer rejects on model capability**; a new `agent/pre-step` hook transcribes image blocks for text-only-model sessions through the vision failover chain (GLM → SiliconFlow → Gemini → …, 15s per route), keeping the image block (thumbnail on screen) and appending a transcription text block; when every route fails the image block degrades to a failure notice |
+| 1 | `packages/host/apiproxy/src/api-proxy.ts` | Image admission **no longer rejects on model capability**; a new `agent/pre-step` hook transcribes image blocks for text-only-model sessions through the vision failover chain (GLM → SiliconFlow → Gemini → …, 15s per route), keeping the image block (thumbnail on screen) and appending a transcription text block; when every route fails the image block degrades to a failure notice; the `selectModel` guard is relaxed (image history carrying transcription markers may switch back to a text-only model) |
 | 2 | `packages/llm/llm/src/index.ts` | Adapter-boundary **request-level image projection**: when the target model explicitly does not accept images, image blocks are stripped from this request (history stays intact; transcription text blocks survive); models with unknown capability are not projected |
 
 What rc.8 already provides (no patch needed):

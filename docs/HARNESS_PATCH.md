@@ -1,17 +1,26 @@
-# DSH 本体补丁说明（贴图自动转述 · v2 for rc.8）
+# DSH 本体补丁说明（贴图自动转述 · v2）
 
-> 本文档记录让「纯文本模型也能贴图」生效所需的 **DeepSeek Harness 本体**改动，
-> 适配 `dsh-v0.1.0-rc.8`（2026-08-19 发布）。
+> 本文档记录让「纯文本模型也能贴图」生效所需的 **DeepSeek Harness 本体**改动。
 > `dsh-media-skills` bundle 只负责模型配置与技能；这段本体能力不在 bundle 里。
 >
-> v2 相对旧版（rc.7 时代的 HARNESS_PATCH）的变化：
-> - rc.8 的 `agent/pre-step` 钩子语义已定型（waterfall，可**替换进入 step 的消息**），
->   转述直接在那里完成，不再需要旧版的「准入时先上屏占位 + pre-step 追加」两段式；
-> - rc.8 客户端已原生支持**粘贴 / 拖放**图片摄入（`InputBar` 的 `addImages` 管线、
->   `imageLimits` 摄入预检），**无需再改任何客户端代码**；
-> - rc.8 的 llm 包结构与旧版不同，图片投影按 rc.8 实际结构重写（`adapterStream` 处）。
+> **版本适配**
 >
-> 完整补丁：`docs/patches/dsh-v0.1.0-rc.8-vision-transcription.patch`（在 rc.8 源码上 `git apply` 即可）。
+> | Harness 版本 | 补丁文件 | 状态 |
+> |---|---|---|
+> | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
+> | `dsh-v0.1.0-rc.7`（2026-08-12 发布） | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ 补丁回环验证通过（`git apply --check` 干净） |
+>
+> 两份补丁内容几乎相同：rc.7 与 rc.8 的 `packages/llm/llm/src/index.ts` **逐字节一致**，
+> `packages/host/apiproxy/src/api-proxy.ts` 的版本差异仅在与本补丁无关的 import 上下文
+> （rc.8 新增 `homedir`、`admitEncodedImages` 附件重构），本补丁的改动点文本两版完全相同。
+> 因此两个版本行为一致：准入放宽 + `agent/pre-step` 转述 + 请求级图片投影 + `selectModel` 守卫放宽。
+>
+> 在对应 tag 的干净源码上 `git apply <补丁文件>` 即可（已做回环验证）。
+>
+> **v2 相对旧版 v1 的变化**：v1 面向更早的 pre-rc.7 构建（准入先上屏占位 + 客户端加按钮），
+> rc.7 / rc.8 已原生支持粘贴/拖放图片摄入（`InputBar` 的 `addImages` 管线、`imageLimits` 预检），
+> `agent/pre-step` 语义也已定型（waterfall，可替换进入 step 的消息），
+> 因此 v2 只需两处宿主侧改动，**无需任何客户端改动**。
 
 ---
 
@@ -19,7 +28,7 @@
 
 | # | 文件 | 改动 |
 |---|---|---|
-| 1 | `packages/host/apiproxy/src/api-proxy.ts` | 图片准入**不再按当前模型能力拒绝**；新增 `agent/pre-step` 钩子：纯文本模型会话的图片块按视觉路由故障转移链自动转述（GLM → SiliconFlow → Gemini → …，单路由 15s 超时），图片块保留（缩略图上屏）、转述文本块追加；全部路由失败则图片块降级为提示文本 |
+| 1 | `packages/host/apiproxy/src/api-proxy.ts` | 图片准入**不再按当前模型能力拒绝**；新增 `agent/pre-step` 钩子：纯文本模型会话的图片块按视觉路由故障转移链自动转述（GLM → SiliconFlow → Gemini → …，单路由 15s 超时），图片块保留（缩略图上屏）、转述文本块追加；全部路由失败则图片块降级为提示文本；`selectModel` 守卫放宽（带转述标记的图片历史允许切回纯文本模型） |
 | 2 | `packages/llm/llm/src/index.ts` | 适配器边界新增**请求级图片投影**：目标模型明确不接受图片时，请求中的图片块自动剥离（历史保持原样，转述文本块不受影响）；能力未知的模型不投影 |
 
 不需要改动的部分（rc.8 已原生支持）：

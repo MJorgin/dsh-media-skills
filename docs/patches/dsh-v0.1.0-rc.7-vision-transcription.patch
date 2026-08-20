@@ -1,15 +1,15 @@
 diff --git a/packages/host/apiproxy/src/api-proxy.ts b/packages/host/apiproxy/src/api-proxy.ts
-index ccb2d6d..6f6f14b 100644
+index c675b60..8355266 100644
 --- a/packages/host/apiproxy/src/api-proxy.ts
 +++ b/packages/host/apiproxy/src/api-proxy.ts
-@@ -9,13 +9,13 @@ import { homedir } from 'node:os'
+@@ -8,13 +8,13 @@ import { mkdir, stat } from 'node:fs/promises'
  import { dirname } from 'node:path'
  import type { Context } from '@deepseek-ai/cordis'
  import { installModelSelection } from '@deepseek-ai/dsh-agent'
 -import type { Agent, ModelSelection, ModelSelectionRef, AgentOptions, AgentStatus } from '@deepseek-ai/dsh-agent'
 +import type { Agent, ModelSelection, ModelSelectionRef, AgentOptions, AgentStatus, PreStepDecision } from '@deepseek-ai/dsh-agent'
  import type {} from '@deepseek-ai/dsh-agent-presets/types'
- import { AttachmentError, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
+ import { AttachmentError } from '@deepseek-ai/dsh-attachment'
  import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
 -import { contentHasImage, createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
 +import { BlockAssembler, contentHasImage, createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
@@ -19,11 +19,11 @@ index ccb2d6d..6f6f14b 100644
  import { isAppendSurfaceEvent, isJsonValue } from '@deepseek-ai/dsh-session'
  import type { JsonValue, Session, SessionEvent, SessionEventMap, SessionHeader, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
  import type { SessionPersistence } from '@deepseek-ai/dsh-session-persistence'
-@@ -116,6 +116,160 @@ const DEFAULT_MAX_MESSAGES = 50
+@@ -115,6 +115,161 @@ const DEFAULT_MAX_MESSAGES = 50
  /** Provider work budget: at most 100 calls and 2,000 inspected hits. */
  const SESSION_SEARCH_PROVIDER_CALL_LIMIT = 100
  
-+// ---- Vision transcription (dsh-media-skills HARNESS_PATCH v2, rc.8) ----
++// ---- Vision transcription (dsh-media-skills HARNESS_PATCH v2, rc.8; also applies to rc.7) ----
 +// A text-only model session that receives an image is no longer rejected at
 +// admission. Instead the image is persisted and surfaced immediately, the
 +// agent/pre-step hook transcribes it through the first vision-capable route
@@ -177,10 +177,11 @@ index ccb2d6d..6f6f14b 100644
 +  return changed ? rewritten : null
 +}
 +
++
  /** Bound cold-log stat fan-out and settle each started batch before cancellation returns. */
  const COLD_SUMMARY_BATCH_SIZE = 16
  /** Default maximum artifact size eligible for one cold blankness read. */
-@@ -186,6 +340,18 @@ function messagesHaveImage(messages: readonly { content: readonly ContentBlock[]
+@@ -210,6 +365,18 @@ function messagesHaveImage(messages: readonly { content: readonly ContentBlock[]
    return messages.some(message => contentHasImage(message.content))
  }
  
@@ -199,11 +200,11 @@ index ccb2d6d..6f6f14b 100644
  /** Resolve the first reference matching one opaque id. */
  function referencedImage(events: readonly SessionEvent[], attachmentId: string): ImageAttachmentRef | undefined {
    for (const event of events) {
-@@ -1132,6 +1298,37 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
+@@ -1156,6 +1323,37 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
      selectionFor(agent)
    }
  
-+  // ---- Vision transcription hook (dsh-media-skills HARNESS_PATCH v2, rc.8) ----
++  // ---- Vision transcription hook (dsh-media-skills HARNESS_PATCH v2) ----
 +  // Registered on the shared ctx: every agent with image-bearing pre-step
 +  // messages and a text-only current model gets its image blocks transcribed
 +  // through the first vision-capable route before the messages enter history
@@ -237,7 +238,7 @@ index ccb2d6d..6f6f14b 100644
    /**
     * Reject an attempt to run an existing session under a different preset.
     *
-@@ -2209,8 +2406,11 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
+@@ -2233,8 +2431,11 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
                  : { reasoningEffort: ReasoningEffortId(reasoningEffort) },
              })
              const pendingImage = [...found.agent.inbox.nextTurn, ...found.agent.inbox.nextStep]
@@ -251,7 +252,7 @@ index ccb2d6d..6f6f14b 100644
                const info = await ctx.llm.resolveModelInfo(resolved.provider, resolved.model)
                if (info.inputModalities !== undefined && !info.inputModalities.includes('image')) {
                  return err(request, {
-@@ -2398,17 +2598,12 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
+@@ -2422,17 +2623,12 @@ export function createApiProxy(ctx: Context, defaults: ApiProxyDefaults): ApiPro
          const hasImage = content.some(part => part.type === 'image')
          const admit = async (): Promise<RpcResponse<{ accepted: true }>> => {
            try {
