@@ -29,7 +29,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
 
 | Capacidad | Qué hace | Modelo | Coste |
 |---|---|---|---|
-| 📎 Lectura de imágenes pegadas | En una sesión **de solo texto** (p. ej. deepseek-v4-pro), la barra de entrada gana un botón «Añadir imagen» (clip); las imágenes pegadas son descritas por el modelo de visión y entregadas al modelo actual como texto | Zhipu GLM-4V-Flash | Gratis |
+| 🖼️ Lectura de imágenes pegadas | En una sesión **de solo texto** (p. ej. deepseek-v4-pro), la barra de entrada gana un botón «Añadir imagen» (icono de imagen); las imágenes pegadas son descritas por el modelo de visión y entregadas al modelo actual como texto | Zhipu GLM-4V-Flash | Gratis |
 | 🧠 Ruta de modelo de visión | Tras instalar, **automáticamente** añade «智譜 GLM-4V-Flash（視覚）」 al selector de modelos; úsalo en una conversación nueva para hablar sobre imágenes | Zhipu GLM-4V-Flash | Gratis |
 | 👁️ `vision-review` | Analizar / reconocer / describir imágenes y capturas; detectar bugs visuales de UI (solapamientos, desbordes, desalineaciones); detectar marcas de agua/logos; convertir imágenes a texto | Zhipu GLM-4V-Flash | Gratis |
 | 🎨 `media-tools` | Generar imágenes, ilustraciones, avatares, fondos y banners | SiliconFlow Kolors | Gratis, sin marca de agua |
@@ -53,7 +53,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
 
 3. **Reinicia por completo** `dsh web` y haz un refresco forzado (`Cmd+Shift+R`).
 
-4. Verifica: el selector de modelos muestra **智譜 GLM-4V-Flash（視覚）**. Si tu build soporta la lectura de imágenes pegadas, la barra de entrada muestra un botón 📎 **Añadir imagen** — pega una imagen en cualquier sesión y llegará como descripción de texto.
+4. Verifica: el selector de modelos muestra **智譜 GLM-4V-Flash（視覚）**. Si tu build soporta la lectura de imágenes pegadas, la barra de entrada muestra un botón 🖼️ **Añadir imagen** — pega una imagen en cualquier sesión y llegará como descripción de texto.
 
 Guía completa, funcionamiento y resolución de problemas: **[../SETUP_VISION.md](../SETUP_VISION.md)**
 
@@ -75,7 +75,7 @@ Tres formas de leer imágenes:
 
 | Forma | Cómo | Cuándo |
 |---|---|---|
-| **A. Pegar directamente (recomendado)** | En cualquier sesión, pulsa el botón 📎 / arrastra / pega una imagen y envíala | Preguntas cotidianas sobre imágenes: sin guardar archivos ni cambiar de modelo |
+| **A. Pegar directamente (recomendado)** | En cualquier sesión, pulsa el botón 🖼️ / arrastra / pega una imagen y envíala | Preguntas cotidianas sobre imágenes: sin guardar archivos ni cambiar de modelo |
 | **B. Sesión con modelo de visión** | Conversación nueva, elige 智譜 GLM-4V-Flash（視覚）, pega imágenes y conversa | Conversaciones de varias rondas sobre imágenes, `read_image` nativo |
 | **C. Archivos + skill** | Pon la imagen en el workspace y di «lee esta imagen con vision-review» | Revisión por lotes, flujos con scripts |
 

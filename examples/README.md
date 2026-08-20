@@ -27,8 +27,8 @@ When testing, the expected answer: the title, both buttons, all four values with
 
 ## 🚀 怎么用 · How to use
 
-1. **贴图自动转述**：把任意一张直接贴进聊天框（或点回形针选择），纯文本模型会收到视觉模型生成的文字描述。
-   **Paste it**: paste any image into the chat (or pick it with the paperclip button) — a text-only model receives the vision model's description.
+1. **贴图自动转述**：把任意一张直接贴进聊天框（或点图片按钮选择），纯文本模型会收到视觉模型生成的文字描述。
+   **Paste it**: paste any image into the chat (or pick it with the image button) — a text-only model receives the vision model's description.
 2. **vision-review 技能**：把图片放进工作区，说「用 vision-review 检查这张图」。
    **vision-review skill**: put the image in the workspace and say “read this image with vision-review”.
 3. **重新生成**：复制上表的提示词，说「用 media-tools 生成：<提示词>」。

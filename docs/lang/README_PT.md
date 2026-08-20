@@ -29,7 +29,7 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 | Recurso | O que faz | Modelo | Custo |
 |---|---|---|---|
-| 📎 Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (clipe); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto | Zhipu GLM-4V-Flash | Grátis |
+| 🖼️ Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (ícone de imagem); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto | Zhipu GLM-4V-Flash | Grátis |
 | 🧠 Rota de modelo de visão | Após instalar, adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos; use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
 | 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto | Zhipu GLM-4V-Flash | Grátis |
 | 🎨 `media-tools` | Gerar imagens, ilustrações, avatares, fundos e banners | SiliconFlow Kolors | Grátis, sem marca d'água |
@@ -53,7 +53,7 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 3. **Reinicie totalmente** o `dsh web` e faça uma atualização forçada (`Cmd+Shift+R`).
 
-4. Verifique: o seletor de modelos mostra **智譜 GLM-4V-Flash（視覚）**. Se o seu build suportar a leitura de imagens coladas, a barra de entrada mostra um botão 📎 **Adicionar imagem** — cole uma imagem em qualquer sessão e ela chegará como descrição em texto.
+4. Verifique: o seletor de modelos mostra **智譜 GLM-4V-Flash（視覚）**. Se o seu build suportar a leitura de imagens coladas, a barra de entrada mostra um botão 🖼️ **Adicionar imagem** — cole uma imagem em qualquer sessão e ela chegará como descrição em texto.
 
 Guia completo, funcionamento e solução de problemas: **[../SETUP_VISION.md](../SETUP_VISION.md)**
 
@@ -75,7 +75,7 @@ Três formas de ler imagens:
 
 | Forma | Como | Quando |
 |---|---|---|
-| **A. Colar diretamente (recomendado)** | Em qualquer sessão, clique no botão 📎 / arraste / cole uma imagem e envie | Perguntas do dia a dia sobre imagens — sem salvar arquivos nem trocar de modelo |
+| **A. Colar diretamente (recomendado)** | Em qualquer sessão, clique no botão 🖼️ / arraste / cole uma imagem e envie | Perguntas do dia a dia sobre imagens — sem salvar arquivos nem trocar de modelo |
 | **B. Sessão com modelo de visão** | Nova conversa, escolha 智譜 GLM-4V-Flash（視覚）, cole imagens e converse | Conversas de várias rodadas sobre imagens, `read_image` nativo |
 | **C. Arquivos + skill** | Coloque a imagem no workspace e diga «leia esta imagem com vision-review» | Revisão em lote, fluxos com scripts |
 

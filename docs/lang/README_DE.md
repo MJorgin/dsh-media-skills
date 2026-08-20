@@ -29,7 +29,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 | Funktion | Beschreibung | Modell | Kosten |
 |---|---|---|---|
-| 📎 Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Büroklammer); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben | Zhipu GLM-4V-Flash | Kostenlos |
+| 🖼️ Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Bildsymbol); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben | Zhipu GLM-4V-Flash | Kostenlos |
 | 🧠 Vision-Modell-Route | Nach der Installation erscheint **automatisch** „智譜 GLM-4V-Flash（視覚）“ im Modell-Auswahlmenü; in neuen Unterhaltungen direkt über Bilder sprechen | Zhipu GLM-4V-Flash | Kostenlos |
 | 👁️ `vision-review` | Bilder/Screenshots analysieren, erkennen, beschreiben; visuelle UI-Bugs finden (Überlappung, Überlauf, Fehlausrichtung); Wasserzeichen/Logos erkennen; Bilder in Text umwandeln | Zhipu GLM-4V-Flash | Kostenlos |
 | 🎨 `media-tools` | Bilder, Illustrationen, Avatare, Hintergründe und Banner generieren | SiliconFlow Kolors | Kostenlos, ohne Wasserzeichen |
@@ -53,7 +53,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 3. `dsh web` **vollständig neu starten** und die Seite mit `Cmd+Shift+R` hart neu laden.
 
-4. Prüfen: Im Modell-Auswahlmenü erscheint **智譜 GLM-4V-Flash（視覚）**. Unterstützt dein Build das Bild-Einfügen, zeigt die Eingabeleiste einen 📎 **„Bild hinzufügen“-Button** — füge in einer beliebigen Sitzung ein Bild ein, es kommt als Textbeschreibung an.
+4. Prüfen: Im Modell-Auswahlmenü erscheint **智譜 GLM-4V-Flash（視覚）**. Unterstützt dein Build das Bild-Einfügen, zeigt die Eingabeleiste einen 🖼️ **„Bild hinzufügen“-Button** — füge in einer beliebigen Sitzung ein Bild ein, es kommt als Textbeschreibung an.
 
 Komplette Anleitung, Funktionsweise und Fehlerbehebung: **[../SETUP_VISION.md](../SETUP_VISION.md)**
 
@@ -75,7 +75,7 @@ Drei Wege, Bilder zu lesen:
 
 | Weg | So geht's | Wann |
 |---|---|---|
-| **A. Direkt einfügen (empfohlen)** | In beliebiger Sitzung 📎-Button klicken / ziehen / einfügen und senden | Alltägliche Bildfragen — kein Speichern, kein Modellwechsel |
+| **A. Direkt einfügen (empfohlen)** | In beliebiger Sitzung 🖼️-Button klicken / ziehen / einfügen und senden | Alltägliche Bildfragen — kein Speichern, kein Modellwechsel |
 | **B. Vision-Modell-Sitzung** | Neue Unterhaltung, 智譜 GLM-4V-Flash（視覚） wählen, Bilder einfügen und chatten | Mehrstufige Gespräche über Bilder, natives `read_image` |
 | **C. Dateien + Skill** | Bild in den Workspace legen und sagen: „lies dieses Bild mit vision-review“ | Stapelprüfung, geskriptete Abläufe |
 

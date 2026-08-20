@@ -22,7 +22,7 @@
 
 DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条免费视觉模型路由 + 一条视觉引擎故障转移链**解决这件事：
 
-- 📎 **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。*（依赖 DeepSeek Harness 本体的自动转述管道，本 bundle 提供其所需的视觉模型路由与读图技能，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）*
+- 🖼️ **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。*（依赖 DeepSeek Harness 本体的自动转述管道，本 bundle 提供其所需的视觉模型路由与读图技能，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）*
 - 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
 - 🎨 **`media-tools`** —— 免费生成插画、头像、背景、Banner，无水印。
 - 🔀 **引擎故障转移** —— GLM-4V-Flash → SiliconFlow Qwen3-VL → Google Gemini（免费 key 从 [AI Studio](https://aistudio.google.com) 领取）→ 任意 OpenAI 兼容端点，支持 modlens 同款结构化证据输出。
@@ -56,7 +56,7 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 能力 | 说明 | 模型 | 费用 |
 |---|---|---|---|
-| 📎 贴图自动转述 | **纯文本会话**的输入框会多出「添加图片」按钮（回形针）；贴图后由视觉模型自动转成文字描述发给当前模型。*（Harness 本体功能，需 api-proxy 准入补丁；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
+| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.8 由 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型，气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + rc.8 client-ux 补丁，支持 rc.7/rc.8；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
 | 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」，新会话选它即可直接看图对话 | 智谱 GLM-4V-Flash | 免费 |
 | 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → SiliconFlow Qwen3-VL / Google Gemini（有免费 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + Qwen3-VL + Gemini | 免费 |
 | 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SiliconFlow Kolors | 免费、无水印 |
@@ -80,7 +80,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 
 3. **彻底重启** `dsh web`，然后 `Cmd+Shift+R` 强刷页面。
 
-验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **📎「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
+验证：模型选择器出现 **「智谱 GLM-4V-Flash（视觉）」**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **🖼️「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
 
 完整步骤与排错：**[../SETUP_VISION.md](../SETUP_VISION.md)**
 
@@ -100,7 +100,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 
 | 方式 | 怎么用 | 适用场景 |
 |---|---|---|
-| **A. 直接贴图（推荐）** | 任意会话点回形针选图 / 拖拽 / 粘贴，直接发送 | 日常看图，不用切会话、不用存文件 |
+| **A. 直接贴图（推荐）** | 任意会话点图片按钮选图 / 拖拽 / 粘贴，直接发送 | 日常看图，不用切会话、不用存文件 |
 | **B. 视觉模型会话** | 新开对话，模型选「智谱 GLM-4V-Flash（视觉）」，贴图对话 | 多轮围绕图片对话、原生读图（`read_image`） |
 | **C. 文件 + 技能** | 把图放到工作区，说「用 vision-review 读一下这张图」 | 批量检查、脚本化处理 |
 

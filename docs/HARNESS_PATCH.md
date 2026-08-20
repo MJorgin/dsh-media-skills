@@ -8,6 +8,7 @@
 > | Harness 版本 | 补丁文件 | 状态 |
 > |---|---|---|
 > | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
+> | `dsh-v0.1.0-rc.8` 客户端 UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与工作区逐字节一致）；**仅 rc.8 适用**（rc.7 的 `InputBar` 导入区有差异，需手动移植） |
 > | `dsh-v0.1.0-rc.7`（2026-08-12 发布） | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ 补丁回环验证通过（`git apply --check` 干净） |
 >
 > 两份补丁内容几乎相同：rc.7 与 rc.8 的 `packages/llm/llm/src/index.ts` **逐字节一致**，
@@ -20,7 +21,7 @@
 > **v2 相对旧版 v1 的变化**：v1 面向更早的 pre-rc.7 构建（准入先上屏占位 + 客户端加按钮），
 > rc.7 / rc.8 已原生支持粘贴/拖放图片摄入（`InputBar` 的 `addImages` 管线、`imageLimits` 预检），
 > `agent/pre-step` 语义也已定型（waterfall，可替换进入 step 的消息），
-> 因此 v2 只需两处宿主侧改动，**无需任何客户端改动**。
+> 因此 v2 宿主侧只需两处改动。**但客户端并非零改动**：rc.8 的 `InputBar` 只有摄入管线、没有「添加图片」按钮（按钮一直是本补丁集的客户端部分），气泡渲染也需要「缩略图在场时隐藏转述标记文本」的显示逻辑——这两块由 `dsh-v0.1.0-rc.8-client-ux.patch` 提供（仅 rc.8；rc.7 需手动移植）。
 
 ---
 
@@ -31,9 +32,16 @@
 | 1 | `packages/host/apiproxy/src/api-proxy.ts` | 图片准入**不再按当前模型能力拒绝**；新增 `agent/pre-step` 钩子：纯文本模型会话的图片块按视觉路由故障转移链自动转述（GLM → SiliconFlow → Gemini → …，单路由 15s 超时），图片块保留（缩略图上屏）、转述文本块追加；全部路由失败则图片块降级为提示文本；`selectModel` 守卫放宽（带转述标记的图片历史允许切回纯文本模型） |
 | 2 | `packages/llm/llm/src/index.ts` | 适配器边界新增**请求级图片投影**：目标模型明确不接受图片时，请求中的图片块自动剥离（历史保持原样，转述文本块不受影响）；能力未知的模型不投影 |
 
-不需要改动的部分（rc.8 已原生支持）：
-- 输入框「添加图片」按钮 / 粘贴 / 拖放：rc.8 的 `InputBar` 已有完整摄入管线（`addImages`、`imageLimits` 预检、`attachmentErrorText`），粘贴与拖放即可带图；
+需要配套的客户端改动（`dsh-v0.1.0-rc.8-client-ux.patch`，仅 rc.8）：
+- 「添加图片」按钮 + 隐藏文件选择器（图片图标）——rc.8 的 `InputBar` 只有粘贴/拖放摄入管线、没有按钮；
+- 气泡渲染：消息含缩略图时隐藏 `[图片，已由视觉模型读取]` 转述标记块（旧的无图消息照常显示文字）；
+- 生成中贴图弹提示（不再静默丢弃）+ `input.addImage` / `image.pasteWhileBusy` 文案（中英）。
+
+rc.8 已原生支持、无需改动：
+- 粘贴 / 拖放入摄管线（`addImages`、`imageLimits` 预检、`attachmentErrorText`）；
 - 会话内模型切换守卫：rc.8 无此守卫，图片历史切回纯文本模型由改动 2 的投影兜底。
+
+**兼容性与安全说明**：宿主补丁对 rc.7 / rc.8 均通过回环验证；客户端补丁仅 rc.8（rc.7 `InputBar` 导入区不同，需手动移植）。安全与隐私：补丁不引入任何密钥、不新增网络端点；图片仅发送到你在 settings 里配置的视觉路由（默认智谱），转述失败时图片保留在会话附件库；客户端改动全部为本地 UI 行为（文件选择器、toast、显示过滤）。
 
 ## 二、改动 1：准入放宽 + pre-step 转述（api-proxy.ts）
 

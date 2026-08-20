@@ -15,6 +15,7 @@
 [![Free generation](https://img.shields.io/badge/generation-Kolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
 [![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
+[![Harness](https://img.shields.io/badge/Harness-rc.7%20%2B%20rc.8-4D6BFE)](docs/HARNESS_PATCH_EN.md)
 
 <br>
 
@@ -54,7 +55,7 @@ Most DSH vision plugins only **read** images — and many push you through a sha
 
 | Capability | What it does | Model | Cost |
 |---|---|---|---|
-| 📎 Paste-image reading | In a **text-only** session, paste or drag an image into the composer (rc.8 client native intake); it is then described by the vision model (GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the core api-proxy admission patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), patch file included for rc.8; this bundle supplies the vision route + skill it depends on)* | GLM-4V-Flash + Qwen3-VL | Free |
+| 🖼️ Paste-image reading | In a **text-only** session, paste, drag, or pick (add-image button, restored by the client-ux patch) an image into the composer; it is described by the vision model (GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the api-proxy admission patch + the rc.8 client-ux patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), both patch files included for rc.8; this bundle supplies the vision route + skill it depends on)* | GLM-4V-Flash + Qwen3-VL | Free |
 | 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」 appears in the model selector automatically — pick it for a new conversation and talk about images directly | Zhipu GLM-4V-Flash | Free |
 | 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → SiliconFlow Qwen3-VL / Google Gemini (auto-join with free keys) → any OpenAI-compatible endpoint | GLM-4V-Flash + Qwen3-VL + Gemini | Free |
 | 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SiliconFlow Kolors | Free, no watermark |

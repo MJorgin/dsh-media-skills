@@ -10,6 +10,7 @@
 > | Harness version | Patch file | Status |
 > |---|---|---|
 > | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
+> | `dsh-v0.1.0-rc.8` client UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the working tree); **rc.8 only** — rc.7 `InputBar` import region differs, needs a manual port |
 > | `dsh-v0.1.0-rc.7` (2026-08-12) | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean) |
 >
 > The two patches are nearly identical: rc.7 and rc.8 `packages/llm/llm/src/index.ts`
@@ -27,7 +28,7 @@
 > flow + client-side button). rc.7 / rc.8 already ship native paste/drag-drop image
 > intake (`addImages` pipeline, `imageLimits` pre-check in `InputBar`), and
 > `agent/pre-step` semantics are finalized (waterfall, can replace the messages
-> entering a step), so v2 needs only two host-side changes — **no client changes**.
+> entering a step), so v2 needs only two host-side changes. **Client-side is not zero, though**: rc.8 `InputBar` has only the intake pipeline, **no add-image button** (the button was always the client part of this patch set), and the bubble renderer needs the «hide the transcription marker when a thumbnail is present» display logic — both come from `dsh-v0.1.0-rc.8-client-ux.patch` (rc.8 only; rc.7 needs a manual port).
 
 ---
 
@@ -39,8 +40,16 @@
 | 2 | `packages/llm/llm/src/index.ts` | Adapter-boundary **request-level image projection**: when the target model explicitly does not accept images, image blocks are stripped from this request (history stays intact; transcription text blocks survive); models with unknown capability are not projected |
 
 What rc.8 already provides (no patch needed):
-- Add-image button / paste / drag-drop: rc.8 `InputBar` has the full intake pipeline (`addImages`, `imageLimits` pre-check, `attachmentErrorText`); paste and drag-drop already carry images;
+Required client companion patch (`dsh-v0.1.0-rc.8-client-ux.patch`, rc.8 only):
+- Add-image button + hidden file picker (image glyph) — rc.8 `InputBar` has only the paste/drag-drop intake pipeline, no button;
+- Bubble rendering: hide the `[图片，已由视觉模型读取]` transcription marker block when the message renders its thumbnail (old image-block-free history still shows its text);
+- A toast for image pastes dropped while the machine is busy (no more silent vanish) + `input.addImage` / `image.pasteWhileBusy` strings (zh + en).
+
+Already native on rc.8, nothing to change:
+- Paste / drag-drop intake pipeline (`addImages`, `imageLimits` pre-check, `attachmentErrorText`);
 - In-session model-switch guard: rc.8 has none; image history switched back to a text-only model is covered by change 2's projection.
+
+**Compatibility & security notes**: the host patches round-trip on both rc.7 and rc.8; the client patch is rc.8-only (rc.7 `InputBar` import region differs — manual port). Security/privacy: the patches introduce no keys and no new network endpoints; images go only to the vision routes you configure in settings (Zhipu by default), failed transcriptions keep the image in the session attachment store, and all client changes are local UI behavior (file picker, toast, display filtering).
 
 ## 2. Change 1: admission relaxation + pre-step transcription (api-proxy.ts)
 
