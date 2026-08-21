@@ -57,6 +57,22 @@ def siliconflow_engine():
 # 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
 # Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
 # 仅该引擎走代理，智谱等国内引擎保持直连。
+# 备用引擎：DeepSeek-V4-Flash-Vision-Exp（推理型视觉模型，2026-08 实测）。
+# 与主 agent 共用同一个 DEEPSEEK_API_KEY（v0.1.1 起 harness 的 deepseek-official
+# 路由原生带此模型）；注意它是付费模型（走 DeepSeek 余额），质量高于 GLM-4V-Flash。
+# 实测要点：思考默认吃掉全部输出预算 → 必须传 thinking={"type":"disabled"}，
+# 并把 max_tokens 提到 4096，否则 content 为空（finish_reason=length）。
+def deepseek_engine():
+    return {
+        "name": "deepseek",
+        "baseUrl": os.environ.get("DEEPSEEK_BASE_URL", "https://api.deepseek.com"),
+        "apiKeyEnv": "DEEPSEEK_API_KEY",
+        "model": os.environ.get("DEEPSEEK_VISION_MODEL", "deepseek-v4-flash-vision-exp"),
+        "maxTokens": 4096,
+        "jsonObject": False,
+        "extraBody": {"thinking": {"type": "disabled"}},
+    }
+
 def gemini_engine():
     proxy = load_key("GEMINI_PROXY") or os.environ.get("HTTPS_PROXY")
     return {
@@ -91,6 +107,16 @@ def load_key(name):
             for line in env.read_text().splitlines():
                 if line.startswith(name + "="):
                     return line.split("=", 1)[1].strip()
+    # harness 凭据库（YAML：KEY: value）——与主 agent 同一个 key 直接可用。
+    creds = Path.home() / ".dsh" / ".credentials.yaml"
+    if creds.exists():
+        try:
+            import yaml
+            data = yaml.safe_load(creds.read_text()) or {}
+            if isinstance(data, dict) and isinstance(data.get(name), str):
+                return data[name].strip()
+        except Exception:
+            pass
     return None
 
 def load_fallbacks():
@@ -118,6 +144,8 @@ def load_fallbacks():
 def engines():
     """Active failover chain: only engines with a usable key join."""
     chain = [PRIMARY]
+    if load_key("DEEPSEEK_API_KEY"):
+        chain.append(deepseek_engine())
     if load_key("SILICONFLOW_API_KEY"):
         chain.append(siliconflow_engine())
     if load_key("SENSENOVA_API_KEY"):
@@ -129,7 +157,7 @@ def engines():
 
 def available_engines():
     """Every candidate engine, configured or not (for listing, pinning, doctor)."""
-    chain = [PRIMARY, siliconflow_engine(), sensenova_engine(), gemini_engine()]
+    chain = [PRIMARY, deepseek_engine(), siliconflow_engine(), sensenova_engine(), gemini_engine()]
     chain.extend(load_fallbacks())
     return chain
 
@@ -184,6 +212,7 @@ def call_engine(eng, b64_images, prompt, structured=False):
             "max_tokens": eng["maxTokens"]}
     if structured and eng.get("jsonObject"):
         body["response_format"] = {"type": "json_object"}
+    body.update(eng.get("extraBody", {}))
     opener = _opener(eng)
 
     def send(payload):

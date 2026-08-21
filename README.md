@@ -24,7 +24,7 @@ DeepSeek Harness is brilliant at reasoning — but a text-only model can't see t
 - 📎 **Paste to read** — paste, drag, or pick an image in any session; the free vision model turns it into text your current model understands. *(Powered by the DeepSeek Harness core auto-description path — see [docs/HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md); this bundle contributes the vision model route and the skill it relies on.)*
 - 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
 - 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners with a free, watermark-free model.
-- 🔀 **Engine failover** — GLM-4V-Flash → SiliconFlow Qwen3-VL → Google Gemini ([AI Studio](https://aistudio.google.com)) → any OpenAI-compatible endpoint, with ModLens-style structured evidence output.
+- 🔀 **Engine failover** — GLM-4V-Flash (free) → **DeepSeek-V4-Flash-Vision-Exp** (same key as your agent, higher quality) → SiliconFlow Qwen3-VL → SenseNova → Google Gemini ([AI Studio](https://aistudio.google.com)) → any OpenAI-compatible endpoint, with ModLens-style structured evidence output.
 
 No hardcoded keys, no paid API, no file saving, no session switching.
 
@@ -57,7 +57,7 @@ Most DSH vision plugins only **read** images — and many push you through a sha
 |---|---|---|---|
 | 🖼️ Paste-image reading | In a **text-only** session, paste, drag, or pick (add-image button, restored by the client-ux patches) an image into the composer; it is described by the vision model (GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the api-proxy admission patch + the rc.8 client-ux patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), patch files included for rc.7, rc.8 and v0.1.1-rc.1; this bundle supplies the vision route + skill it depends on)* | GLM-4V-Flash + Qwen3-VL | Free |
 | 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」 appears in the model selector automatically — pick it for a new conversation and talk about images directly | Zhipu GLM-4V-Flash | Free |
-| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → SiliconFlow Qwen3-VL / Google Gemini (auto-join with free keys) → any OpenAI-compatible endpoint | GLM-4V-Flash + Qwen3-VL + Gemini | Free |
+| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp / SiliconFlow Qwen3-VL / SenseNova / Google Gemini (auto-join with keys) → any OpenAI-compatible endpoint | GLM-4V-Flash + Qwen3-VL + Gemini | Free |
 | 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SiliconFlow Kolors | Free, no watermark |
 
 ## ⚡ Quick start
