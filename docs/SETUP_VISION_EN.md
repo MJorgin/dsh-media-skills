@@ -121,8 +121,9 @@ For way A, one paste goes through:
 
 ### Q1: Pasting an image says "The current model does not support images; switch to a model that does"
 
-Two possibilities:
+Three possibilities:
 
+- **Harness ≥ v0.1.1-rc.1**: the deepseek-official route ships **DeepSeek-V4-Flash-Vision-Exp** natively (same `DEEPSEEK_API_KEY` as your agent — zero extra configuration). Paste transcription prefers it (higher quality, billed against your DeepSeek balance) and text-session pastes are no longer rejected.
 - **The selector has no 智谱 GLM-4V-Flash（视觉）**: the vision route did not register. Check the bundle is in the profile (`dsh plugin --profile <name> list`), the key is set, then fully restart DSH.
 - **The vision model exists but uploads are still rejected**: your Harness core build predates the paste-image support. The vision model still works manually (way B); only the text-session paste path is blocked.
 

@@ -120,8 +120,9 @@ dsh web
 
 ### Q1：贴图提示「当前模型不支持图片，请切换支持图片的模型」
 
-两种可能：
+三种可能：
 
+- **DSH ≥ v0.1.1-rc.1**：deepseek-official 路由**原生自带**「DeepSeek-V4-Flash-Vision-Exp」（与你主 agent 同一个 `DEEPSEEK_API_KEY`，无需任何额外配置）。贴图自动转述优先走它（质量更高，扣 DeepSeek 余额）；纯文本会话贴图不会被拦截。
 - **模型选择器里没有「智谱 GLM-4V-Flash（视觉）」**：说明视觉路由没注册成功。检查 bundle 是否装进当前 profile（`dsh plugin --profile web list`），Key 是否已填，然后彻底重启 DSH。
 - **有视觉模型但还是被拒**：说明你的 DSH 本体是旧版本，没有视觉转述支持。此时视觉模型仍可手动使用（方式 B），但纯文本会话贴图会被入口拦截。
 
