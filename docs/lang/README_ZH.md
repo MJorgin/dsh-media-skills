@@ -56,7 +56,7 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 能力 | 说明 | 模型 | 费用 |
 |---|---|---|---|
-| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.8 由 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型，气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + rc.8 client-ux 补丁，支持 rc.7/rc.8；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
+| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型，气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + client-ux 补丁（rc.7/rc.8 各一份），支持 rc.7/rc.8；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
 | 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」，新会话选它即可直接看图对话 | 智谱 GLM-4V-Flash | 免费 |
 | 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → SiliconFlow Qwen3-VL / Google Gemini（有免费 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + Qwen3-VL + Gemini | 免费 |
 | 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SiliconFlow Kolors | 免费、无水印 |
