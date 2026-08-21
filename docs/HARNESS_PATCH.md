@@ -7,7 +7,9 @@
 >
 > | Harness 版本 | 补丁文件 | 状态 |
 > |---|---|---|
-> | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
+> | `dsh-v0.1.1-rc.1`（最新） | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
+| `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
+| `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
 > | `dsh-v0.1.0-rc.8` 客户端 UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与工作区逐字节一致） |
 > | `dsh-v0.1.0-rc.7`（2026-08-12 发布） | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ 补丁回环验证通过（`git apply --check` 干净） |
 > | `dsh-v0.1.0-rc.7` 客户端 UX | [patches/dsh-v0.1.0-rc.7-client-ux.patch](patches/dsh-v0.1.0-rc.7-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
@@ -42,7 +44,7 @@ rc.8 已原生支持、无需改动：
 - 粘贴 / 拖放入摄管线（`addImages`、`imageLimits` 预检、`attachmentErrorText`）；
 - 会话内模型切换守卫：rc.8 无此守卫，图片历史切回纯文本模型由改动 2 的投影兜底。
 
-**兼容性与安全说明**：宿主补丁与客户端补丁对 rc.7 / rc.8 均通过回环验证（各自版本独立生成，互不混用）。安全与隐私：补丁不引入任何密钥、不新增网络端点；图片仅发送到你在 settings 里配置的视觉路由（默认智谱），转述失败时图片保留在会话附件库；客户端改动全部为本地 UI 行为（文件选择器、toast、显示过滤）。
+**兼容性与安全说明**：宿主补丁与客户端补丁对 rc.7 / rc.8 / v0.1.1-rc.1 均通过回环验证（各自版本独立生成，互不混用）。v0.1.1-rc.1 的 llm/index.ts 与 rc.8 逐字节一致，api-proxy 仅 import 区新增 zod 等引入，客户端 locales/InputBar 有 access 权限预设改动——两处补丁已按新版重新生成。安全与隐私：补丁不引入任何密钥、不新增网络端点；图片仅发送到你在 settings 里配置的视觉路由（默认智谱），转述失败时图片保留在会话附件库；客户端改动全部为本地 UI 行为（文件选择器、toast、显示过滤）。
 
 ## 二、改动 1：准入放宽 + pre-step 转述（api-proxy.ts）
 

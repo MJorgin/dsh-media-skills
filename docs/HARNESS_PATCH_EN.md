@@ -9,6 +9,8 @@
 >
 > | Harness version | Patch file | Status |
 > |---|---|---|
+> | `dsh-v0.1.1-rc.1` (latest) | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
+> | `dsh-v0.1.1-rc.1` client UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
 > | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
 > | `dsh-v0.1.0-rc.8` client UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the working tree) |
 > | `dsh-v0.1.0-rc.7` (2026-08-12) | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean) |
@@ -50,7 +52,7 @@ Already native on rc.8, nothing to change:
 - Paste / drag-drop intake pipeline (`addImages`, `imageLimits` pre-check, `attachmentErrorText`);
 - In-session model-switch guard: rc.8 has none; image history switched back to a text-only model is covered by change 2's projection.
 
-**Compatibility & security notes**: host and client patches round-trip on both rc.7 and rc.8 (each version's files are generated independently; do not mix them). Security/privacy: the patches introduce no keys and no new network endpoints; images go only to the vision routes you configure in settings (Zhipu by default), failed transcriptions keep the image in the session attachment store, and all client changes are local UI behavior (file picker, toast, display filtering).
+**Compatibility & security notes**: host and client patches round-trip on rc.7, rc.8 and v0.1.1-rc.1 (each version's files are generated independently; do not mix them). v0.1.1-rc.1's llm/index.ts is byte-identical to rc.8, api-proxy only gains unrelated imports (zod etc.), and the client locales/InputBar carry the access-preset rework — both patches were regenerated for the new version. Security/privacy: the patches introduce no keys and no new network endpoints; images go only to the vision routes you configure in settings (Zhipu by default), failed transcriptions keep the image in the session attachment store, and all client changes are local UI behavior (file picker, toast, display filtering).
 
 ## 2. Change 1: admission relaxation + pre-step transcription (api-proxy.ts)
 
