@@ -31,7 +31,7 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 |---|---|---|---|
 | 🖼️ Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (ícone de imagem); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto | Zhipu GLM-4V-Flash | Grátis |
 | 🧠 Rota de modelo de visão | Após instalar, adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos; use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
-| 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto | Zhipu GLM-4V-Flash | Grátis |
+| 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto. Cadeia de motores: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (mesma chave do agente, pago opcional) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Grátis (DeepSeek pago opcional) |
 | 🎨 `media-tools` | Gerar imagens, ilustrações, avatares, fundos e banners | SiliconFlow Kolors | Grátis, sem marca d'água |
 
 > ⚠️ Nota honesta: a leitura de imagens coladas vive no **núcleo** do DeepSeek Harness (a lógica de admissão de imagens em `api-proxy`). Este bundle entrega a **rota de modelo + skills**; o modelo de visão funciona em qualquer build do DSH, mas a comodidade da auto-descrição exige um build com esse suporte. Como saber: FAQ Q1.

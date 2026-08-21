@@ -31,7 +31,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
 |---|---|---|---|
 | 🖼️ Lectura de imágenes pegadas | En una sesión **de solo texto** (p. ej. deepseek-v4-pro), la barra de entrada gana un botón «Añadir imagen» (icono de imagen); las imágenes pegadas son descritas por el modelo de visión y entregadas al modelo actual como texto | Zhipu GLM-4V-Flash | Gratis |
 | 🧠 Ruta de modelo de visión | Tras instalar, **automáticamente** añade «智譜 GLM-4V-Flash（視覚）」 al selector de modelos; úsalo en una conversación nueva para hablar sobre imágenes | Zhipu GLM-4V-Flash | Gratis |
-| 👁️ `vision-review` | Analizar / reconocer / describir imágenes y capturas; detectar bugs visuales de UI (solapamientos, desbordes, desalineaciones); detectar marcas de agua/logos; convertir imágenes a texto | Zhipu GLM-4V-Flash | Gratis |
+| 👁️ `vision-review` | Analizar / reconocer / describir imágenes y capturas; detectar bugs visuales de UI (solapamientos, desbordes, desalineaciones); detectar marcas de agua/logos; convertir imágenes a texto. Cadena de motores: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (misma clave que el agente, de pago opcional) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Gratis (DeepSeek de pago opcional) |
 | 🎨 `media-tools` | Generar imágenes, ilustraciones, avatares, fondos y banners | SiliconFlow Kolors | Gratis, sin marca de agua |
 
 > ⚠️ Nota honesta: la lectura de imágenes pegadas vive en el **núcleo** de DeepSeek Harness (la lógica de admisión de imágenes en `api-proxy`). Este bundle aporta la **ruta de modelo + skills**; el modelo de visión funciona en cualquier build de DSH, pero la comodidad de auto-descripción requiere un build con ese soporte. Cómo saberlo: FAQ Q1.

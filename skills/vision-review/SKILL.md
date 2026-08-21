@@ -1,6 +1,6 @@
 ---
 name: vision-review
-description: "免费读图与视觉检查。当用户要分析、识别、检查或描述图片/截图，检查界面或布局的视觉问题（文字重叠、溢出、错位），检测水印/Logo，或把图片内容转成文字时使用。基于智谱 GLM-4V-Flash（免费，可选 SiliconFlow Qwen3-VL / Google Gemini 备用）；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。"
+description: "免费读图与视觉检查。当用户要分析、识别、检查或描述图片/截图，检查界面或布局的视觉问题（文字重叠、溢出、错位），检测水印/Logo，或把图片内容转成文字时使用。引擎链：智谱 GLM-4V-Flash（免费首选）→ DeepSeek-V4-Flash-Vision-Exp（与主 agent 同 key，付费可选）→ SenseNova / SiliconFlow Qwen3-VL / Google Gemini 备用；key 取自环境变量、~/.dsh/.credentials.yaml 或 ~/.dsh/secrets/media-tools.env，永不写进 skill。"
 ---
 
 # Vision Review（读图 / 视觉检查）

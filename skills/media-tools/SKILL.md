@@ -1,6 +1,6 @@
 ---
 name: media-tools
-description: "免费生成图片。当用户要生成图片、插画、头像、背景、banner 等（包括付费图片额度不可用时）使用。优先 SenseNova U1 Fast，其次 SiliconFlow Kolors；key 取自环境变量或 ~/.dsh/secrets/media-tools.env，永不写进 skill。"
+description: "免费生成图片。当用户要生成图片、插画、头像、背景、banner 等（包括付费图片额度不可用时）使用。优先 SenseNova U1 Fast，其次 SiliconFlow Kolors；key 取自环境变量、~/.dsh/.credentials.yaml 或 ~/.dsh/secrets/media-tools.env，永不写进 skill。"
 ---
 
 # Media Tools（免费生图）

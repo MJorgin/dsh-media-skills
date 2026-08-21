@@ -23,7 +23,7 @@ DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你
 - 🖼️ **貼上即讀取**——在任何工作階段中貼上、拖曳或挑選圖片；免費視覺模型會把它轉成你目前模型能理解的文字。
 - 👁️ **`vision-review`**——分析圖片與螢幕截圖、找出 UI 視覺錯誤、偵測浮水印、將圖片轉成文字。
 - 🎨 **`media-tools`**——用免費、無浮水印的模型生成插圖、頭像、背景與橫幅。
-- 🔀 **引擎容錯移轉**——GLM-4V-Flash → SiliconFlow Qwen3-VL → Google Gemini（[AI Studio](https://aistudio.google.com)）→ 任何 OpenAI 相容端點，並輸出 ModLens 風格的結構化證據。
+- 🔀 **引擎容錯移轉**——GLM-4V-Flash → **DeepSeek-V4-Flash-Vision-Exp**（與主 agent 同 key）→ SiliconFlow Qwen3-VL → SenseNova → Google Gemini（[AI Studio](https://aistudio.google.com)）→ 任何 OpenAI 相容端點，並輸出 ModLens 風格的結構化證據。
 
 不寫死金鑰、無需付費 API、不需儲存檔案、不用切換工作階段。
 
@@ -56,7 +56,7 @@ DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你
 |---|---|---|---|
 | 🖼️ 貼上圖片讀取 | 在**純文字**工作階段中，輸入列會多出「Add image」按鈕（圖片圖標）；貼上的圖片會由視覺模型自動描述，並以文字形式交給目前的模型 | Zhipu GLM-4V-Flash | 免費 |
 | 🧠 視覺模型路由 | 「智譜 GLM-4V-Flash（視覺）」會自動出現在模型選擇器中——在開新對話時選用它，即可直接針對圖片交談 | Zhipu GLM-4V-Flash | 免費 |
-| 👁️ `vision-review` | 分析／辨識／描述圖片與螢幕截圖；找出 UI 視覺錯誤（重疊、溢出、未對齊）；偵測浮水印／標誌；將圖片轉成文字。選用的 `--structured` 模式會回傳 ModLens 風格的證據 JSON（摘要、完整 OCR、閱讀順序版面、實體／關係、不確定性）。引擎容錯移轉鏈：GLM-4V-Flash → SiliconFlow Qwen3-VL／Google Gemini（有免費金鑰即自動加入）→ 任何 OpenAI 相容端點 | GLM-4V-Flash＋Qwen3-VL＋Gemini | 免費 |
+| 👁️ `vision-review` | 分析／辨識／描述圖片與螢幕截圖；找出 UI 視覺錯誤（重疊、溢出、未對齊）；偵測浮水印／標誌；將圖片轉成文字。選用的 `--structured` 模式會回傳 ModLens 風格的證據 JSON（摘要、完整 OCR、閱讀順序版面、實體／關係、不確定性）。引擎容錯移轉鏈：GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（與主 agent 同 key，可選付費）→ SiliconFlow Qwen3-VL／SenseNova／Google Gemini（有金鑰即自動加入）→ 任何 OpenAI 相容端點 | GLM-4V-Flash＋DeepSeek-Vision-Exp＋Qwen3-VL＋SenseNova＋Gemini | 免費（DeepSeek 可選付費） |
 | 🎨 `media-tools` | 生成圖片、插圖、頭像、背景、橫幅 | SiliconFlow Kolors | 免費、無浮水印 |
 
 ## ⚡ 快速開始
