@@ -2,13 +2,13 @@
 """Generate images via SenseNova U1 Fast or SiliconFlow Kolors.
 
 Provider selection:
-1. If SENSENOVA_API_KEY is set, use SenseNova U1 Fast (https://token.sensenova.cn).
+1. If SENSENOVA_API_KEY is set, use SenseNova U1 Fast (https://token.sensenova.ai).
 2. Otherwise, if SILICONFLOW_API_KEY is set, use SiliconFlow Kolors.
 """
 import json, os, sys, urllib.request
 from pathlib import Path
 
-SILICONFLOW_URL = "https://api.siliconflow.com/v1/images/generations"
+SILICONFLOW_URL = "https://api.siliconflow.cn/v1/images/generations"
 SILICONFLOW_MODEL = "Kwai-Kolors/Kolors"
 SENSENOVA_URL = "https://token.sensenova.ai/v1/images/generations"
 SENSENOVA_MODEL = "sensenova-u1-fast"

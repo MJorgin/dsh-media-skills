@@ -45,7 +45,7 @@ PRIMARY = {
 def siliconflow_engine():
     return {
         "name": "siliconflow-qwen",
-        "baseUrl": "https://api.siliconflow.com/v1",
+        "baseUrl": "https://api.siliconflow.cn/v1",
         "apiKeyEnv": "SILICONFLOW_API_KEY",
         "model": os.environ.get("SILICONFLOW_VISION_MODEL", "Qwen/Qwen3-VL-8B-Instruct"),
         # Qwen3-VL-8B 端点接受更大的 max_tokens（实测 4096 可用），
