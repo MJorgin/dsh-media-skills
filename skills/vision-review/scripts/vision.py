@@ -107,14 +107,20 @@ def load_key(name):
             for line in env.read_text().splitlines():
                 if line.startswith(name + "="):
                     return line.split("=", 1)[1].strip()
-    # harness 凭据库（YAML：KEY: value）——与主 agent 同一个 key 直接可用。
+    # harness 凭据库——与主 agent 同一个 key 直接可用。
+    # v0.1.1 起为 refs 子映射格式（refs: {KEY: value}），旧版为扁平 KEY: value。
     creds = Path.home() / ".dsh" / ".credentials.yaml"
     if creds.exists():
         try:
             import yaml
             data = yaml.safe_load(creds.read_text()) or {}
-            if isinstance(data, dict) and isinstance(data.get(name), str):
-                return data[name].strip()
+            if isinstance(data, dict):
+                value = data.get(name)
+                refs = data.get("refs")
+                if not isinstance(value, str) and isinstance(refs, dict):
+                    value = refs.get(name)
+                if isinstance(value, str):
+                    return value.strip()
         except Exception:
             pass
     return None
