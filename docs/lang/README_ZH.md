@@ -20,12 +20,12 @@
 
 <br>
 
-DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条免费视觉模型路由 + 一条视觉引擎故障转移链**解决这件事：
+DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条视觉模型路由（v0.1.1 起原生自带 DeepSeek-V4-Flash-Vision-Exp）+ 一条视觉引擎故障转移链**解决这件事：
 
 - 🖼️ **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。*（依赖 DeepSeek Harness 本体的自动转述管道，本 bundle 提供其所需的视觉模型路由与读图技能，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）*
 - 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
 - 🎨 **`media-tools`** —— 免费生成插画、头像、背景、Banner，无水印。
-- 🔀 **引擎故障转移** —— GLM-4V-Flash → SiliconFlow Qwen3-VL → Google Gemini（免费 key 从 [AI Studio](https://aistudio.google.com) 领取）→ 任意 OpenAI 兼容端点，支持 modlens 同款结构化证据输出。
+- 🔀 **引擎故障转移** —— GLM-4V-Flash（免费）→ **DeepSeek-V4-Flash-Vision-Exp**（与主 agent 同 key，付费可选）→ SiliconFlow Qwen3-VL → SenseNova → Google Gemini（免费 key 从 [AI Studio](https://aistudio.google.com) 领取）→ 任意 OpenAI 兼容端点，支持 modlens 同款结构化证据输出。
 
 无 Key 硬编码、无需付费、不用存文件、不用切会话。
 

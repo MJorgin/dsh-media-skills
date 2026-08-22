@@ -20,7 +20,7 @@
 
 DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你剛拖進對話的圖片。這個套件以**兩個免費技能**、一個**免費視覺模型路由**以及一條**視覺引擎容錯移轉鏈**解決這個問題：
 
-- 🖼️ **貼上即讀取**——在任何工作階段中貼上、拖曳或挑選圖片；免費視覺模型會把它轉成你目前模型能理解的文字。
+- 🖼️ **貼上即讀取**——在任何工作階段中貼上、拖曳或挑選圖片；視覺模型會把它轉成你目前模型能理解的文字（**v0.1.1 起預設 DeepSeek-V4-Flash-Vision-Exp，與主 agent 同 key**）。
 - 👁️ **`vision-review`**——分析圖片與螢幕截圖、找出 UI 視覺錯誤、偵測浮水印、將圖片轉成文字。
 - 🎨 **`media-tools`**——用免費、無浮水印的模型生成插圖、頭像、背景與橫幅。
 - 🔀 **引擎容錯移轉**——GLM-4V-Flash → **DeepSeek-V4-Flash-Vision-Exp**（與主 agent 同 key）→ SiliconFlow Qwen3-VL → SenseNova → Google Gemini（[AI Studio](https://aistudio.google.com)）→ 任何 OpenAI 相容端點，並輸出 ModLens 風格的結構化證據。
@@ -65,10 +65,9 @@ DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你
 dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
-1. **取得兩個免費金鑰**（約 2 分鐘，無需付款）：
-   - Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys**（`glm-4v-flash` 免費）
-   - SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → **API Keys**（Kolors 免費）
-   - *（選用的第三個）* Google Gemini——[aistudio.google.com](https://aistudio.google.com) → **Get API key**；會自動加入視覺容錯移轉鏈
+1. **金鑰**：
+   - **v0.1.1-rc.1+**：零額外設定——貼上讀取與視覺路由直接使用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
+   - **rc.7 / rc.8**（或想加免費引擎）：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys**（`glm-4v-flash` 免費）；SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → **API Keys**（Kolors 免費）；*（選用）* Google Gemini——[aistudio.google.com](https://aistudio.google.com) → **Get API key**；會自動加入視覺容錯移轉鏈
 2. **加入金鑰**：在網頁介面（**Settings → Models** → zhipu-vision 供應商的 **API Key** 欄位）中輸入，或使用憑證檔案：
 
    ```sh
@@ -113,7 +112,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 
 金鑰**絕不儲存在這個儲存庫中**。技能腳本依序讀取：環境變數 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（舊版備援）。視覺模型路由會從 DSH 的憑證存放區讀取 `GLM_API_KEY`。
 
-哪裡取得金鑰（全部免費）：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）。SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → API Keys（Kolors）。Google（選用，會自動加入視覺容錯移轉鏈）——[aistudio.google.com](https://aistudio.google.com) → Get API key。
+哪裡取得金鑰：v0.1.1+ 直接用主 agent 的 DEEPSEEK_API_KEY（免申請）。免費引擎：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）。SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → API Keys（Kolors）。Google（選用，會自動加入視覺容錯移轉鏈）——[aistudio.google.com](https://aistudio.google.com) → Get API key。
 
 ```sh
 # ~/.dsh/secrets/media-tools.env（chmod 600，每行一個 KEY=value）

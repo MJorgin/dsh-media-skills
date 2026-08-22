@@ -36,10 +36,11 @@
 ## 2. 前置条件
 
 - 已安装 [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)，能启动 `dsh web`（默认端口 3080）。
-- 一个**智谱 API Key**（读图用，免费）。**获取步骤**：注册/登录 [open.bigmodel.cn](https://open.bigmodel.cn) → 控制台 → 「API Keys」→ 新建并复制（`glm-4v-flash` 免费，无需付费）。
+- **DeepSeek Harness ≥ v0.1.1-rc.1：无需任何 Key**——贴图自动转述与视觉路由直接用主 agent 的 `DEEPSEEK_API_KEY`（原生自带 DeepSeek-V4-Flash-Vision-Exp）。
+- （rc.7 / rc.8，或想加免费引擎）一个**智谱 API Key**（读图用，免费）。**获取步骤**：注册/登录 [open.bigmodel.cn](https://open.bigmodel.cn) → 控制台 → 「API Keys」→ 新建并复制（`glm-4v-flash` 免费，无需付费）。
 - （可选）一个 **SiliconFlow API Key**（仅当你还要用 `media-tools` 免费生图）。**获取步骤**：注册/登录 [siliconflow.cn](https://siliconflow.cn) → 「API 密钥」→ 新建并复制（Kolors 模型免费）。
 - （可选）一个 **Google Gemini API Key**（让 `vision-review` 技能引擎链在智谱失败时自动回退到 Gemini）。**获取步骤**：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」（约三分钟，无需信用卡）。
-- Key 不会写进本仓库的任何文件，只会作为 `GLM_API_KEY` / `SILICONFLOW_API_KEY` / `GEMINI_API_KEY` 保存在你自己的 DSH 凭据里。
+- Key 不会写进本仓库的任何文件，只会作为 `DEEPSEEK_API_KEY` / `GLM_API_KEY` / `SILICONFLOW_API_KEY` / `GEMINI_API_KEY` 保存在你自己的 DSH 凭据里。
 
 ## 3. 安装与配置（共 4 步）
 
@@ -54,6 +55,8 @@ dsh plugin --profile web add github:MJorgin/dsh-media-skills
 > 也可以不走 bundle：把本仓库 `skills/` 下的目录放进任意 skill 根目录（`~/.dsh/skills/` 或项目内 `.dsh/skills/`）。但那样只会得到两个技能，**不会**自动写入视觉模型配置——你需要按第 7 节的文件说明手动补。
 
 ### 第 2 步：获取并填入 GLM_API_KEY（两种方式，任选其一）
+
+> **v0.1.1-rc.1+ 可跳过本步**：贴图转述与视觉路由已默认使用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。GLM key 只用于免费回退引擎。
 
 > 还没有 Key？先到 [open.bigmodel.cn](https://open.bigmodel.cn) 注册并创建（glm-4v-flash 免费）。要生图再顺便去 [siliconflow.cn](https://siliconflow.cn) 创建一个。
 

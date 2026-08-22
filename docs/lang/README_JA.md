@@ -29,7 +29,7 @@
 
 | 機能 | 内容 | モデル | 費用 |
 |---|---|---|---|
-| 🖼️ 画像貼り付け自動読み取り | **テキスト専用セッション**（例: deepseek-v4-pro）の入力欄に「画像を追加」ボタン（画像アイコン）が現れ、貼り付けた画像はビジョンモデルが自動でテキスト説明に変換して現行モデルへ渡す | 智譜 GLM-4V-Flash | 無料 |
+| 🖼️ 画像貼り付け自動読み取り | **テキスト専用セッション**（例: deepseek-v4-pro）の入力欄に「画像を追加」ボタン（画像アイコン）が現れ、貼り付けた画像はビジョンモデルが自動でテキスト説明に変換して現行モデルへ渡す（**v0.1.1 以降は DeepSeek-V4-Flash-Vision-Exp がデフォルト**） | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: 智譜 GLM-4V-Flash | GLM 無料・DeepSeek は残高払い（v0.1.1 デフォルト） |
 | 🧠 ビジョンモデルルート | インストール後、モデルセレクターに**自動で**「智譜 GLM-4V-Flash（視覚）」が追加され、新規セッションで画像について直接会話できる | 智譜 GLM-4V-Flash | 無料 |
 | 👁️ `vision-review` | 画像・スクリーンショットの分析 / 認識 / 説明、UI の視覚的バグ（重なり・はみ出し・ずれ）の検出、ウォーターマーク / ロゴ検出、画像のテキスト化。エンジンチェーン: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（エージェントと同じキー・任意で有料）→ SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | 無料（DeepSeek は任意・有料） |
 | 🎨 `media-tools` | 画像・イラスト・アバター・背景・バナーの生成 | SiliconFlow Kolors | 無料・ウォーターマークなし |
@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **まず無料でキーを取得**：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
+2. **キー**：**v0.1.1-rc.1 以降は追加キー不要**——貼り付け読み取りとビジョンルートはエージェントの既存 `DEEPSEEK_API_KEY` で動きます。無料エンジンを使う場合（または rc.7/rc.8）は、まず無料でキーを取得：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）

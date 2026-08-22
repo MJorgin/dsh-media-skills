@@ -8,6 +8,7 @@
 
 | Provider | Model | Where to get the key | Free tier | Notes |
 |---|---|---|---|---|
+| **DeepSeek (default from v0.1.1)** | deepseek-v4-flash-vision-exp | the agent's own `DEEPSEEK_API_KEY` (nothing to apply for) | Pay-as-you-go | **ships natively on the v0.1.1-rc.1+ deepseek-official route**; paste transcription defaults to it. Older versions configure zhipu-vision manually (section 7) |
 | Zhipu (current default) | glm-4v-flash | [open.bigmodel.cn](https://open.bigmodel.cn) | Free long-term | General vision, Chinese-friendly |
 | SiliconFlow | Qwen/Qwen2.5-VL-7B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API Keys | Sign-up credits + some free models | **Works with the key you already have for image generation** |
 | ModelScope | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → access token | Free inference quota | Mainland-friendly, Chinese-friendly |

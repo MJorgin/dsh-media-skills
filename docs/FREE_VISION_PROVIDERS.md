@@ -8,6 +8,7 @@
 
 | 供应商 | 模型 | Key 去哪申请 | 免费额度 | 备注 |
 |---|---|---|---|---|
+| **DeepSeek（v0.1.1 起默认）** | deepseek-v4-flash-vision-exp | 主 agent 的 `DEEPSEEK_API_KEY`（无需额外申请） | 按量付费 | **v0.1.1-rc.1+ 的 deepseek-official 路由原生自带**，贴图转述默认走它；旧版本按第 7 节手动配 zhipu-vision |
 | 智谱（当前默认） | glm-4v-flash | [open.bigmodel.cn](https://open.bigmodel.cn) | 长期免费 | 通用视觉、中文友好 |
 | SiliconFlow | Qwen/Qwen3-VL-8B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API 密钥 | 注册送额度 + 部分模型免费 | **你已有生图 Key，同一个 key 就能用**（2026-08 实测：Qwen2.5-VL 系列已下架，Qwen3-VL 可用） |
 | ModelScope 魔搭 | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → 访问令牌 | 免费推理额度 | 国内直连、中文友好 |

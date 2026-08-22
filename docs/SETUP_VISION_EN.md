@@ -38,9 +38,10 @@ After install and restart:
 ## 2. Prerequisites
 
 - [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) installed and able to run `dsh web` (default port 3080).
-- A **Zhipu API key** (for reading images; free). **How to get it**: sign up / log in at [open.bigmodel.cn](https://open.bigmodel.cn) → console → **API Keys** → create & copy (`glm-4v-flash` is free, no payment needed).
+- **DeepSeek Harness ≥ v0.1.1-rc.1: no key needed** — paste transcription and the vision route use the agent's own `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp ships natively).
+- (rc.7 / rc.8, or to add the free engines) A **Zhipu API key** (for reading images; free). **How to get it**: sign up / log in at [open.bigmodel.cn](https://open.bigmodel.cn) → console → **API Keys** → create & copy (`glm-4v-flash` is free, no payment needed).
 - (Optional) a **SiliconFlow API key** (only if you also want free generation with `media-tools`). **How to get it**: sign up / log in at [siliconflow.cn](https://siliconflow.cn) → **API Keys** → create & copy (the Kolors model is free).
-- Keys are never written into this repo; they live only in your DSH credential store as `GLM_API_KEY` / `SILICONFLOW_API_KEY`.
+- Keys are never written into this repo; they live only in your DSH credential store as `DEEPSEEK_API_KEY` / `GLM_API_KEY` / `SILICONFLOW_API_KEY`.
 
 ## 3. Install & configure (4 steps)
 
@@ -55,6 +56,8 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 > You can also skip the bundle: drop the folders under `skills/` into any skill root (`~/.dsh/skills/` or a project's `.dsh/skills/`). You only get the two skills that way — the vision model route is **not** seeded; configure it manually (see section 7).
 
 ### Step 2 — Get and supply GLM_API_KEY (either way)
+
+> **v0.1.1-rc.1+ can skip this step**: paste transcription and the vision route already default to the agent's `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp). The GLM key only feeds the free fallback engines.
 
 > No key yet? Sign up at [open.bigmodel.cn](https://open.bigmodel.cn) and create one (glm-4v-flash is free). For generation, also create one at [siliconflow.cn](https://siliconflow.cn).
 

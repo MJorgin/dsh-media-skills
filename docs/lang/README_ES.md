@@ -29,7 +29,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
 
 | Capacidad | Qué hace | Modelo | Coste |
 |---|---|---|---|
-| 🖼️ Lectura de imágenes pegadas | En una sesión **de solo texto** (p. ej. deepseek-v4-pro), la barra de entrada gana un botón «Añadir imagen» (icono de imagen); las imágenes pegadas son descritas por el modelo de visión y entregadas al modelo actual como texto | Zhipu GLM-4V-Flash | Gratis |
+| 🖼️ Lectura de imágenes pegadas | En una sesión **de solo texto** (p. ej. deepseek-v4-pro), la barra de entrada gana un botón «Añadir imagen» (icono de imagen); las imágenes pegadas son descritas por el modelo de visión y entregadas al modelo actual como texto (**desde v0.1.1, DeepSeek-V4-Flash-Vision-Exp por defecto**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM gratis; DeepSeek facturado a tu saldo (por defecto en v0.1.1) |
 | 🧠 Ruta de modelo de visión | Tras instalar, **automáticamente** añade «智譜 GLM-4V-Flash（視覚）」 al selector de modelos; úsalo en una conversación nueva para hablar sobre imágenes | Zhipu GLM-4V-Flash | Gratis |
 | 👁️ `vision-review` | Analizar / reconocer / describir imágenes y capturas; detectar bugs visuales de UI (solapamientos, desbordes, desalineaciones); detectar marcas de agua/logos; convertir imágenes a texto. Cadena de motores: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (misma clave que el agente, de pago opcional) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Gratis (DeepSeek de pago opcional) |
 | 🎨 `media-tools` | Generar imágenes, ilustraciones, avatares, fondos y banners | SiliconFlow Kolors | Gratis, sin marca de agua |
@@ -44,7 +44,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **Primero consigue la clave gratis**: regístrate en [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash es gratis). Si también quieres generar, crea otra en [siliconflow.cn](https://siliconflow.cn) (Kolors es gratis). Luego configúrala — GUI web (**Ajustes → Modelos** → el campo **API Key** del proveedor zhipu-vision) o archivo de credenciales:
+2. **Claves**: **en v0.1.1-rc.1+ no hace falta ninguna clave extra** — la lectura de imágenes pegadas y la ruta de visión usan el `DEEPSEEK_API_KEY` existente del agente. Para los motores gratuitos (o rc.7/rc.8): primero consigue la clave gratis — regístrate en [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash es gratis). Si también quieres generar, crea otra en [siliconflow.cn](https://siliconflow.cn) (Kolors es gratis). Luego configúrala — GUI web (**Ajustes → Modelos** → el campo **API Key** del proveedor zhipu-vision) o archivo de credenciales:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -61,7 +61,7 @@ Guía completa, funcionamiento y resolución de problemas: **[../SETUP_VISION.md
 
 Las claves **nunca se guardan en este repo**. Los scripts leen, en orden: variables de entorno → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (fallback legado). La ruta del modelo de visión lee `GLM_API_KEY` del almacén de credenciales de DSH.
 
-Dónde conseguirlas (ambas gratis): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
+Dónde conseguirlas: en v0.1.1+ usa el DEEPSEEK_API_KEY existente del agente (sin claves extra). Motores gratuitos: Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, una KEY=value por línea)

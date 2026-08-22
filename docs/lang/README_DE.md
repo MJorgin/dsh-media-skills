@@ -29,7 +29,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 | Funktion | Beschreibung | Modell | Kosten |
 |---|---|---|---|
-| 🖼️ Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Bildsymbol); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben | Zhipu GLM-4V-Flash | Kostenlos |
+| 🖼️ Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Bildsymbol); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben (**ab v0.1.1 Standard: DeepSeek-V4-Flash-Vision-Exp**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM kostenlos; DeepSeek wird deinem Guthaben belastet (v0.1.1-Standard) |
 | 🧠 Vision-Modell-Route | Nach der Installation erscheint **automatisch** „智譜 GLM-4V-Flash（視覚）“ im Modell-Auswahlmenü; in neuen Unterhaltungen direkt über Bilder sprechen | Zhipu GLM-4V-Flash | Kostenlos |
 | 👁️ `vision-review` | Bilder/Screenshots analysieren, erkennen, beschreiben; visuelle UI-Bugs finden (Überlappung, Überlauf, Fehlausrichtung); Wasserzeichen/Logos erkennen; Bilder in Text umwandeln. Engine-Kette: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (gleicher Schlüssel wie der Agent, optional kostenpflichtig) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Kostenlos (DeepSeek optional kostenpflichtig) |
 | 🎨 `media-tools` | Bilder, Illustrationen, Avatare, Hintergründe und Banner generieren | SiliconFlow Kolors | Kostenlos, ohne Wasserzeichen |
@@ -44,7 +44,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **Zuerst kostenlos einen Key holen**: Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:
+2. **Keys**: **ab v0.1.1-rc.1 sind keine zusätzlichen Keys nötig** — Einfüge-Lesen und Vision-Route laufen über den vorhandenen `DEEPSEEK_API_KEY` des Agenten. Für die kostenlosen Engines (oder rc.7/rc.8): zuerst kostenlos einen Key holen — Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
