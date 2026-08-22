@@ -32,7 +32,7 @@
 | 🖼️ 이미지 붙여넣기 자동 읽기 | **텍스트 전용 세션**(예: deepseek-v4-pro)의 입력창에 「이미지 추가」 버튼(이미지 아이콘)이 생기고, 붙여넣은 이미지는 비전 모델이 자동으로 텍스트 설명으로 변환해 현재 모델에 전달(**v0.1.1부터는 DeepSeek-V4-Flash-Vision-Exp가 기본**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM 무료·DeepSeek 잔액 과금(v0.1.1 기본) |
 | 🧠 비전 모델 라우트 | 설치 후 모델 선택기에 **자동으로** 「智譜 GLM-4V-Flash（視覚）」이 등록되어, 새 세션에서 이미지에 대해 바로 대화 가능 | Zhipu GLM-4V-Flash | 무료 |
 | 👁️ `vision-review` | 이미지·스크린샷 분석/인식/설명, UI 시각 버그(겹침·넘침·어긋남) 탐지, 워터마크/로고 감지, 이미지 텍스트화. 엔진 체인: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp(에이전트와 동일 키·선택 유료) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | 무료(DeepSeek 선택 유료) |
-| 🎨 `media-tools` | 이미지·일러스트·아바타·배경·배너 생성 | SiliconFlow Kolors | 무료, 워터마크 없음 |
+| 🎨 `media-tools` | 이미지·일러스트·아바타·배경·배너 생성 | SenseNova U1 Fast → SiliconFlow Kolors | 무료, 워터마크 없음 |
 
 > ⚠️ 정직한 안내: 「이미지 붙여넣기 자동 읽기」는 DeepSeek Harness **본체** 기능(`api-proxy`의 이미지 수용 로직)입니다. 이 번들이 제공하는 것은 **모델 설정 + 읽기/생성 스킬**입니다. 비전 모델은 어떤 DSH 빌드에서도 동작하지만, 자동 읽기 편의 기능은 본체에 해당 지원이 포함되어 있어야 합니다. 판별 방법은 [../SETUP_VISION.md](../SETUP_VISION.md) FAQ Q1을 참고하세요.
 
