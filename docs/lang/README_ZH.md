@@ -52,6 +52,8 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 **为什么用「自带免费 Key」而不是内置匿名端点？** 为了隐私和稳定性。你的图片只发给你选的提供方，走你自己的账号和速率限制，中间没有任何共享第三方服务。
 
+**新版本适配**：DeepSeek Harness **≥ v0.1.1-rc.1** 的 deepseek-official 路由原生自带 **DeepSeek-V4-Flash-Vision-Exp**——贴图自动转述与视觉模型路由会直接使用它，与主 agent 同一个 `DEEPSEEK_API_KEY`，**零额外配置**。rc.7 / rc.8 则应用本仓库配套补丁（见 [HARNESS_PATCH.md](HARNESS_PATCH.md)）。
+
 ## ✨ 能力一览
 
 | 能力 | 说明 | 模型 | 费用 |
