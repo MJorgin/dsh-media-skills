@@ -11,8 +11,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
-[![Free vision](https://img.shields.io/badge/vision-GLM%2BGemini-2EA44F)](../SETUP_VISION_EN.md)
-[![Free generation](https://img.shields.io/badge/generation-Kolors-2EA44F)](../FREE_VISION_PROVIDERS_EN.md)
+[![Free vision](https://img.shields.io/badge/vision-GLM%2BDeepSeek%2BGemini-2EA44F)](../SETUP_VISION_EN.md)
+[![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](../FREE_VISION_PROVIDERS_EN.md)
 [![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README_ZH_TW.md#-金鑰與隱私)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](README_ZH_TW.md)
 
