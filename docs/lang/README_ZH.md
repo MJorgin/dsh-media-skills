@@ -43,8 +43,8 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 对比项 | 本 bundle | 常见「只读图」插件 |
 |---|---|---|
-| 免费读图 | ✅ 智谱 GLM-4V-Flash | ✅ |
-| **免费生图** | ✅ SiliconFlow Kolors | ❌ 通常没有 |
+| 免费读图 | ✅ 智谱 GLM-4V-Flash（免费）· v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp（同 key） | ✅ |
+| **免费生图** | ✅ SenseNova U1 Fast → SiliconFlow Kolors | ❌ 通常没有 |
 | 自动写入模型路由 | ✅ 安装即自动配置 | 视插件而定 |
 | Key 是否入库 | ❌ 绝不，密钥只留在本地 | ⚠️ 经常要求配置 |
 | 多语言文档 | ✅ 9 种语言 | ❌ 通常只有英文 |
@@ -56,10 +56,10 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 能力 | 说明 | 模型 | 费用 |
 |---|---|---|---|
-| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型，气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + client-ux 补丁（rc.7/rc.8 各一份），支持 rc.7/rc.8/v0.1.1-rc.1；本 bundle 提供其依赖的视觉路由与技能）* | 智谱 GLM-4V-Flash | 免费 |
-| 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」，新会话选它即可直接看图对话 | 智谱 GLM-4V-Flash | 免费 |
+| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型（**v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp**；rc.7/rc.8 为 GLM-4V-Flash + SiliconFlow 故障转移，单路由 15s），气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + client-ux 补丁（rc.7/rc.8 各一份），支持 rc.7/rc.8/v0.1.1-rc.1；本 bundle 提供其依赖的视觉路由与技能）* | v0.1.1：DeepSeek-Vision-Exp · rc.7/8：GLM-4V-Flash | GLM 免费；DeepSeek 走余额（v0.1.1 默认） |
+| 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」；**v0.1.1** 的 deepseek 路由还原生自带 **DeepSeek-V4-Flash-Vision-Exp**（同 key）——新会话选任一即可直接看图对话 | 智谱 GLM-4V-Flash · DeepSeek-V4-Flash-Vision-Exp（v0.1.1） | GLM 免费；DeepSeek 走余额 |
 | 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（与主 agent 同 key，付费可选）→ SiliconFlow Qwen3-VL / SenseNova / Google Gemini（有 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + DeepSeek-Vision-Exp + Qwen3-VL + SenseNova + Gemini | 免费（DeepSeek 付费可选） |
-| 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SiliconFlow Kolors | 免费、无水印 |
+| 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SenseNova U1 Fast → SiliconFlow Kolors | 免费、无水印 |
 
 ## ⚡ 快速开始
 
@@ -67,10 +67,9 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
-1. **申请两个免费 Key**（约 2 分钟，无需付费）：
-   - 智谱：[open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费）
-   - SiliconFlow：[siliconflow.cn](https://siliconflow.cn) → 「API 密钥」（Kolors 免费）
-   - *（可选第三个）* Google Gemini：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」，配好后自动加入读图回退链
+1. **Key**：
+   - **v0.1.1-rc.1+**：零额外配置——贴图转述与视觉路由直接用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
+   - **rc.7 / rc.8**（或想加免费引擎）：智谱：[open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费）；SiliconFlow：[siliconflow.cn](https://siliconflow.cn) → 「API 密钥」（Kolors 免费）；*（可选）* Google Gemini：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」，配好后自动加入读图回退链
 2. **填入**：Web 界面（**设置 → 模型** → 找到 zhipu-vision 提供方的 **API Key 栏**），或写在凭据文件里：
 
    ```sh
