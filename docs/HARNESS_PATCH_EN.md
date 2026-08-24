@@ -9,8 +9,9 @@
 >
 > | Harness version | Patch file | Status |
 > |---|---|---|
-> | `dsh-v0.1.1-rc.1` (latest) | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
+> | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
 > | `dsh-v0.1.1-rc.1` client UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
+> | `dsh-v0.1.1-rc.2` (latest) | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ round-trip verified (apply/check clean + byte-identical) + typechecked (`tsc -b` host clean) |
 > | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
 > | `dsh-v0.1.0-rc.8` client UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the working tree) |
 > | `dsh-v0.1.0-rc.7` (2026-08-12) | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean) |
@@ -25,6 +26,11 @@
 > `selectModel` guard relaxation.
 >
 > Apply with `git apply <patch>` on a clean checkout of the matching tag
+> **v3 (0.1.1-rc.2) major change**: upstream 0.1.1-rc.2 **natively implements request-level image projection**
+> (`projectImagesForTextModel` in the llm package's `content.ts`) and **removed the selectModel image guard** —
+> so the 0.1.1-rc.2 patch is **only `api-proxy.ts`** (admission relaxation + `agent/pre-step` transcription);
+> the llm projection and guard relaxation are no longer part of it (upstream did them).
+
 > (round-trip verified).
 >
 > **v2 vs the old v1**: v1 targeted earlier pre-rc.7 builds (admit-with-placeholder

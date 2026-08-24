@@ -7,8 +7,9 @@
 >
 > | Harness 版本 | 补丁文件 | 状态 |
 > |---|---|---|
-> | `dsh-v0.1.1-rc.1`（最新） | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
-| `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
+> | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
+> | `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
+> | `dsh-v0.1.1-rc.2`（最新） | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ 回环验证（apply/check 干净 + 逐字节一致）+ typecheck（`tsc -b` host 干净） |
 | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
 > | `dsh-v0.1.0-rc.8` 客户端 UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与工作区逐字节一致） |
 > | `dsh-v0.1.0-rc.7`（2026-08-12 发布） | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ 补丁回环验证通过（`git apply --check` 干净） |
@@ -20,6 +21,11 @@
 > 因此两个版本行为一致：准入放宽 + `agent/pre-step` 转述 + 请求级图片投影 + `selectModel` 守卫放宽。
 >
 > 在对应 tag 的干净源码上 `git apply <补丁文件>` 即可（已做回环验证）。
+> **v3（0.1.1-rc.2）重要变化**：上游在 0.1.1-rc.2 **原生实现了请求级图片投影**
+> （`projectImagesForTextModel`，llm 包 `content.ts`）并**删除了 selectModel 图片守卫**——
+> 因此 0.1.1-rc.2 补丁**只有 api-proxy.ts 一处文件**（准入放宽 + `agent/pre-step` 转述），
+> 不再包含 llm 投影与守卫放宽（上游已替我们做掉）。
+
 >
 > **v2 相对旧版 v1 的变化**：v1 面向更早的 pre-rc.7 构建（准入先上屏占位 + 客户端加按钮），
 > rc.7 / rc.8 已原生支持粘贴/拖放图片摄入（`InputBar` 的 `addImages` 管线、`imageLimits` 预检），

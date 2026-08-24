@@ -1,0 +1,244 @@
+--- a/packages/host/apiproxy/src/api-proxy.ts	2026-08-24 10:04:07
++++ b/packages/host/apiproxy/src/api-proxy.ts	2026-08-24 10:03:56
+@@ -10,13 +10,13 @@
+ import { z as zod } from 'zod'
+ import type { Context } from '@deepseek-ai/cordis'
+ import { installModelSelection } from '@deepseek-ai/dsh-agent'
+-import type { Agent, ModelSelection, ModelSelectionRef, AgentOptions, AgentStatus } from '@deepseek-ai/dsh-agent'
++import type { Agent, ModelSelection, ModelSelectionRef, AgentOptions, AgentStatus, PreStepDecision } from '@deepseek-ai/dsh-agent'
+ import type {} from '@deepseek-ai/dsh-agent-presets/types'
+ import { AttachmentError, admitEncodedImages } from '@deepseek-ai/dsh-attachment'
+ import type { ImageAttachmentRef } from '@deepseek-ai/dsh-attachment'
+-import { createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
++import { BlockAssembler, createUserMessage, freezeMessage, ReasoningEffortId } from '@deepseek-ai/dsh-llm'
+ import { errorChain } from '@deepseek-ai/dsh-llm'
+-import type { ContentBlock, MessageSource } from '@deepseek-ai/dsh-llm'
++import type { ContentBlock, ImageBlock, MessageSource, TextBlock } from '@deepseek-ai/dsh-llm'
+ import { isAppendSurfaceEvent, isJsonValue } from '@deepseek-ai/dsh-session'
+ import type { JsonValue, Session, SessionEvent, SessionEventMap, SessionHeader, SessionId, UserMessage } from '@deepseek-ai/dsh-session'
+ import type { SessionPersistence } from '@deepseek-ai/dsh-session-persistence'
+@@ -116,6 +116,162 @@
+ 
+ /** Provider work budget: at most 100 calls and 2,000 inspected hits. */
+ const SESSION_SEARCH_PROVIDER_CALL_LIMIT = 100
++
++// ---- Vision transcription (dsh-media-skills HARNESS_PATCH v3, 0.1.1-rc.2) ----
++// A text-only model session that receives an image is no longer rejected at
++// admission. Instead the image is persisted and surfaced immediately, the
++// agent/pre-step hook transcribes it through the first vision-capable route
++// (registration order is the failover chain), and the llm layer's native
++// request-level image projection (projectImagesForTextModel, upstream since
++// 0.1.1-rc.2) is the safety net for text-only requests.
++
++/** Transcription instruction: describe the image in the user message's language. */
++const VISION_DESCRIPTION_PROMPT = '请描述这张图片的内容。使用与用户消息相同的语言回答；若用户消息没有文字，默认用中文。只描述图片内容，不要猜测上下文。'
++/** Per-route budget for one transcription call. */
++const VISION_DESCRIPTION_TIMEOUT_MS = 15_000
++/** Output cap for one transcription call (glm-4v-flash rejects max_tokens > 1024). */
++const VISION_DESCRIPTION_MAX_TOKENS = 1024
++/** Marker prefix on transcription blocks so the model knows the text is a machine reading. */
++const VISION_DESCRIPTION_MARK = '[图片，已由视觉模型读取]'
++/** Inline notice replacing an image block every route failed to transcribe. */
++const VISION_DESCRIPTION_FAILED = '[图片读取失败：视觉模型不可用，请重试或把图片存成文件后读取]'
++
++/** One vision-capable route: provider route plus its first image-accepting model. */
++interface VisionRoute {
++  readonly provider: string
++  readonly model: string
++}
++
++/**
++ * Discover vision-capable model routes in registration order (the failover
++ * chain). Cached until the provider topology changes.
++ * @param ctx - the application context.
++ * @param cache - the per-proxy route cache (cleared on llm/adapters-updated).
++ * @returns provider/model pairs whose model accepts image input.
++ */
++async function findVisionRoutes(ctx: Context, cache: Map<string, VisionRoute[]>): Promise<VisionRoute[]> {
++  const cached = cache.get('routes')
++  if (cached !== undefined) return cached
++  const routes: VisionRoute[] = []
++  for (const provider of ctx.llm.listProviders()) {
++    try {
++      const models = await ctx.llm.listModels(provider.id)
++      const vision = models.find(model => model.inputModalities?.includes('image'))
++      if (vision !== undefined) routes.push({ provider: provider.id, model: vision.id })
++    } catch (error) {
++      ctx.logger.warn(
++        `vision route discovery skipped for "${provider.id}": ${error instanceof Error ? error.message : String(error)}`,
++      )
++    }
++  }
++  cache.set('routes', routes)
++  return routes
++}
++
++/**
++ * Transcribe one image block through the vision failover chain.
++ * @param ctx - the application context.
++ * @param routes - the vision routes in failover order.
++ * @param imageBlock - the durable image block to describe.
++ * @param userText - the user message text riding beside the image.
++ * @param signal - the turn's cancellation signal (combined with a per-route timeout).
++ * @returns the description text, or null when every route failed.
++ */
++async function describeImage(
++  ctx: Context,
++  routes: readonly VisionRoute[],
++  imageBlock: ImageBlock,
++  userText: string,
++  signal: AbortSignal,
++): Promise<string | null> {
++  for (const route of routes) {
++    const controller = new AbortController()
++    const timer = setTimeout(() => controller.abort(), VISION_DESCRIPTION_TIMEOUT_MS)
++    const onAbort = (): void => controller.abort()
++    if (!signal.aborted) signal.addEventListener('abort', onAbort, { once: true })
++    try {
++      const assembler = new BlockAssembler()
++      const stream = ctx.llm.stream({
++        provider: route.provider,
++        model: route.model,
++        maxTokens: VISION_DESCRIPTION_MAX_TOKENS,
++        signal: controller.signal,
++        messages: [createUserMessage({
++          content: [
++            imageBlock,
++            { type: 'text', text: userText.length === 0
++              ? VISION_DESCRIPTION_PROMPT
++              : `${VISION_DESCRIPTION_PROMPT}\n\n用户消息：${userText}` },
++          ],
++          source: { kind: 'user' },
++        })],
++      })
++      for await (const chunk of stream) assembler.push(chunk)
++      const text = assembler.blocks()
++        .filter((block): block is TextBlock => block.type === 'text')
++        .map(block => block.text.trim())
++        .filter(text => text.length > 0)
++        .join('\n')
++      if (assembler.finish.kind !== 'error' && assembler.finish.kind !== 'aborted' && text.length > 0) {
++        return text
++      }
++    } catch {
++      // Fall through to the next route.
++    } finally {
++      clearTimeout(timer)
++      signal.removeEventListener('abort', onAbort)
++    }
++  }
++  return null
++}
++
++/**
++ * Rewrite one pre-step message batch: every user message containing image
++ * blocks gets them transcribed through the vision chain (the image block is
++ * kept for the thumbnail, the transcription is appended beside it) or, when
++ * every route fails, the image block is replaced by an inline failure notice
++ * — a text-only model can never receive a raw image block.
++ * @returns the rewritten batch, or null when nothing changed.
++ */
++async function describeImagesInMessages(
++  ctx: Context,
++  cache: Map<string, VisionRoute[]>,
++  messages: readonly UserMessage[],
++  signal: AbortSignal,
++): Promise<UserMessage[] | null> {
++  let changed = false
++  const routes = await findVisionRoutes(ctx, cache)
++  const rewritten = await Promise.all(messages.map(async (message) => {
++    if (!message.content.some(block => block.type === 'image')) return message
++    changed = true
++    const userText = message.content
++      .filter((block): block is TextBlock => block.type === 'text')
++      .map(block => block.text)
++      .join('\n')
++    const imageBlocks = message.content.filter((block): block is ImageBlock => block.type === 'image')
++    const descriptions = await Promise.all(
++      imageBlocks.map(block => describeImage(ctx, routes, block, userText, signal)),
++    )
++    const blocks: ContentBlock[] = []
++    let imageIndex = 0
++    for (const block of message.content) {
++      if (block.type !== 'image') {
++        blocks.push(block)
++        continue
++      }
++      const description = descriptions[imageIndex++]
++      if (description !== null) {
++        blocks.push(block)
++        blocks.push({ type: 'text', text: `${VISION_DESCRIPTION_MARK}\n${description}` })
++      } else {
++        blocks.push({ type: 'text', text: VISION_DESCRIPTION_FAILED })
++      }
++    }
++    return freezeMessage({ ...message, content: blocks })
++  }))
++  return changed ? rewritten : null
++}
++
+ 
+ /** Bound cold-log stat fan-out and settle each started batch before cancellation returns. */
+ const COLD_SUMMARY_BATCH_SIZE = 16
+@@ -1128,6 +1284,37 @@
+     selectionFor(agent)
+   }
+ 
++  // ---- Vision transcription hook (dsh-media-skills HARNESS_PATCH v3) ----
++  // Registered on the shared ctx: every agent with image-bearing pre-step
++  // messages and a text-only current model gets its image blocks transcribed
++  // through the first vision-capable route before the messages enter history
++  // and the request. Steps without image blocks stay on the plain path (the
++  // check is a cheap content scan).
++  const visionRouteCache = new Map<string, VisionRoute[]>()
++  ctx.on('llm/adapters-updated', () => {
++    visionRouteCache.clear()
++  })
++  ctx.on('agent/pre-step', async ({ agent, messages, signal }, next): Promise<PreStepDecision> => {
++    if (!messages.some(message => message.content.some(block => block.type === 'image'))) return next()
++    const decision = await next()
++    if (decision.kind !== 'enter') return decision
++    // A vision-capable current model sees the images natively — nothing to transcribe.
++    const current = selectionFor(agent).current
++    const modelInfo = await ctx.llm.resolveModelInfo(current.provider, current.model, signal)
++    if (modelInfo.inputModalities !== undefined && modelInfo.inputModalities.includes('image')) {
++      return decision
++    }
++    try {
++      const rewritten = await describeImagesInMessages(ctx, visionRouteCache, decision.messages, signal)
++      return rewritten === null ? decision : { kind: 'enter', messages: rewritten }
++    } catch (error) {
++      ctx.logger.warn(
++        `vision transcription skipped for "${agent.id}": ${error instanceof Error ? error.message : String(error)}`,
++      )
++      return decision
++    }
++  })
++
+   /**
+    * Reject an attempt to run an existing session under a different preset.
+    *
+@@ -2382,17 +2569,12 @@
+         const hasImage = content.some(part => part.type === 'image')
+         const admit = async (): Promise<RpcResponse<{ accepted: true }>> => {
+           try {
+-            if (hasImage) {
+-              const current = selectionFor(agent).current
+-              const modelInfo = await ctx.llm.resolveModelInfo(current.provider, current.model)
+-              if (modelInfo.inputModalities !== undefined && !modelInfo.inputModalities.includes('image')) {
+-                return err(request, {
+-                  code: 'attachment-error',
+-                  message: `Model "${current.model}" does not support image input.`,
+-                  details: { reason: 'MODEL_DOES_NOT_SUPPORT_IMAGES' },
+-                })
+-              }
+-            }
++            // Image admission no longer rejects on model capability: a
++            // text-only model session's images are transcribed by the
++            // agent/pre-step hook (image block kept, transcription appended);
++            // with no vision route or after total failure, the llm layer's
++            // native request-level image projection is the safety net, so the
++            // message still lands in history and on screen.
+             const durable = await durablePromptContent(ctx, content)
+             const message: UserMessage = createUserMessage({ content: durable, source })
+             if (mode === 'steer') agent.steer(message)
