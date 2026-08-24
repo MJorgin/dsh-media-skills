@@ -15,7 +15,7 @@
 [![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
 [![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
-[![Harness](https://img.shields.io/badge/Harness-rc.7%20%2F%20rc.8%20%2F%20v0.1.1%20rc.1-4D6BFE)](docs/HARNESS_PATCH_EN.md)
+[![Harness](https://img.shields.io/badge/Harness-rc.7%20%2F%20rc.8%20%2F%20v0.1.1%20rc.1%20%2F%20rc.2-4D6BFE)](docs/HARNESS_PATCH_EN.md)
 
 <br>
 
@@ -57,7 +57,7 @@ Most DSH vision plugins only **read** images — and many push you through a sha
 
 | Capability | What it does | Model | Cost |
 |---|---|---|---|
-| 🖼️ Paste-image reading | In a **text-only** session, paste, drag, or pick (add-image button, restored by the client-ux patches) an image into the composer; it is described by the vision model (**v0.1.1: DeepSeek-V4-Flash-Vision-Exp by default**; rc.7/rc.8: GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the api-proxy admission patch + the rc.8 client-ux patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), patch files included for rc.7, rc.8 and v0.1.1-rc.1; this bundle supplies the vision route + skill it depends on)* | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: GLM-4V-Flash + Qwen3-VL | GLM free; DeepSeek billed to your balance (v0.1.1 default) |
+| 🖼️ Paste-image reading | In a **text-only** session, paste, drag, or pick (add-image button, restored by the client-ux patches) an image into the composer; it is described by the vision model (**v0.1.1: DeepSeek-V4-Flash-Vision-Exp by default**; rc.7/rc.8: GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the api-proxy admission patch + the rc.8 client-ux patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), patch files included for rc.7, rc.8, v0.1.1-rc.1 and v0.1.1-rc.2; this bundle supplies the vision route + skill it depends on)* | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: GLM-4V-Flash + Qwen3-VL | GLM free; DeepSeek billed to your balance (v0.1.1 default) |
 | 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」 appears in the model selector automatically; on **v0.1.1** the deepseek route also ships **DeepSeek-V4-Flash-Vision-Exp** natively (same key) — pick either for a new conversation and talk about images directly | Zhipu GLM-4V-Flash · DeepSeek-V4-Flash-Vision-Exp (v0.1.1) | GLM free; DeepSeek billed |
 | 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp / SiliconFlow Qwen3-VL / SenseNova / Google Gemini (auto-join with keys) → any OpenAI-compatible endpoint | GLM-4V-Flash + DeepSeek-Vision-Exp + Qwen3-VL + SenseNova + Gemini | GLM/SiliconFlow free; DeepSeek uses your API balance (optional) |
 | 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SenseNova U1 Fast → SiliconFlow Kolors | Free, no watermark |
