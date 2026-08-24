@@ -10,6 +10,7 @@
 > | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
 > | `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
 > | `dsh-v0.1.1-rc.2`（最新） | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ 回环验证（apply/check 干净 + 逐字节一致）+ typecheck（`tsc -b` host 干净） |
+> | `dsh-v0.1.1-rc.2` 客户端 UX | [patches/dsh-v0.1.1-rc.2-client-ux.patch](patches/dsh-v0.1.1-rc.2-client-ux.patch) | ✅ 复用 rc.1-client-ux——rc.1 与 rc.2 的这四个客户端文件逐字节一致，`git apply --check` 干净 |
 | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
 > | `dsh-v0.1.0-rc.8` 客户端 UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与工作区逐字节一致） |
 > | `dsh-v0.1.0-rc.7`（2026-08-12 发布） | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ 补丁回环验证通过（`git apply --check` 干净） |

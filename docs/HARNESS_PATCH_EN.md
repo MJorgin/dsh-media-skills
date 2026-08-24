@@ -12,6 +12,7 @@
 > | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
 > | `dsh-v0.1.1-rc.1` client UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
 > | `dsh-v0.1.1-rc.2` (latest) | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ round-trip verified (apply/check clean + byte-identical) + typechecked (`tsc -b` host clean) |
+> | `dsh-v0.1.1-rc.2` client UX | [patches/dsh-v0.1.1-rc.2-client-ux.patch](patches/dsh-v0.1.1-rc.2-client-ux.patch) | ✅ reuses rc.1-client-ux — the four client files are byte-identical between rc.1 and rc.2, `git apply --check` clean |
 > | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
 > | `dsh-v0.1.0-rc.8` client UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the working tree) |
 > | `dsh-v0.1.0-rc.7` (2026-08-12) | [patches/dsh-v0.1.0-rc.7-vision-transcription.patch](patches/dsh-v0.1.0-rc.7-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean) |
