@@ -11,7 +11,7 @@
 > | `dsh-v0.1.2-alpha.3` 客户端 UX | [patches/dsh-v0.1.2-alpha.3-client-ux.patch](patches/dsh-v0.1.2-alpha.3-client-ux.patch) | ✅ `git apply --check` 对 alpha.1/alpha.2/alpha.3 均干净；`tsc -b tsconfig.client.json` **零新增**类型错误（新增「添加图片」按钮 + 隐藏文件选择器 + 缩略图在场时隐藏转述标记）。`MessageItem` 已移至 `packages/client/ui-chat` |
 > | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
 > | `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
-> | `dsh-v0.1.1-rc.2`（最新） | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ 回环验证（apply/check 干净 + 逐字节一致）+ typecheck（`tsc -b` host 干净） |
+> | `dsh-v0.1.1-rc.2` | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ 回环验证（apply/check 干净 + 逐字节一致）+ typecheck（`tsc -b` host 干净） |
 > | `dsh-v0.1.1-rc.2` 客户端 UX | [patches/dsh-v0.1.1-rc.2-client-ux.patch](patches/dsh-v0.1.1-rc.2-client-ux.patch) | ✅ 复用 rc.1-client-ux——rc.1 与 rc.2 的这四个客户端文件逐字节一致，`git apply --check` 干净 |
 | `dsh-v0.1.0-rc.8`（2026-08-19 发布） | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ 已 typecheck（`tsc -b tsconfig.host.json` 干净） |
 > | `dsh-v0.1.0-rc.8` 客户端 UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与工作区逐字节一致） |
