@@ -1,0 +1,159 @@
+diff --git a/packages/client/ui-chat/src/client/chat/MessageItem.tsx b/packages/client/ui-chat/src/client/chat/MessageItem.tsx
+index 9846a47..97a76ec 100644
+--- a/packages/client/ui-chat/src/client/chat/MessageItem.tsx
++++ b/packages/client/ui-chat/src/client/chat/MessageItem.tsx
+@@ -12,22 +12,35 @@ import css from './MessageItem.module.css'
+ 
+ type UserImage = Extract<UserMessageNode['content'][number], { type: 'image' }>
+ 
++/**
++ * Text blocks the host pre-step transcription hook pairs with an image: the
++ * vision reading the model consumes (success and failure forms alike). They
++ * stay model-visible but never belong on screen — the thumbnail is the
++ * visual. Old messages without an image block keep showing the text.
++ */
++const VISION_DESCRIPTION_MARKER = /^\[图片(?:，已由视觉模型读取\]|「[^」]*」(?:已由视觉模型读取\]|无法自动转述，已保存到)|无法转述[：:])/
++
+ function contentParts(content: readonly unknown[]): {
+   text: string
+   images: { attachment: UserImage['attachment'] }[]
+   rest: unknown[]
+ } {
+   const texts: string[] = []
++  const markerTexts: string[] = []
+   const images: { attachment: UserImage['attachment'] }[] = []
+   const rest: unknown[] = []
+   for (const block of content) {
+     const b = block as { type?: string; text?: string; attachment?: unknown }
+-    if (b.type === 'text' && typeof b.text === 'string') texts.push(b.text)
++    if (b.type === 'text' && typeof b.text === 'string') {
++      if (VISION_DESCRIPTION_MARKER.test(b.text)) markerTexts.push(b.text)
++      else texts.push(b.text)
++    }
+     else if (b.type === 'image' && b.attachment !== undefined) {
+       images.push({ attachment: (b as UserImage).attachment })
+     }
+     else rest.push(block)
+   }
++  if (images.length === 0) texts.push(...markerTexts)
+   return { text: texts.join(''), images, rest }
+ }
+ 
+diff --git a/packages/client/ui-conversation/src/client/locales.ts b/packages/client/ui-conversation/src/client/locales.ts
+index 296f95b..bad5152 100644
+--- a/packages/client/ui-conversation/src/client/locales.ts
++++ b/packages/client/ui-conversation/src/client/locales.ts
+@@ -20,6 +20,7 @@ export const zh = {
+   'placeholder.workspace': '选择一个工作区开始',
+   'placeholder.steerQueue': 'Cmd/Ctrl+Enter 插话发送全部排队消息',
+   'input.commands': '指令',
++  'input.addImage': '添加图片',
+   'input.stop': '停止生成',
+   'input.send': '发送消息',
+   'input.accessMode': '访问模式，当前：{name}',
+@@ -170,6 +171,7 @@ export const en = {
+   'placeholder.workspace': 'Choose a workspace to start',
+   'placeholder.steerQueue': 'Cmd/Ctrl+Enter steers all queued messages',
+   'input.commands': 'Commands',
++  'input.addImage': 'Add image',
+   'input.stop': 'Stop generating',
+   'input.send': 'Send message',
+   'input.accessMode': 'Access mode, current: {name}',
+diff --git a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+index 6c8c46c..8b056d5 100644
+--- a/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
++++ b/packages/client/ui-conversation/src/client/skeleton/InputBar.tsx
+@@ -14,10 +14,10 @@
+  */
+ 
+ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+-import type { CSSProperties, KeyboardEvent, MouseEvent, ReactNode } from 'react'
++import type { CSSProperties, ChangeEvent, KeyboardEvent, MouseEvent, ReactNode } from 'react'
+ import clsx from 'clsx'
+ import {
+-  IconPlusOutline16, IconWarningOutline16, Toast, Tooltip,
++  IconImageOutline16, IconPlusOutline16, IconWarningOutline16, Toast, Tooltip,
+ } from '@deepseek-ai/dsh-client-ui-primitives'
+ // Type-only: the `plan` projection key merge (the TodoDock posture — the
+ // composer reads a host-computed value; the domain owns the key).
+@@ -244,6 +244,15 @@ export function InputBar({
+     if (rejected !== null) showToast(rejected)
+   }, [addImages, attachments, imageLimits, showToast, t])
+ 
++  // Explicit picker intake: a hidden file input the add-image button opens,
++  // so adding an image never requires drag/drop or paste.
++  const fileRef = useRef<HTMLInputElement | null>(null)
++  const onPickImages = useCallback((e: ChangeEvent<HTMLInputElement>): void => {
++    const files = Array.from(e.target.files ?? [])
++    e.target.value = ''
++    if (files.length > 0) intakeImages(files)
++  }, [intakeImages])
++
+   const canAcceptDrop = !locked && !machineBusy && addImages !== undefined
+ 
+   // The keymap handlers read live bar state through this ref so the editor
+@@ -434,6 +443,14 @@ export function InputBar({
+             <DecoratorPortals editor={workspaceTrigger ? null : editor} />
+           </div>
+         </div>
++        <input
++          ref={fileRef}
++          type="file"
++          accept="image/png,image/jpeg,image/webp,image/gif"
++          multiple
++          hidden
++          onChange={onPickImages}
++        />
+         <div className={css.row}>
+           <div className={css.tools}>
+             <Tooltip label={t('input.commands')} side="top" delayMs={500}>
+@@ -450,6 +467,18 @@ export function InputBar({
+                 <IconPlusOutline16 size={14} />
+               </button>
+             </Tooltip>
++            <Tooltip label={t('input.addImage')} side="top" delayMs={500}>
++              <button
++                type="button"
++                className={css.add}
++                aria-label={t('input.addImage')}
++                disabled={addImages === undefined || locked || machineBusy}
++                onMouseDown={keepFocus}
++                onClick={() => { fileRef.current?.click() }}
++              >
++                <IconImageOutline16 size={14} />
++              </button>
++            </Tooltip>
+             <div className={css.modes}>
+               {accessSelect}
+               {sessionId === undefined ? null : renderSlot('conversation.input.plan', { locked })}
+diff --git a/packages/client/ui-primitives/src/icons/index.tsx b/packages/client/ui-primitives/src/icons/index.tsx
+index b2d5218..b8cd90d 100644
+--- a/packages/client/ui-primitives/src/icons/index.tsx
++++ b/packages/client/ui-primitives/src/icons/index.tsx
+@@ -125,6 +125,26 @@ export const IconPlusOutline16 = ({ size = 16, className }: IconProps) => (
+   </svg>
+ )
+ 
++/** harness-only glyph: add-image (frame + sun + mountain). */
++export const IconImageOutline16 = ({ size = 16, className }: IconProps) => (
++  <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
++    <path
++      fillRule="evenodd"
++      clipRule="evenodd"
++      d="M1.4 3A1.6 1.6 0 0 1 3 1.4h10A1.6 1.6 0 0 1 14.6 3v10a1.6 1.6 0 0 1-1.6 1.6H3A1.6 1.6 0 0 1 1.4 13V3Zm1.65 0v9.9h9.9V3h-9.9Z"
++      fill="currentColor"
++    />
++    <path
++      d="M5.4 4.4a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"
++      fill="currentColor"
++    />
++    <path
++      d="M3.05 12.45 5.6 9.5l1.9 2.05 1.25-1.45 4.15 4.35H3.05Z"
++      fill="currentColor"
++    />
++  </svg>
++)
++
+ /** ic_ds_check_outline_16 */
+ export const IconCheckOutline16 = ({ size = 16, className }: IconProps) => (
+   <svg width={size} height={size} className={className} viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">

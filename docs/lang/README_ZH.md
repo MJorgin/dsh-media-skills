@@ -52,13 +52,13 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 **为什么用「自带免费 Key」而不是内置匿名端点？** 为了隐私和稳定性。你的图片只发给你选的提供方，走你自己的账号和速率限制，中间没有任何共享第三方服务。
 
-**新版本适配**：DeepSeek Harness **≥ v0.1.1-rc.1** 的 deepseek-official 路由原生自带 **DeepSeek-V4-Flash-Vision-Exp**——贴图自动转述与视觉模型路由会直接使用它，与主 agent 同一个 `DEEPSEEK_API_KEY`，**零额外配置**。rc.7 / rc.8 则应用本仓库配套补丁（见 [HARNESS_PATCH.md](HARNESS_PATCH.md)）。
+**新版本适配**：DeepSeek Harness **≥ v0.1.1-rc.1** 的 deepseek-official 路由原生自带 **DeepSeek-V4-Flash-Vision-Exp**——贴图自动转述与视觉模型路由会直接使用它，与主 agent 同一个 `DEEPSEEK_API_KEY`，**零额外配置**。rc.7 / rc.8 则应用本仓库配套补丁（见 [HARNESS_PATCH.md](../HARNESS_PATCH.md)）。**v0.1.2-alpha.3+**：上游移除了 `api-proxy` 宿主包并重构了合成器，核心补丁已随之移植（准入改在 `packages/api/session-controller/src/commands.ts`，气泡渲染移至 `ui-chat` 客户端包），并对 `dsh-v0.1.2-alpha.3` 做了 `git apply --check` 干净 + `tsc` 类型检查干净验证；client-ux 补丁对 alpha.1/alpha.2/alpha.3 通用。
 
 ## ✨ 能力一览
 
 | 能力 | 说明 | 模型 | 费用 |
 |---|---|---|---|
-| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型（**v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp**；rc.7/rc.8 为 GLM-4V-Flash + SiliconFlow 故障转移，单路由 15s），气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + client-ux 补丁（rc.7/rc.8 各一份），支持 rc.7/rc.8/v0.1.1-rc.1；本 bundle 提供其依赖的视觉路由与技能）* | v0.1.1：DeepSeek-Vision-Exp · rc.7/8：GLM-4V-Flash | GLM 免费；DeepSeek 走余额（v0.1.1 默认） |
+| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型（**v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp**；rc.7/rc.8 为 GLM-4V-Flash + SiliconFlow 故障转移，单路由 15s），气泡保留原图缩略图。*（Harness 本体功能，需准入放宽补丁 + client-ux 补丁；补丁覆盖 rc.7/rc.8/v0.1.1-rc.1/rc.2/v0.1.2-alpha.3——v0.1.2 起改为针对重构后的 session-controller / ui-chat 文件；本 bundle 提供其依赖的视觉路由与技能）* | v0.1.1：DeepSeek-Vision-Exp · rc.7/8：GLM-4V-Flash | GLM 免费；DeepSeek 走余额（v0.1.1 默认） |
 | 🧠 视觉模型路由 | 安装后**自动**在模型选择器里写入「智谱 GLM-4V-Flash（视觉）」；**v0.1.1** 的 deepseek 路由还原生自带 **DeepSeek-V4-Flash-Vision-Exp**（同 key）——新会话选任一即可直接看图对话 | 智谱 GLM-4V-Flash · DeepSeek-V4-Flash-Vision-Exp（v0.1.1） | GLM 免费；DeepSeek 走余额 |
 | 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（与主 agent 同 key，付费可选）→ SiliconFlow Qwen3-VL / SenseNova / Google Gemini（有 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + DeepSeek-Vision-Exp + Qwen3-VL + SenseNova + Gemini | 免费（DeepSeek 付费可选） |
 | 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SenseNova U1 Fast → SiliconFlow Kolors | 免费、无水印 |
@@ -70,7 +70,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 1. **Key**：
-   - **v0.1.1-rc.1+**：零额外配置——贴图转述与视觉路由直接用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
+   - **v0.1.1-rc.1+（含 v0.1.2-alpha.x）**：零额外配置——贴图转述与视觉路由直接用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
    - **rc.7 / rc.8**（或想加免费引擎）：智谱：[open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费）；SiliconFlow：[siliconflow.cn](https://siliconflow.cn) → 「API 密钥」（Kolors 免费）；*（可选）* Google Gemini：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」，配好后自动加入读图回退链
 2. **填入**：Web 界面（**设置 → 模型** → 找到 zhipu-vision 提供方的 **API Key 栏**），或写在凭据文件里：
 

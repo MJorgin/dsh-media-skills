@@ -7,6 +7,8 @@
 >
 > | Harness 版本 | 补丁文件 | 状态 |
 > |---|---|---|
+> | `dsh-v0.1.2-alpha.3`（最新，2026-08-31 发布） | [patches/dsh-v0.1.2-alpha.3-vision-transcription.patch](patches/dsh-v0.1.2-alpha.3-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 逐字节一致）+ typecheck（`tsc -b tsconfig.host.json` 干净）。**v0.1.2 注意**：上游**删除了 `packages/host/apiproxy`**，补丁改为只改 `packages/api/session-controller/src/commands.ts`（准入放宽 + 在 `SessionCommandController` 上注册 `agent/pre-step` 转述钩子）。client-ux 补丁对 alpha.1/alpha.2/alpha.3 通用 |
+> | `dsh-v0.1.2-alpha.3` 客户端 UX | [patches/dsh-v0.1.2-alpha.3-client-ux.patch](patches/dsh-v0.1.2-alpha.3-client-ux.patch) | ✅ `git apply --check` 对 alpha.1/alpha.2/alpha.3 均干净；`tsc -b tsconfig.client.json` **零新增**类型错误（新增「添加图片」按钮 + 隐藏文件选择器 + 缩略图在场时隐藏转述标记）。`MessageItem` 已移至 `packages/client/ui-chat` |
 > | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
 > | `dsh-v0.1.1-rc.1` 客户端 UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ 回环验证（`git apply --check` 干净 + 与应用结果逐字节一致） |
 > | `dsh-v0.1.1-rc.2`（最新） | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ 回环验证（apply/check 干净 + 逐字节一致）+ typecheck（`tsc -b` host 干净） |
@@ -26,6 +28,8 @@
 > （`projectImagesForTextModel`，llm 包 `content.ts`）并**删除了 selectModel 图片守卫**——
 > 因此 0.1.1-rc.2 补丁**只有 api-proxy.ts 一处文件**（准入放宽 + `agent/pre-step` 转述），
 > 不再包含 llm 投影与守卫放宽（上游已替我们做掉）。
+>
+> **v4（0.1.2-alpha）重要变化**：v0.1.2 **移除了旧的 API Proxy 宿主包**（`packages/host/apiproxy`），相关调用迁移到按领域划分的 Remote 服务。准入与 `agent/pre-step` 钩子现在位于 **`packages/api/session-controller/src/commands.ts`**（`SessionCommandController`）：宿主补丁去掉 `prompt()` 里按模型能力拒绝图片的逻辑，并在该 controller 的 `ctx` 上注册转述钩子。客户端侧，`InputBar` 仍属于合成器（只支持粘贴/拖放——「添加图片」按钮仍由本补丁提供），而 `MessageItem` 已迁至新的 **`packages/client/ui-chat`** 包；llm 的纯文本投影（`textOnlyImageText` / 图片内容处理）仍是原生兜底。v0.1.2-alpha.3 补丁已做 `git apply` + `tsc` 干净验证；client-ux 补丁对 alpha.1/alpha.2/alpha.3 逐字节适用，宿主 vision 补丁以 alpha.3 为基线（alpha.1/alpha.2 仍用旧的 `admitEncodedImages` 准入助手——请升级到 alpha.3）。
 
 >
 > **v2 相对旧版 v1 的变化**：v1 面向更早的 pre-rc.7 构建（准入先上屏占位 + 客户端加按钮），
