@@ -34,7 +34,7 @@
 | 👁️ `vision-review` | 이미지·스크린샷 분석/인식/설명, UI 시각 버그(겹침·넘침·어긋남) 탐지, 워터마크/로고 감지, 이미지 텍스트화. 엔진 체인: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp(에이전트와 동일 키·선택 유료) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | 무료(DeepSeek 선택 유료) |
 | 🎨 `media-tools` | 이미지·일러스트·아바타·배경·배너 생성 | SenseNova U1 Fast → SiliconFlow Kolors | 무료, 워터마크 없음 |
 
-> ⚠️ 정직한 안내: 「이미지 붙여넣기 자동 읽기」는 DeepSeek Harness **본체** 기능(`api-proxy`의 이미지 수용 로직)입니다. 이 번들이 제공하는 것은 **모델 설정 + 읽기/생성 스킬**입니다. 비전 모델은 어떤 DSH 빌드에서도 동작하지만, 자동 읽기 편의 기능은 본체에 해당 지원이 포함되어 있어야 합니다. 판별 방법은 [../SETUP_VISION.md](../SETUP_VISION.md) FAQ Q1을 참고하세요.
+> ⚠️ 정직한 안내: 「이미지 붙여넣기 자동 읽기」는 DeepSeek Harness **본체** 기능(이미지 수용 로직 + `agent/pre-step` 자동 읽기 훅. v0.1.2에서 기존 `api-proxy` 패키지가 제거되어 코드는 `packages/api/session-controller`로 이동)입니다. 코어 패치는 rc.7/rc.8/v0.1.1-rc.1/rc.2/**v0.1.2-alpha.3**까지 동봉되어 있습니다([HARNESS_PATCH](../HARNESS_PATCH_EN.md)). 이 번들이 제공하는 것은 **모델 설정 + 읽기/생성 스킬**입니다. 비전 모델은 어떤 DSH 빌드에서도 동작하지만, 자동 읽기 편의 기능은 본체에 해당 지원이 포함되어 있어야 합니다. 판별 방법은 [../SETUP_VISION.md](../SETUP_VISION.md) FAQ Q1을 참고하세요.
 
 ## ⚡ 빠른 시작
 
@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **키**: **v0.1.1-rc.1부터는 추가 키 불필요** — 붙여넣기 읽기와 비전 라우트가 에이전트의 기존 `DEEPSEEK_API_KEY`로 동작합니다. 무료 엔진을 쓰려면(또는 rc.7/rc.8): 먼저 무료로 키 발급 — [open.bigmodel.cn](https://open.bigmodel.cn)에 가입/로그인 → 「API Keys」(glm-4v-flash 무료). 생성도 쓸 거면 [siliconflow.cn](https://siliconflow.cn)에서도 발급(Kolors 무료). 그다음 Zhipu 키 설정 — Web GUI(**설정 → 모델** → zhipu-vision 프로바이더의 **API Key 필드**) 또는 자격증명 파일:
+2. **키**: **v0.1.1-rc.1부터(v0.1.2-alpha 계열 포함) 추가 키 불필요** — 붙여넣기 읽기와 비전 라우트가 에이전트의 기존 `DEEPSEEK_API_KEY`로 동작합니다. 무료 엔진을 쓰려면(또는 rc.7/rc.8): 먼저 무료로 키 발급 — [open.bigmodel.cn](https://open.bigmodel.cn)에 가입/로그인 → 「API Keys」(glm-4v-flash 무료). 생성도 쓸 거면 [siliconflow.cn](https://siliconflow.cn)에서도 발급(Kolors 무료). 그다음 Zhipu 키 설정 — Web GUI(**설정 → 모델** → zhipu-vision 프로바이더의 **API Key 필드**) 또는 자격증명 파일:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)

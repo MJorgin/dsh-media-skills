@@ -1,7 +1,7 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.3.0",
-  "description": "Free image reading (vision) and image generation skills for DeepSeek Harness (rc.7/rc.8/v0.1.1-rc.1) — GLM-4V-Flash free reading with DeepSeek-V4-Flash-Vision-Exp / SenseNova / Gemini failover, SiliconFlow Kolors for generation.",
+  "version": "0.4.0",
+  "description": "Free image reading (vision) and image generation skills for DeepSeek Harness (rc.7/rc.8/v0.1.1-rc.1/rc.2/v0.1.2-alpha.3) — GLM-4V-Flash free reading with DeepSeek-V4-Flash-Vision-Exp / SenseNova / Gemini failover, SiliconFlow Kolors for generation.",
   "type": "module",
   "main": "index.js",
   "files": ["index.js", "cordis.patch.yml", "skills", "examples", "docs/SETUP_VISION.md", "docs/SETUP_VISION_EN.md", "docs/HARNESS_PATCH.md", "docs/HARNESS_PATCH_EN.md", "docs/FREE_VISION_PROVIDERS.md", "docs/FREE_VISION_PROVIDERS_EN.md", "docs/COMPARE_MODLENS.md"],

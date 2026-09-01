@@ -9,9 +9,11 @@
 >
 > | Harness version | Patch file | Status |
 > |---|---|---|
+> | `dsh-v0.1.2-alpha.3` (latest, 2026-08-31) | [patches/dsh-v0.1.2-alpha.3-vision-transcription.patch](patches/dsh-v0.1.2-alpha.3-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical) + typechecked (`tsc -b tsconfig.host.json` clean). **v0.1.2 note**: upstream **removed `packages/host/apiproxy`**; the patch now touches only `packages/api/session-controller/src/commands.ts` (admission relaxation + registers the `agent/pre-step` transcription hook on `SessionCommandController`). The client-ux patch applies to alpha.1/alpha.2/alpha.3 |
+> | `dsh-v0.1.2-alpha.3` client UX | [patches/dsh-v0.1.2-alpha.3-client-ux.patch](patches/dsh-v0.1.2-alpha.3-client-ux.patch) | ✅ `git apply --check` clean on alpha.1/alpha.2/alpha.3; `tsc -b tsconfig.client.json` adds **zero** new type errors (add-image button + hidden file picker + hide transcription marker when a thumbnail is present). `MessageItem` moved to `packages/client/ui-chat` |
 > | `dsh-v0.1.1-rc.1` | [patches/dsh-v0.1.1-rc.1-vision-transcription.patch](patches/dsh-v0.1.1-rc.1-vision-transcription.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
 > | `dsh-v0.1.1-rc.1` client UX | [patches/dsh-v0.1.1-rc.1-client-ux.patch](patches/dsh-v0.1.1-rc.1-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the applied result) |
-> | `dsh-v0.1.1-rc.2` (latest) | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ round-trip verified (apply/check clean + byte-identical) + typechecked (`tsc -b` host clean) |
+> | `dsh-v0.1.1-rc.2` | [patches/dsh-v0.1.1-rc.2-vision-transcription.patch](patches/dsh-v0.1.1-rc.2-vision-transcription.patch) | ✅ round-trip verified (apply/check clean + byte-identical) + typechecked (`tsc -b` host clean) |
 > | `dsh-v0.1.1-rc.2` client UX | [patches/dsh-v0.1.1-rc.2-client-ux.patch](patches/dsh-v0.1.1-rc.2-client-ux.patch) | ✅ reuses rc.1-client-ux — the four client files are byte-identical between rc.1 and rc.2, `git apply --check` clean |
 > | `dsh-v0.1.0-rc.8` (2026-08-19) | [patches/dsh-v0.1.0-rc.8-vision-transcription.patch](patches/dsh-v0.1.0-rc.8-vision-transcription.patch) | ✅ typechecked (`tsc -b tsconfig.host.json` clean) |
 > | `dsh-v0.1.0-rc.8` client UX | [patches/dsh-v0.1.0-rc.8-client-ux.patch](patches/dsh-v0.1.0-rc.8-client-ux.patch) | ✅ round-trip verified (`git apply --check` clean + byte-identical to the working tree) |
@@ -31,6 +33,8 @@
 > (`projectImagesForTextModel` in the llm package's `content.ts`) and **removed the selectModel image guard** —
 > so the 0.1.1-rc.2 patch is **only `api-proxy.ts`** (admission relaxation + `agent/pre-step` transcription);
 > the llm projection and guard relaxation are no longer part of it (upstream did them).
+>
+> **v4 (0.1.2-alpha) major change**: v0.1.2 **removed the legacy API Proxy host package** (`packages/host/apiproxy`) — those calls moved to per-domain Remote services. Admission and the `agent/pre-step` hook therefore live in **`packages/api/session-controller/src/commands.ts`** now (`SessionCommandController`): the host patch drops the model-capability rejection in `prompt()` and registers the transcription hook on the controller's `ctx`. On the client, `InputBar` still owns the composer (paste/drag-only — the add-image button is still our patch) while `MessageItem` moved to the new **`packages/client/ui-chat`** package. The llm text-only projection (`textOnlyImageText`/image content handling) remains the native safety net. The v0.1.2-alpha.3 patches are verified clean (`git apply` + `tsc`); the client-ux patch applies byte-clean to alpha.1/alpha.2/alpha.3, while the host vision patch is built against alpha.3 (alpha.1/alpha.2 use the older `admitEncodedImages` admission helper — update to alpha.3).
 
 > (round-trip verified).
 >
