@@ -66,7 +66,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 1. **金鑰**：
-   - **v0.1.1-rc.1+**：零額外設定——貼上讀取與視覺路由直接使用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
+   - **v0.1.1-rc.1+（含 v0.1.2-alpha 系列）**：零額外設定——貼上讀取與視覺路由直接使用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
    - **rc.7 / rc.8**（或想加免費引擎）：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys**（`glm-4v-flash` 免費）；SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → **API Keys**（Kolors 免費）；*（選用）* Google Gemini——[aistudio.google.com](https://aistudio.google.com) → **Get API key**；會自動加入視覺容錯移轉鏈
 2. **加入金鑰**：在網頁介面（**Settings → Models** → zhipu-vision 供應商的 **API Key** 欄位）中輸入，或使用憑證檔案：
 
@@ -128,7 +128,7 @@ GEMINI_API_KEY=...   # 選用
 ## ❓ 常見問題
 
 **貼上圖片讀取是否需要修補 DeepSeek Harness 核心？**
-自動描述管線位於 Harness **核心**（`api-proxy` 的圖片准入邏輯；請見 [../HARNESS_PATCH_EN.md](../HARNESS_PATCH_EN.md)）。這個套件提供**模型路由＋技能**：視覺模型在任何 DSH 版本都能運作，但貼上圖片讀取需要具備該核心支援的 Harness 版本——請見 [../SETUP_VISION_EN.md](../SETUP_VISION_EN.md) 的常見問答 Q1。
+自動描述管線位於 Harness **核心**（圖片准入邏輯 + `agent/pre-step` 自動轉述鉤子；v0.1.2 移除舊 `api-proxy` 套件後，程式碼遷至 `packages/api/session-controller`）。核心修補已涵蓋 rc.7/rc.8/v0.1.1-rc.1/rc.2/**v0.1.2-alpha.3**（請見 [../HARNESS_PATCH_EN.md](../HARNESS_PATCH_EN.md)）。這個套件提供**模型路由＋技能**：視覺模型在任何 DSH 版本都能運作，但貼上圖片讀取需要具備該核心支援的 Harness 版本——請見 [../SETUP_VISION_EN.md](../SETUP_VISION_EN.md) 的常見問答 Q1。
 
 **為什麼不乾脆使用完全不需要金鑰的內建免費端點？**
 我們傾向讓你自己掌控路由：你的圖片會傳給你選擇的供應商，在你的速率限制之下運作，中間沒有共用的仲介。金鑰免費，大約兩分鐘就能建立。
@@ -169,7 +169,7 @@ dsh-media-skills/
 
 ## 🧩 想與 ModLens 並用？
 
-這個套件和 [ModLens](https://github.com/liustack/modlens) 都能賦予純文字模型視覺能力。兩者同時安裝不會衝突：ModLens 會先攔截貼上的圖片（路徑 → `modlens_read_image` 工具），這個套件的 api-proxy 備援則處理它未接管的部分。完整的比較、貼上路由順序，以及如何將 ModLens 指向同一個免費 Zhipu 端點，請見 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)（中文）。
+這個套件和 [ModLens](https://github.com/liustack/modlens) 都能賦予純文字模型視覺能力。兩者同時安裝不會衝突：ModLens 會先攔截貼上的圖片（路徑 → `modlens_read_image` 工具），這個套件的核心視覺轉述備援（rc.7/rc.8 在 api-proxy，v0.1.2 起遷至 session-controller）則處理它未接管的部分。完整的比較、貼上路由順序，以及如何將 ModLens 指向同一個免費 Zhipu 端點，請見 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)（中文）。
 
 ## 🤝 加入 DSH 外掛生態系
 

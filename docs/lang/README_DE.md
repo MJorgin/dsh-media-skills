@@ -34,7 +34,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 | 👁️ `vision-review` | Bilder/Screenshots analysieren, erkennen, beschreiben; visuelle UI-Bugs finden (Überlappung, Überlauf, Fehlausrichtung); Wasserzeichen/Logos erkennen; Bilder in Text umwandeln. Engine-Kette: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (gleicher Schlüssel wie der Agent, optional kostenpflichtig) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Kostenlos (DeepSeek optional kostenpflichtig) |
 | 🎨 `media-tools` | Bilder, Illustrationen, Avatare, Hintergründe und Banner generieren | SenseNova U1 Fast → SiliconFlow Kolors | Kostenlos, ohne Wasserzeichen |
 
-> ⚠️ Ehrlicher Hinweis: Das Bild-Einfügen mit Auto-Beschreibung steckt im **Kern** von DeepSeek Harness (die Bildannahme-Logik in `api-proxy`). Dieses Bundle liefert die **Modell-Route + Skills**; das Vision-Modell funktioniert mit jedem DSH-Build, die Auto-Beschreibung erfordert jedoch einen Build mit dieser Kernunterstützung. So erkennst du es: FAQ Q1.
+> ⚠️ Ehrlicher Hinweis: Das Bild-Einfügen mit Auto-Beschreibung steckt im **Kern** von DeepSeek Harness (die Bildannahme-Logik und der `agent/pre-step`-Hook für die Auto-Beschreibung; in v0.1.2 wurde das alte `api-proxy`-Paket entfernt, der Code liegt jetzt in `packages/api/session-controller`). Kern-Patches liegen für rc.7/rc.8/v0.1.1-rc.1/rc.2/**v0.1.2-alpha.3** bei ([HARNESS_PATCH](../HARNESS_PATCH_EN.md)). Dieses Bundle liefert die **Modell-Route + Skills**; das Vision-Modell funktioniert mit jedem DSH-Build, die Auto-Beschreibung erfordert jedoch einen Build mit dieser Kernunterstützung. So erkennst du es: FAQ Q1.
 
 ## ⚡ Schnellstart
 
@@ -44,7 +44,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **Keys**: **ab v0.1.1-rc.1 sind keine zusätzlichen Keys nötig** — Einfüge-Lesen und Vision-Route laufen über den vorhandenen `DEEPSEEK_API_KEY` des Agenten. Für die kostenlosen Engines (oder rc.7/rc.8): zuerst kostenlos einen Key holen — Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:
+2. **Keys**: **ab v0.1.1-rc.1 (auch für die v0.1.2-alpha-Reihe) sind keine zusätzlichen Keys nötig** — Einfüge-Lesen und Vision-Route laufen über den vorhandenen `DEEPSEEK_API_KEY` des Agenten. Für die kostenlosen Engines (oder rc.7/rc.8): zuerst kostenlos einen Key holen — Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle** → das **API-Key**-Feld des zhipu-vision-Anbieters) oder Credentials-Datei:
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)

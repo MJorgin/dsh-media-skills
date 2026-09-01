@@ -33,7 +33,7 @@ After install and restart:
 | 👁️ `vision-review` skill | Lets the agent read local image files and run visual checks | Free |
 | 🎨 `media-tools` skill | Free image generation | Free |
 
-> ⚠️ Honest note: paste-image reading is a **DeepSeek Harness core** capability (the image-admission logic in `api-proxy`). This bundle ships the **model route + skills**; the vision model works on any DSH build, but the auto-describe convenience requires a Harness build that includes that core support. How to tell: FAQ Q1.
+> ⚠️ Honest note: paste-image reading is a **DeepSeek Harness core** capability (image admission plus the `agent/pre-step` transcription hook; v0.1.2 removed the old `api-proxy` host package and moved the code to `packages/api/session-controller/src/commands.ts` — see HARNESS_PATCH). This bundle ships the **model route + skills**; the vision model works on any DSH build, but the auto-describe convenience requires a Harness build that includes that core support. How to tell: FAQ Q1.
 
 ## 2. Prerequisites
 

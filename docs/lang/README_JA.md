@@ -34,7 +34,7 @@
 | 👁️ `vision-review` | 画像・スクリーンショットの分析 / 認識 / 説明、UI の視覚的バグ（重なり・はみ出し・ずれ）の検出、ウォーターマーク / ロゴ検出、画像のテキスト化。エンジンチェーン: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（エージェントと同じキー・任意で有料）→ SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | 無料（DeepSeek は任意・有料） |
 | 🎨 `media-tools` | 画像・イラスト・アバター・背景・バナーの生成 | SenseNova U1 Fast → SiliconFlow Kolors | 無料・ウォーターマークなし |
 
-> ⚠️ 正直な注記：「画像貼り付け自動読み取り」は DeepSeek Harness **本体**の機能（`api-proxy` の画像受付ロジック）です。このバンドルが提供するのは**モデル設定 + 読み取り/生成スキル**。ビジョンモデルはどの DSH ビルドでも動作しますが、自動読み取りの利便性には本体側の対応が必要です。判定方法は [../SETUP_VISION.md](../SETUP_VISION.md) の FAQ Q1 を参照。
+> ⚠️ 正直な注記：「画像貼り付け自動読み取り」は DeepSeek Harness **本体**の機能（画像受付ロジック＋`agent/pre-step` 自動読み上げフック。v0.1.2 で旧 `api-proxy` パッケージが廃止され、コードは `packages/api/session-controller` へ移動）です。本体パッチは rc.7/rc.8/v0.1.1-rc.1/rc.2/**v0.1.2-alpha.3** まで同梱（[HARNESS_PATCH](../HARNESS_PATCH_EN.md)）。このバンドルが提供するのは**モデル設定 + 読み取り/生成スキル**。ビジョンモデルはどの DSH ビルドでも動作しますが、自動読み取りの利便性には本体側の対応が必要です。判定方法は [../SETUP_VISION.md](../SETUP_VISION.md) の FAQ Q1 を参照。
 
 ## ⚡ クイックスタート
 
@@ -44,7 +44,7 @@
    dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    ```
 
-2. **キー**：**v0.1.1-rc.1 以降は追加キー不要**——貼り付け読み取りとビジョンルートはエージェントの既存 `DEEPSEEK_API_KEY` で動きます。無料エンジンを使う場合（または rc.7/rc.8）は、まず無料でキーを取得：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
+2. **キー**：**v0.1.1-rc.1 以降（v0.1.2-alpha 系を含む）は追加キー不要**——貼り付け読み取りとビジョンルートはエージェントの既存 `DEEPSEEK_API_KEY` で動きます。無料エンジンを使う場合（または rc.7/rc.8）は、まず無料でキーを取得：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル** → zhipu-vision プロバイダーの **API Key 欄**）またはクレデンシャルファイルで：
 
    ```sh
    # ~/.dsh/.credentials.yaml（chmod 600）

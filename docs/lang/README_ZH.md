@@ -130,7 +130,7 @@ GEMINI_API_KEY=...   # 可选
 ## ❓ 常见问题
 
 **贴图直读需要给 DeepSeek Harness 本体打补丁吗？**
-「贴图自动转述」的管道属于 DeepSeek Harness **本体**（`api-proxy` 的图片准入逻辑，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）。本 bundle 负责**模型配置 + 读图/生图技能**；任何 DSH 版本装上后视觉模型都可用，但贴图直读需要你的 DSH 本体包含对应支持——判断方法见 [../SETUP_VISION.md](../SETUP_VISION.md) 常见问题 Q1。
+「贴图自动转述」的管道属于 DeepSeek Harness **本体**（图片准入 + `agent/pre-step` 自动转述；v0.1.2 移除旧 `api-proxy` 宿主包后迁至 `packages/api/session-controller`，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）。本 bundle 负责**模型配置 + 读图/生图技能**；任何 DSH 版本装上后视觉模型都可用，但贴图直读需要你的 DSH 本体包含对应支持——判断方法见 [../SETUP_VISION.md](../SETUP_VISION.md) 常见问题 Q1。
 
 **为什么不用内置免费端点、完全免 Key？**
 我们更希望路由掌握在你自己手里：图片只发给你选的提供方，走你的速率限制，中间没有共享第三方。Key 全免费，申请大约两分钟。
@@ -171,7 +171,7 @@ dsh-media-skills/
 
 ## 🧩 与 ModLens 共存？
 
-本 bundle 和 [ModLens](https://github.com/liustack/modlens) 都能给纯文本模型补视觉能力。两个一起装不冲突：ModLens 的粘贴拦截在前（路径 → `modlens_read_image` 工具），本 bundle 的 api-proxy 转述兜底（可关闭 ModLens 的粘贴接管，让贴图始终走「图片附件 → 自动转述」）。完整对比、粘贴路由顺序、以及把 ModLens 指向同一个免费智谱端点的方法见 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)。
+本 bundle 和 [ModLens](https://github.com/liustack/modlens) 都能给纯文本模型补视觉能力。两个一起装不冲突：ModLens 的粘贴拦截在前（路径 → `modlens_read_image` 工具），本 bundle 的本体视觉转述补丁兜底（rc.7/rc.8 在 api-proxy，v0.1.2 起迁至 session-controller；可关闭 ModLens 的粘贴接管，让贴图始终走「图片附件 → 自动转述」）。完整对比、粘贴路由顺序、以及把 ModLens 指向同一个免费智谱端点的方法见 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)。
 
 ## 🤝 加入 DSH 插件生态
 
