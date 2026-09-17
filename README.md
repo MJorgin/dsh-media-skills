@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/hero.png" alt="dsh-media-skills — free image reading and generation for DeepSeek Harness: vision failover chain, Kolors generation, keys stay local" width="100%">
+<img src="docs/social-preview.png" alt="dsh-media-skills — free image reading & generation for DeepSeek Harness" width="100%">
 
 <br>
 
