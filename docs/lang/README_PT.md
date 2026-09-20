@@ -1,23 +1,29 @@
 <div align="center">
 
-<img src="../social-preview.png" alt="dsh-media-skills — Leitura e geração de imagens grátis para o DeepSeek Harness" width="100%">
+<img src="../social-preview.png" alt="dsh-media-skills — revisão e geração de imagens para DeepSeek Harness" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### *Cole imagens direto no chat — modelo de visão, leitura e geração de imagens grátis.*
+### Skills de revisão e geração de imagens para DeepSeek Harness v0.1.6
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
-[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![DeepSeek Harness](https://img.shields.io/badge/DSH-v0.1.6--alpha.2-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.6-alpha.2)
+[![No bundled keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](#configurar-chaves)
+[![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](README_PT.md)
 
 <br>
 
-Dê ao [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) «olhos» e um «pincel» —
-duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, sem chaves hardcoded.
+Um plugin leve para DSH que contribui com duas skills de mídia no modelo traga-sua-própria-chave (bring-your-own-key):
 
-[Recursos](#-recursos) · [Início rápido](#-início-rápido) · [Uso](#-uso) · [Guia de visão](../SETUP_VISION.md)
+- 👁️ **`vision-review`** — descreve imagens, executa OCR, revisa capturas de tela e detecta problemas de UI, como texto sobreposto ou estourado, com evidência estruturada opcional.
+- 🎨 **`media-tools`** — gera ilustrações, avatares, fundos e banners via SenseNova U1 Fast ou SiliconFlow Kolors.
+
+O plugin usa o ciclo de vida de provider de skills do DSH v0.1.6 e **não aplica patches no núcleo do DSH, não altera configurações de modelo, não registra providers de modelo nem grava configuração oculta**.
+
+[Por que](#por-que) · [Instalar](#instalação) · [Chaves](#configurar-chaves) · [Uso](#uso) · [Manual](#instalação-manual) · [Verificar](#verificação) · [FAQ](#faq)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -25,95 +31,194 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 ---
 
-## ✨ Recursos
+## Por que
 
-| Recurso | O que faz | Modelo | Custo |
-|---|---|---|---|
-| 🖼️ Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (ícone de imagem); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto (**a partir do v0.1.1, DeepSeek-V4-Flash-Vision-Exp por padrão**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM grátis; DeepSeek cobrado do seu saldo (padrão no v0.1.1) |
-| 🧠 Rota de modelo de visão | Após instalar, adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos; use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
-| 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto. Cadeia de motores: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (mesma chave do agente, pago opcional) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Grátis (DeepSeek pago opcional) |
-| 🎨 `media-tools` | Gerar imagens, ilustrações, avatares, fundos e banners | SenseNova U1 Fast → SiliconFlow Kolors | Grátis, sem marca d'água |
+O DeepSeek Harness v0.1.6 já oferece fluxos modernos de anexos e arquivos para modelos que aceitam imagens. Este pacote foca em dois trabalhos complementares que seguem úteis mesmo com o suporte nativo a anexos:
 
-> ⚠️ Nota honesta: a leitura de imagens coladas vive no **núcleo** do DeepSeek Harness (a lógica de admissão de imagens em `api-proxy`). Este bundle entrega a **rota de modelo + skills**; o modelo de visão funciona em qualquer build do DSH, mas a comodidade da auto-descrição exige um build com esse suporte. Como saber: FAQ Q1.
+| Necessidade | Skill | Como ajuda |
+|---|---|---|
+| QA explícita de capturas | `vision-review` | Verifica completude da renderização, sobreposição, estouro, desalinhamento, marcas d'água e consistência visual. |
+| OCR e imagem para texto | `vision-review` | Converte capturas, fotos e digitalizações em texto, com contrato JSON estruturado opcional. |
+| Failover de providers | `vision-review` | Tenta os motores configurados em uma ordem previsível e relata cada falha. |
+| Produção de assets | `media-tools` | Gera arquivos de imagem utilizáveis com uma chave da SenseNova ou da SiliconFlow. |
 
-## ⚡ Início rápido
+O roteamento de modelos fica com o DSH e sua interface **Models**. Isso garante compatibilidade com ativar, desativar, desinstalar e reiniciar em tempo de execução no v0.1.6, sem deixar estado global.
 
-1. Instale o bundle:
+## Novidades na v0.1.6
 
-   ```sh
-   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
-   ```
+- Registra ambas as skills empacotadas via `ctx.skills.registerProvider(...)`.
+- Remove a antiga mutação implícita do `llm-pi-ai` e toda a injeção de rotas de modelo.
+- Lê os metadados diretamente de cada `SKILL.md`, evitando divergência de texto.
+- Suporta o ciclo de vida em tempo de execução: o registro pertence à fiber do plugin e é removido de forma limpa.
+- Patches antigos do núcleo viram material histórico para `<= v0.1.1-rc.2`; a v0.1.6 não precisa deles.
+- Adiciona validação estática do manifesto e teste de provider em tempo de execução com contexto falso.
 
-2. **Chaves**: **no v0.1.1-rc.1+ nenhuma chave extra é necessária** — a leitura de imagens coladas e a rota de visão usam o `DEEPSEEK_API_KEY` existente do agente. Para os motores gratuitos (ou rc.7/rc.8): primeiro consiga a chave grátis — cadastre-se em [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash é grátis). Para gerar, crie também uma em [siliconflow.cn](https://siliconflow.cn) (Kolors é grátis). Depois configure — GUI web (**Configurações → Modelos** → o campo **API Key** do provedor zhipu-vision) ou arquivo de credenciais:
+## Instalação
 
-   ```sh
-   # ~/.dsh/.credentials.yaml (chmod 600)
-   GLM_API_KEY: <sua chave>
-   ```
+### Opção 1: DSH Plugin Manager
 
-3. **Reinicie totalmente** o `dsh web` e faça uma atualização forçada (`Cmd+Shift+R`).
+Abra o Plugin Manager do DSH e adicione:
 
-4. Verifique: o seletor de modelos mostra **智譜 GLM-4V-Flash（視覚）**. Se o seu build suportar a leitura de imagens coladas, a barra de entrada mostra um botão 🖼️ **Adicionar imagem** — cole uma imagem em qualquer sessão e ela chegará como descrição em texto.
+```text
+github:MJorgin/dsh-media-skills
+```
 
-Guia completo, funcionamento e solução de problemas: **[../SETUP_VISION.md](../SETUP_VISION.md)**
+Depois reinicie o perfil.
 
-## 🔑 Chaves
+### Opção 2: CLI
 
-Chaves **nunca são armazenadas neste repo**. Os scripts leem, em ordem: variáveis de ambiente → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (fallback legado). A rota do modelo de visão lê `GLM_API_KEY` do armazenamento de credenciais do DSH.
-
-Onde obter (ambas grátis): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
+Para o perfil web comum:
 
 ```sh
-# ~/.dsh/secrets/media-tools.env (chmod 600, uma KEY=value por linha)
+dsh plugin --profile web add github:MJorgin/dsh-media-skills
+```
+
+Substitua `web` pelo perfil de DSH que você usa. Reinicie o perfil após a instalação para montar o novo pacote.
+
+Não exige build: o pacote traz ESM e scripts Python prontos para rodar, sem instalação de dependências nem script `prepare`.
+
+## Configurar chaves
+
+Chaves nunca são armazenadas neste repositório. Os scripts leem primeiro as variáveis de ambiente e depois:
+
+```text
+~/.dsh/secrets/media-tools.env
+~/.codex/secrets/media-tools.env   # compatibilidade legada
+```
+
+O `vision-review` também pode ler chaves compatíveis a partir de:
+
+```text
+~/.dsh/.credentials.yaml
+```
+
+O `media-tools` lê as variáveis de ambiente e os dois arquivos `media-tools.env`; configure suas chaves explicitamente em um desses locais.
+
+| Chave | Usada por | Observações |
+|---|---|---|
+| `GLM_API_KEY` | `vision-review` | Motor principal Zhipu `glm-4v-flash`; confira os termos atuais de preço/faixa gratuita. |
+| `DEEPSEEK_API_KEY` | `vision-review` | Modelo de visão DeepSeek pago e opcional; também lido do armazenamento de credenciais do DSH. |
+| `SILICONFLOW_API_KEY` | Ambas | Qwen3-VL na revisão e Kolors na geração. |
+| `SENSENOVA_API_KEY` | Ambas | Modelo de visão SenseNova na revisão e U1 Fast na geração. |
+| `GEMINI_API_KEY` | `vision-review` | Fallback opcional do Gemini; algumas redes exigem `GEMINI_PROXY`. |
+
+Exemplo de arquivo de segredos:
+
+```sh
+# ~/.dsh/secrets/media-tools.env, recomendado chmod 600
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
+SENSENOVA_API_KEY=...
+GEMINI_API_KEY=...
 ```
 
-## 🚀 Uso
+### Modelos de imagem nativos do DSH
 
-Três formas de ler imagens:
+Este plugin não adiciona um modelo ao seletor do DSH. Para uma conversa normal do DSH aceitar imagens nativamente, configure um modelo/provider multimodal nas configurações **Models** do DSH e use o fluxo nativo de anexos.
 
-| Forma | Como | Quando |
-|---|---|---|
-| **A. Colar diretamente (recomendado)** | Em qualquer sessão, clique no botão 🖼️ / arraste / cole uma imagem e envie | Perguntas do dia a dia sobre imagens — sem salvar arquivos nem trocar de modelo |
-| **B. Sessão com modelo de visão** | Nova conversa, escolha 智譜 GLM-4V-Flash（視覚）, cole imagens e converse | Conversas de várias rodadas sobre imagens, `read_image` nativo |
-| **C. Arquivos + skill** | Coloque a imagem no workspace e diga «leia esta imagem com vision-review» | Revisão em lote, fluxos com scripts |
+Use o `vision-review` quando precisar de um fluxo dedicado de revisão/OCR por script, de uma cadeia de failover ou de evidência estruturada, e não apenas de uma resposta multimodal no chat.
 
-O idioma da descrição segue o da sua mensagem (mensagem em chinês → descrição em chinês; em inglês → em inglês; sem texto → chinês).
+## Uso
 
-Basta dizer:
+### Revisão visual
 
-- «Olhe esta imagem / verifique este screenshot em busca de bugs visuais» → `vision-review`
-- «Gere uma imagem de …» → `media-tools`
+Peça ao DSH para usar o `vision-review` ou execute o script a partir do diretório da skill:
 
-## 🗺️ Estrutura
-
+```bash
+python3 scripts/vision.py screenshot.png
+python3 scripts/vision.py a.png b.png --structured
+python3 scripts/vision.py screenshot.png --provider=siliconflow-qwen
+python3 scripts/vision.py --doctor
 ```
+
+O prompt padrão verifica completude da renderização, texto sobreposto/desalinhado/estourado, hierarquia de cores, marcas d'água e bugs visuais óbvios. Para uma tarefa específica, passe um prompt focado:
+
+```bash
+python3 scripts/vision.py page.png --prompt="Verifique se botões, títulos e gráficos se sobrepõem e indique as posições"
+```
+
+A cadeia de failover só adiciona motores cujas chaves estejam disponíveis. A saída opcional `--structured` inclui resumo, OCR, layout em ordem de leitura, semântica, notas visuais e incertezas.
+
+### Geração de imagens
+
+```bash
+python3 skills/media-tools/scripts/generate.py "palácio chinês em um mar de nuvens, realista e cinematográfico, escala grandiosa" palace.jpg 16:9
+```
+
+Usa SenseNova quando há `SENSENOVA_API_KEY`; caso contrário, usa SiliconFlow Kolors quando há `SILICONFLOW_API_KEY`. Tamanhos da SenseNova aceitam dimensões exatas ou proporções comuns; o script mapeia para o tamanho suportado mais próximo.
+
+## Instalação manual
+
+Recomenda-se instalar como plugin porque o repositório contém várias skills. O provider de sistema de arquivos da v0.1.6 varre apenas um nível abaixo da raiz de skills; clonar o repositório diretamente em `~/.dsh/skills/` não descobre os `skills/*/SKILL.md` aninhados.
+
+Na instalação manual, vincule cada skill separadamente:
+
+```sh
+git clone https://github.com/MJorgin/dsh-media-skills.git ~/.dsh/bundles/dsh-media-skills
+mkdir -p ~/.dsh/skills
+ln -s ~/.dsh/bundles/dsh-media-skills/skills/vision-review ~/.dsh/skills/vision-review
+ln -s ~/.dsh/bundles/dsh-media-skills/skills/media-tools ~/.dsh/skills/media-tools
+```
+
+Reinicie o DSH depois de criar os links.
+
+## Verificação
+
+Execute todas as verificações locais:
+
+```sh
+npm test
+```
+
+Inclui validação do manifesto do bundle, registro/carregamento do provider em tempo de execução por um contexto similar ao DSH, checagem de sintaxe JavaScript e compilação Python dos dois scripts.
+
+## Patches históricos
+
+Os patches antigos do núcleo seguem disponíveis para quem mantém builds legadas do DSH:
+
+- [Notas em chinês](../HARNESS_PATCH.md)
+- [English notes](../HARNESS_PATCH_EN.md)
+
+Aplicam-se a builds históricas até `v0.1.1-rc.2`. Novos usuários da v0.1.6 não devem aplicá-los.
+
+## Estrutura do projeto
+
+```text
 dsh-media-skills/
-├── package.json           # manifesto dsh.bundle
-├── cordis.patch.yml       # camada de plugin
-├── index.js               # registra skills + cria a rota zhipu-vision
+├── package.json              # Manifesto do bundle DSH e comandos de teste
+├── cordis.patch.yml          # Inserção do plugin Cordis
+├── index.js                  # Registra o provider de skills empacotadas
 ├── skills/
-│   ├── vision-review/     # leitura de imagens
-│   └── media-tools/       # geração de imagens
-├── docs/
-│   ├── SETUP_VISION.md    # guia de visão (chinês)
-│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
-│   └── lang/              # READMEs em outros idiomas
-├── scripts/make-banner.py # regenera docs/social-preview.png
-└── docs/social-preview.png
+│   ├── vision-review/        # Análise de imagem e QA de capturas
+│   └── media-tools/          # Geração de imagens
+├── scripts/                  # Ajudantes de validação do bundle
+├── examples/                 # Imagens de exemplo e cartão de teste
+└── docs/                     # Guias, traduções e notas históricas
 ```
 
-## 🤝 Junte-se ao ecossistema de plugins DSH
+## FAQ
 
-A prévia de desenvolvedores do DeepSeek Harness ainda está em fase de testes para desenvolvedores do Harness; os plugins principais e as APIs base seguirão evoluindo. Esperamos explorar os limites superiores da inteligência junto com desenvolvedores do mundo todo, sobre infraestrutura de código aberto, aberta, reutilizável e combinável.
+**Preciso de um patch do núcleo no DSH v0.1.6?**
+Não. Configure um modelo multimodal no DSH para conversas nativas com imagem, ou use os scripts para fluxos dedicados de revisão e geração.
 
-- [Tópico dsh-plugin](https://github.com/topics/dsh-plugin)
-- [Início rápido](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
-- [Repositório do DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+**O plugin adiciona um modelo ao seletor automaticamente?**
+Não. O DSH v0.1.6 já traz gestão de modelos e plugins; o plugin apenas registra skills e nunca altera a configuração de modelos.
 
-> Marque este repo com o tópico [`dsh-plugin`](https://github.com/topics/dsh-plugin) para que outros o descubram.
+**Todos os providers são gratuitos?**
+Preços e faixas gratuitas podem mudar. GLM-4V-Flash e Kolors costumam ser amigáveis à faixa gratuita, enquanto DeepSeek é pago. Confira os termos atuais antes de depender de um fluxo.
 
-## 📄 Licença
+**Chaves de API vêm incluídas?**
+Não. As chaves ficam no seu ambiente, no armazenamento de credenciais do DSH ou em arquivos locais de segredos.
+
+**Para onde enviar capturas internas sensíveis?**
+Apenas para providers aprovados pela sua organização. Não envie documentos internos ao Gemini ou a outros providers externos, a menos que a política da empresa permita.
+
+## Exemplos
+
+<img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
+
+Mais detalhes em [examples/README.md](../../examples/README.md).
+
+## License
 
 [MIT](../../LICENSE)

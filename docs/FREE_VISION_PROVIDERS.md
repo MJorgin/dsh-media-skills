@@ -1,122 +1,78 @@
-# 其他免费视觉模型（替换 / 扩展智谱）
+# Provider 与密钥说明
 
-> 本 bundle 的视觉能力**不绑定智谱**：DSH 的模型路由基于 OpenAI 兼容协议，任何声明了图片输入的模型都能用。
-> 下表是当前可用的免费识图 API（2026-08 调研，额度和模型 id 会变，注册后以各控制台为准）。
-> 配置方法：把对应片段追加到 `~/.dsh/settings.yaml` 的 `llm-pi-ai.providers` 下，Key 用 `apiKeyEnv` 指定的名字放进 DSH 凭据（Web 设置页 → 模型 → API Key 栏），重启 DSH 即可。
+这个 bundle 在技能脚本层面保持 provider 中立。插件本身不会注册模型 provider，也不会修改 DSH 模型设置。
 
-## 推荐清单
+[English](FREE_VISION_PROVIDERS_EN.md) · [返回 README](../README.md)
 
-| 供应商 | 模型 | Key 去哪申请 | 免费额度 | 备注 |
-|---|---|---|---|---|
-| **DeepSeek（v0.1.1 起默认）** | deepseek-v4-flash-vision-exp | 主 agent 的 `DEEPSEEK_API_KEY`（无需额外申请） | 按量付费 | **v0.1.1-rc.1+ 的 deepseek-official 路由原生自带**，贴图转述默认走它；旧版本按第 7 节手动配 zhipu-vision |
-| 智谱（当前默认） | glm-4v-flash | [open.bigmodel.cn](https://open.bigmodel.cn) | 长期免费 | 通用视觉、中文友好 |
-| SiliconFlow | Qwen/Qwen3-VL-8B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API 密钥 | 注册送额度 + 部分模型免费 | **你已有生图 Key，同一个 key 就能用**（2026-08 实测：Qwen2.5-VL 系列已下架，Qwen3-VL 可用） |
-| ModelScope 魔搭 | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → 访问令牌 | 免费推理额度 | 国内直连、中文友好 |
-| 阿里云百炼 | qwen-vl-plus | [百炼控制台](https://bailian.console.aliyun.com) → API-KEY | 新用户免费额度（百万 token 级） | 中文/OCR 强 |
-| Google | gemini-3.6-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | 免费档约 1500 次/天 | 视觉推理最强的一档；`vision-review` 技能引擎的默认 Gemini 型号（`GEMINI_MODEL` 可换） |
-| OpenRouter | qwen/qwen2.5-vl-72b-instruct:free 等 | [openrouter.ai/keys](https://openrouter.ai/keys) | 部分模型带 `:free` 后缀免费 | 一个 key 通吃多家 |
-| Groq | llama-3.2-11b-vision-preview | [console.groq.com/keys](https://console.groq.com/keys) | 免费档（限速） | 速度极快 |
-| Cloudflare Workers AI | @cf/llava-hf/llava-1.5-7b-hf | [dash.cloudflare.com](https://dash.cloudflare.com) | 每天 1 万 neurons 免费 | 非 OpenAI 兼容，配置略不同 |
+## 读图引擎
 
-## 现成配置片段
+`vision-review` 会按以下顺序尝试已配置引擎：
 
-（追加进 `llm-pi-ai.providers` 即可；`contextWindow`/`maxTokens` 请以各控制台当前参数为准。）
+| 顺序 | 引擎 | 密钥变量 | 默认模型 | 模型覆盖变量 |
+|---:|---|---|---|---|
+| 1 | 智谱 GLM | `GLM_API_KEY` | `glm-4v-flash` | — |
+| 2 | DeepSeek | `DEEPSEEK_API_KEY` | `deepseek-v4-flash-vision-exp` | `DEEPSEEK_VISION_MODEL` |
+| 3 | SiliconFlow | `SILICONFLOW_API_KEY` | `Qwen/Qwen3-VL-8B-Instruct` | `SILICONFLOW_VISION_MODEL` |
+| 4 | SenseNova | `SENSENOVA_API_KEY` | `sensenova-6.8-flash-lite` | `SENSENOVA_VISION_MODEL` |
+| 5 | Gemini | `GEMINI_API_KEY` | `gemini-3.6-flash` | `GEMINI_MODEL` |
 
-### SiliconFlow（推荐先试——你已经有 key）
+可选引擎只有检测到对应 key 时才会加入故障转移链。各服务商的模型 ID、免费额度和价格可能变化，使用前请以官方控制台为准。
 
-```yaml
-    siliconflow-vision:
-      apiKeyEnv: SILICONFLOW_API_KEY
-      displayName: SiliconFlow Qwen3-VL（视觉）
-      api: openai-completions
-      baseURL: https://api.siliconflow.cn/v1
-      models:
-        - id: Qwen/Qwen3-VL-8B-Instruct
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+## 生图引擎
+
+`media-tools` 的优先级：
+
+1. 配置 `SENSENOVA_API_KEY` 时，使用 SenseNova U1 Fast。
+2. 未配置 SenseNova、但配置 `SILICONFLOW_API_KEY` 时，使用 SiliconFlow Kolors。
+
+插件不内置生图 key，也不提供匿名共享端点。
+
+## 密钥位置
+
+技能脚本优先读环境变量，然后读：
+
+```text
+~/.dsh/secrets/media-tools.env
+~/.codex/secrets/media-tools.env
 ```
 
-### ModelScope 魔搭
+`vision-review` 还会读取 `~/.dsh/.credentials.yaml`，包括其中的 `refs` 子映射。
 
-```yaml
-    modelscope-vision:
-      apiKeyEnv: MODELSCOPE_API_KEY
-      displayName: 魔搭 Qwen2.5-VL（视觉）
-      api: openai-completions
-      baseURL: https://api-inference.modelscope.cn/v1
-      models:
-        - id: Qwen/Qwen2.5-VL-7B-Instruct
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+示例：
+
+```sh
+# ~/.dsh/secrets/media-tools.env
+GLM_API_KEY=...
+DEEPSEEK_API_KEY=...
+SILICONFLOW_API_KEY=...
+SENSENOVA_API_KEY=...
+GEMINI_API_KEY=...
+GEMINI_PROXY=http://127.0.0.1:7897
 ```
 
-### 阿里云百炼 DashScope
+## 自定义 OpenAI 兼容引擎
 
-```yaml
-    dashscope-vision:
-      apiKeyEnv: DASHSCOPE_API_KEY
-      displayName: 通义千问 VL（视觉）
-      api: openai-completions
-      baseURL: https://dashscope.aliyuncs.com/compatible-mode/v1
-      models:
-        - id: qwen-vl-plus
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+把 `VISION_FALLBACKS` 设置为 JSON 数组：
+
+```json
+[
+  {
+    "name": "internal-vl",
+    "baseUrl": "https://vision.example.com/v1",
+    "apiKeyEnv": "INTERNAL_VL_KEY",
+    "model": "vl-model-name",
+    "maxTokens": 4096,
+    "jsonObject": true
+  }
+]
 ```
 
-### Google Gemini（OpenAI 兼容端点）
+`name`、`baseUrl`、`model` 必填；`apiKeyEnv` 缺省为 `OPENAI_API_KEY`。
 
-> `vision-review` 技能引擎默认用 `gemini-3.6-flash`（可用 `GEMINI_MODEL` 环境变量换型号），配好 `GEMINI_API_KEY` 即自动加入读图回退链；下面的路由配置则是把 Gemini 放进模型选择器当会话模型用。
+## DSH 原生模型配置
 
-```yaml
-    gemini-vision:
-      apiKeyEnv: GEMINI_API_KEY
-      displayName: Gemini 3.6 Flash（视觉）
-      api: openai-completions
-      baseURL: https://generativelanguage.googleapis.com/v1beta/openai
-      models:
-        - id: gemini-3.6-flash
-          input: [ text, image ]
-          contextWindow: 262144
-          maxTokens: 8192
-```
+如果希望普通 DSH 对话直接接收图片，请在 DSH 的 **Models** 设置中配置支持图片输入的模型。这条链路与技能脚本相互独立：插件只提供 `vision-review` 和 `media-tools`，不会改变模型选择器。
 
-### OpenRouter
+## 隐私
 
-```yaml
-    openrouter-vision:
-      apiKeyEnv: OPENROUTER_API_KEY
-      displayName: OpenRouter 视觉（free 模型）
-      api: openai-completions
-      baseURL: https://openrouter.ai/api/v1
-      models:
-        - id: qwen/qwen2.5-vl-72b-instruct:free
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
-```
-
-### Groq
-
-```yaml
-    groq-vision:
-      apiKeyEnv: GROQ_API_KEY
-      displayName: Groq Llama 3.2 Vision
-      api: openai-completions
-      baseURL: https://api.groq.com/openai/v1
-      models:
-        - id: llama-3.2-11b-vision-preview
-          input: [ text, image ]
-          contextWindow: 131072
-          maxTokens: 4096
-```
-
-## 注意事项
-
-- **默认转述模型**：贴图自动转述会使用「注册顺序里第一个支持图片的模型」。想换默认，把想用的 provider 写在最前面（或删掉其他视觉路由）。
-- **额度会变**：免费额度/模型 id 常调整，报错时先到对应控制台确认模型是否还在免费清单里。
-- **隐私**：图片会发给对应服务商的 API，选国内/国外服务时按你的数据合规要求来。
-- 调研来源：[free-vision-skill](https://github.com/lora-sys/free-vision-skill)、[ModelVisionSkill](https://github.com/yan-stone-computer/ModelVisionSkill) 及各服务商官方控制台。
+图片会发送给故障转移链实际调用的服务商，不会发送给本仓库。内部截图、客户资料、证件或文档只能发送给组织批准的服务商。

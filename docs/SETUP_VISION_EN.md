@@ -1,183 +1,124 @@
-# Vision Model Setup Guide (paste images, read them, free)
+# Setup guide for DSH v0.1.6
 
-> This is the detailed install & configuration guide for `dsh-media-skills`. After setup, your DeepSeek Harness gains a **free vision model** — 「智谱 GLM-4V-Flash（视觉）」 — in the model selector, and (on Harness builds with paste-image support) images pasted into a **text-only** session (e.g. deepseek-v4-pro) are **auto-described as text** — no file saving, no session switching.
->
-> For a quick start see the [README](../README.md). For troubleshooting jump to the [FAQ](#6-faq) below.
->
-> [**中文版（简体中文）**](SETUP_VISION.md)
->
-> 💡 Prefer a different provider? [Free vision models beyond Zhipu](FREE_VISION_PROVIDERS_EN.md) (SiliconFlow / ModelScope / Bailian / Gemini / OpenRouter / Groq…)
+This guide covers two related but different workflows:
 
----
+1. **Native DSH multimodal chat**: configure a vision-capable model in DSH and attach images normally.
+2. **Skill workflows**: use `vision-review` for scripted QA/OCR and `media-tools` for image generation.
 
-## Table of contents
+[中文版](SETUP_VISION.md) · [Back to README](../README.md)
 
-1. [What you get](#1-what-you-get)
-2. [Prerequisites](#2-prerequisites)
-3. [Install & configure (4 steps)](#3-install--configure-4-steps)
-4. [Three ways to read images](#4-three-ways-to-read-images)
-5. [How it works](#5-how-it-works)
-6. [FAQ](#6-faq)
-7. [Key files](#7-key-files)
+## 1. Install the plugin
 
----
+Use the DSH Plugin Manager:
 
-## 1. What you get
+```text
+github:MJorgin/dsh-media-skills
+```
 
-After install and restart:
-
-| Capability | What it does | Cost |
-|---|---|---|
-| 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」appears in the model selector; new conversations can use it as their model | Free |
-| 🖼️ Paste-image reading | In a **text-only** session, the input bar gains an "Add image" button (image icon); pasted images are auto-described by the vision model and delivered to the current model as text | Free |
-| 👁️ `vision-review` skill | Lets the agent read local image files and run visual checks | Free |
-| 🎨 `media-tools` skill | Free image generation | Free |
-
-> ⚠️ Honest note: paste-image reading is a **DeepSeek Harness core** capability (the image-admission logic in `api-proxy`). This bundle ships the **model route + skills**; the vision model works on any DSH build, but the auto-describe convenience requires a Harness build that includes that core support. How to tell: FAQ Q1.
-
-## 2. Prerequisites
-
-- [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) installed and able to run `dsh web` (default port 3080).
-- **DeepSeek Harness ≥ v0.1.1-rc.1: no key needed** — paste transcription and the vision route use the agent's own `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp ships natively).
-- (rc.7 / rc.8, or to add the free engines) A **Zhipu API key** (for reading images; free). **How to get it**: sign up / log in at [open.bigmodel.cn](https://open.bigmodel.cn) → console → **API Keys** → create & copy (`glm-4v-flash` is free, no payment needed).
-- (Optional) a **SiliconFlow API key** (only if you also want free generation with `media-tools`). **How to get it**: sign up / log in at [siliconflow.cn](https://siliconflow.cn) → **API Keys** → create & copy (the Kolors model is free).
-- Keys are never written into this repo; they live only in your DSH credential store as `DEEPSEEK_API_KEY` / `GLM_API_KEY` / `SILICONFLOW_API_KEY`.
-
-## 3. Install & configure (4 steps)
-
-### Step 1 — Install the bundle
+Or use the CLI:
 
 ```sh
-dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+dsh plugin --profile web add github:MJorgin/dsh-media-skills
 ```
 
-> Upgrading an existing install: `dsh plugin --profile <name> update dsh-media-skills`
->
-> You can also skip the bundle: drop the folders under `skills/` into any skill root (`~/.dsh/skills/` or a project's `.dsh/skills/`). You only get the two skills that way — the vision model route is **not** seeded; configure it manually (see section 7).
+Replace `web` with your DSH profile. Restart the profile after installation.
 
-### Step 2 — Get and supply GLM_API_KEY (either way)
+The plugin registers:
 
-> **v0.1.1-rc.1+ can skip this step**: paste transcription and the vision route already default to the agent's `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp). The GLM key only feeds the free fallback engines.
+- `vision-review`
+- `media-tools`
 
-> No key yet? Sign up at [open.bigmodel.cn](https://open.bigmodel.cn) and create one (glm-4v-flash is free). For generation, also create one at [siliconflow.cn](https://siliconflow.cn).
+It does not add or overwrite a model in the DSH model picker.
 
-**Option A (recommended): the Web GUI**
+## 2. Configure a native DSH vision model
 
-Open `http://127.0.0.1:3080` → **Settings → Models** → find the zhipu-vision provider → fill its **API Key** field with your Zhipu key → save.
+Open DSH **Models** settings and configure a provider/model that accepts image input according to that provider's current DSH integration.
 
-**Option B: the credentials file**
+Use this path when you want to attach images to a normal conversation and have the selected multimodal model answer directly. DSH v0.1.6 includes modern attachment and file handling; no historical core patch from this repository is required.
+
+Do not copy old `llm-pi-ai` YAML snippets from archived guides unless you are maintaining an old DSH build and know exactly why they are needed.
+
+## 3. Configure skill keys
+
+Skill scripts read environment variables first, then:
+
+```text
+~/.dsh/secrets/media-tools.env
+~/.codex/secrets/media-tools.env
+```
+
+`vision-review` also reads keys from `~/.dsh/.credentials.yaml`, supporting both top-level values and a `refs` mapping.
+
+Example:
 
 ```sh
-# ~/.dsh/.credentials.yaml (chmod 600)
-GLM_API_KEY: <your zhipu key>
+# ~/.dsh/secrets/media-tools.env
+GLM_API_KEY=...
+SILICONFLOW_API_KEY=...
+SENSENOVA_API_KEY=...
+GEMINI_API_KEY=...
 ```
 
-> Both options write the same store. **Never** put the key into `settings.yaml`, this repo, or any skill file.
+Set file permissions to `600` where possible.
 
-### Step 3 — Restart DSH
+## 4. Verify the engines
 
-After installing and setting the key, **fully restart** `dsh web` (stop the old process, then start it again — a page refresh alone is not enough):
+After installing the skill, run:
 
 ```sh
-# stop the running dsh web (Ctrl+C, or kill the process listening on 3080)
-lsof -i :3080          # find the PID
-kill <PID>
-
-# start again
-dsh web
+python3 scripts/vision.py --doctor
 ```
 
-> The model route hot-loads after installation, so a restart is not always strictly required — but credentials, caches and frontend assets are most reliable after one. Just restart once.
+When invoked through DSH, the skill resource directory is resolved automatically. From a terminal, run the command from the installed `vision-review` skill directory or use its full path.
 
-### Step 4 — Verify
+The doctor reports Pillow, configured keys, candidate model names and endpoint availability.
 
-1. Hard-refresh the page (`Cmd+Shift+R`).
-2. Open the **model selector** (Models page / top model menu): 「智谱 GLM-4V-Flash（视觉）」 should be listed.
-3. If your Harness build supports paste-image reading, any session's input bar shows a 🖼️ **Add image** button.
-4. Send an image: in a text-only session it arrives as "[image «xxx.png», read by the vision model] + text description", and the model answers from the description.
+## 5. Use the skills
 
-Done.
+Vision QA:
 
-## 4. Three ways to read images
-
-| Way | How | When |
-|---|---|---|
-| **A. Paste directly (recommended)** | In any session, click the 🖼️ button / drag / paste an image and send | Everyday image questions — no file saving, no model switching |
-| **B. Vision model session** | New conversation, pick 智谱 GLM-4V-Flash（视觉）, paste images and chat | Multi-turn image conversations, native `read_image` |
-| **C. Files + skill** | Put the image in the workspace and say "read this image with vision-review" | Batch review, scripted workflows |
-
-Description language follows your message language (Chinese message → Chinese description; English message → English description; no text → Chinese).
-
-## 5. How it works
-
-For way A, one paste goes through:
-
-1. You paste an image in a text-only session and send it;
-2. DSH sees the current model cannot read images → looks up the registered vision route (`zhipu-vision / glm-4v-flash`, seeded by this bundle);
-3. The vision model reads the image and writes a text description in the language of your message;
-4. The description is **appended next to the image block** in the persisted message — the visible bubble keeps the original thumbnail, while the llm layer projects image blocks away for text-only models (they read the transcription, vision models read both);
-5. History images carry a transcription marker, so the session can switch between text and vision models at any time — the "session contains undescribed images, cannot switch" guard only trips for direct pastes inside a vision-model session.
-
-**Failure fallback**: if step 3 fails, the message degrades to a notice text («image could not be transcribed: vision routes unavailable…»); the image stays in the session's attachment store — nothing is lost. Wait a minute and resend, or add a second vision route for failover (see Q4).
-
-## 6. FAQ
-
-### Q1: Pasting an image says "The current model does not support images; switch to a model that does"
-
-Three possibilities:
-
-- **Harness ≥ v0.1.1-rc.1**: the deepseek-official route ships **DeepSeek-V4-Flash-Vision-Exp** natively (same `DEEPSEEK_API_KEY` as your agent — zero extra configuration). Paste transcription prefers it (higher quality, billed against your DeepSeek balance) and text-session pastes are no longer rejected.
-- **The selector has no 智谱 GLM-4V-Flash（视觉）**: the vision route did not register. Check the bundle is in the profile (`dsh plugin --profile <name> list`), the key is set, then fully restart DSH.
-- **The vision model exists but uploads are still rejected**: your Harness core build predates the paste-image support. The vision model still works manually (way B); only the text-session paste path is blocked.
-
-### Q2: The vision model returns 400 / `1210` / "inputs tokens + max_new_tokens must be <= 16384"
-
-GLM-4V-Flash has two real limits: **input + output ≤ 16384**, and the API rejects `max_tokens` above 1024 (error `1210` «max_tokens参数非法：限制数值范围[1,1024]»). The seeded model config carries `contextWindow: 16384` and `maxTokens: 1024`, which triggers DSH's history compaction. If it still fails:
-
-- You probably pasted into a session with a very long history — try a **new conversation**;
-- Confirm `~/.dsh/settings.yaml`'s zhipu-vision entry carries `contextWindow: 16384` (see section 7).
-
-### Q3: After pasting images in a session, I can't switch back to a text-only model?
-
-That is DSH's guard, refined by whether each history image carries a transcription: images marked `[图片，已由视觉模型读取]` are safe for text-only models — the llm-layer projection strips the image block and keeps the transcription, so **way A (paste-image reading) switches freely**. Only way B (pasting inside a vision-model session) leaves history images undescribed, and switching is refused; in that case, just **open a new conversation**.
-
-### Q4: The message says "image could not be transcribed: vision routes unavailable…"?
-
-Every vision route failed (commonly a transient GLM hiccup or a network wobble). The image remains in the session's attachment store — nothing is lost. What to do:
-
-1. Wait a minute or two and resend (GLM hiccups are usually minute-scale);
-2. Configure a second vision route for failover (`siliconflow-vision` — ready-made snippets in [FREE_VISION_PROVIDERS_EN.md](FREE_VISION_PROVIDERS_EN.md)); afterwards a GLM outage falls over to SiliconFlow automatically;
-3. Diagnose the engines: run `python3 ~/.dsh/skills/vision-review/scripts/vision.py --doctor` to see which ones answer.
-
-### Q5: How do I remove the vision model config?
-
-Delete the whole `llm-pi-ai.providers.zhipu-vision` entry from `~/.dsh/settings.yaml` and restart DSH. To uninstall the bundle itself: `dsh plugin --profile <name> remove dsh-media-skills`.
-
-## 7. Key files
-
-After installation the bundle seeds this configuration (equivalent to writing it by hand):
-
-```yaml
-# auto-added to ~/.dsh/settings.yaml
-llm-pi-ai:
-  providers:
-    zhipu-vision:
-      apiKeyEnv: GLM_API_KEY
-      displayName: 智谱 GLM-4V-Flash（视觉）
-      api: openai-completions
-      baseURL: https://open.bigmodel.cn/api/paas/v4
-      models:
-        - id: glm-4v-flash
-          input: [ text, image ]
-          contextWindow: 16384
-          maxTokens: 1024
+```sh
+python3 scripts/vision.py screenshot.png
+python3 scripts/vision.py a.png b.png --structured
 ```
 
-- Credentials: `~/.dsh/.credentials.yaml` (key only, chmod 600)
-- Skill scripts read the key from: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`
-- Failed transcriptions keep the image in the session's attachment store (nothing is lost, nothing to do manually)
-- Seeding happens only when no `zhipu-vision` config exists — it never overwrites your edits
+Image generation:
 
----
+```sh
+python3 ../media-tools/scripts/generate.py "grand realistic Chinese palace above clouds" palace.jpg 16:9
+```
 
-Created by [@MJorgin](https://github.com/MJorgin) · Powered by [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness)
+You can also ask DSH in natural language, for example:
+
+- “Use vision-review to check whether this screenshot has overlapping text.”
+- “Generate a banner with media-tools.”
+
+## Troubleshooting
+
+**The plugin is installed but the skills are missing.**
+Restart the DSH profile. If you used a manual directory clone instead of plugin installation, make sure each skill directory is directly under a skill root; nested repository directories are not discovered recursively.
+
+**A native image attachment is rejected.**
+Check the currently selected model and provider configuration. The skill bundle cannot make a text-only model accept images.
+
+**The skill says a key is missing.**
+Add the key to your environment or `~/.dsh/secrets/media-tools.env`. For `vision-review`, keys may also come from `~/.dsh/.credentials.yaml`.
+
+**Gemini cannot connect.**
+Some networks require a proxy. Set `GEMINI_PROXY` or `HTTPS_PROXY` in the same environment/secrets context.
+
+**Pillow is missing.**
+Install it with:
+
+```sh
+python3 -m pip install Pillow
+```
+
+## Historical builds
+
+The old patch notes are archived for DSH builds through `v0.1.1-rc.2`:
+
+- [English patch notes](HARNESS_PATCH_EN.md)
+- [Chinese patch notes](HARNESS_PATCH.md)
+
+Do not apply those patches to DSH v0.1.6.

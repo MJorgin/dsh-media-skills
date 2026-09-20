@@ -1,5 +1,16 @@
 # Harness core patch notes (paste-image auto-transcription · v2)
 
+> ⚠️ **Historical archive: new DSH v0.1.6 users should not apply these patches.**
+>
+> These notes only support legacy builds through `dsh-v0.1.1-rc.2`
+> (`rc.7`, `rc.8`, `v0.1.1-rc.1`, and `v0.1.1-rc.2`). DeepSeek Harness v0.1.6
+> provides newer attachment/file handling, and the current `dsh-media-skills`
+> plugin no longer seeds model routes. Start instead from the
+> [README](../README.md) or [v0.1.6 setup guide](SETUP_VISION_EN.md).
+
+> The technical details below are retained as historical patch records and are
+> not installation steps for DSH v0.1.6.
+
 > This document records the **DeepSeek Harness core** changes needed for the
 > "text-only model can still see pasted images" capability.
 > The `dsh-media-skills` bundle only ships the model route and the skills;

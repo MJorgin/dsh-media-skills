@@ -1,120 +1,78 @@
-# Free vision models beyond Zhipu (swap or extend)
+# Providers and keys
 
-> The vision capability of this bundle is **not tied to Zhipu**: DSH model routes speak the OpenAI-compatible protocol, so any model that declares image input works.
-> The table below lists free image-reading APIs as of 2026-08 (quotas and model ids change — always check each console after signup).
-> How to configure: append the snippet of your choice under `llm-pi-ai.providers` in `~/.dsh/settings.yaml`, put the key (under the name given by `apiKeyEnv`) into DSH credentials (Web Settings → Models → API Key field), then restart DSH.
+This bundle is provider-neutral at the skill-script level. The plugin itself does not register model providers or mutate DSH model settings.
 
-## Recommended list
+[中文版](FREE_VISION_PROVIDERS.md) · [Back to README](../README.md)
 
-| Provider | Model | Where to get the key | Free tier | Notes |
-|---|---|---|---|---|
-| **DeepSeek (default from v0.1.1)** | deepseek-v4-flash-vision-exp | the agent's own `DEEPSEEK_API_KEY` (nothing to apply for) | Pay-as-you-go | **ships natively on the v0.1.1-rc.1+ deepseek-official route**; paste transcription defaults to it. Older versions configure zhipu-vision manually (section 7) |
-| Zhipu (current default) | glm-4v-flash | [open.bigmodel.cn](https://open.bigmodel.cn) | Free long-term | General vision, Chinese-friendly |
-| SiliconFlow | Qwen/Qwen2.5-VL-7B-Instruct | [siliconflow.cn](https://siliconflow.cn) → API Keys | Sign-up credits + some free models | **Works with the key you already have for image generation** |
-| ModelScope | Qwen/Qwen2.5-VL-7B-Instruct | [modelscope.cn](https://modelscope.cn) → access token | Free inference quota | Mainland-friendly, Chinese-friendly |
-| Alibaba Bailian (DashScope) | qwen-vl-plus | [Bailian console](https://bailian.console.aliyun.com) → API-KEY | New-user free quota (million-token scale) | Strong Chinese/OCR |
-| Google | gemini-2.5-flash | [aistudio.google.com/apikey](https://aistudio.google.com/apikey) | ~1,500 requests/day free | Best free visual reasoning |
-| OpenRouter | qwen/qwen2.5-vl-72b-instruct:free and more | [openrouter.ai/keys](https://openrouter.ai/keys) | Models with the `:free` suffix | One key, many providers |
-| Groq | llama-3.2-11b-vision-preview | [console.groq.com/keys](https://console.groq.com/keys) | Free tier (rate-limited) | Very fast |
-| Cloudflare Workers AI | @cf/llava-hf/llava-1.5-7b-hf | [dash.cloudflare.com](https://dash.cloudflare.com) | 10k neurons/day free | Not OpenAI-compatible, config differs |
+## Image review providers
 
-## Ready-to-paste snippets
+`vision-review` tries configured engines in this order:
 
-(Append under `llm-pi-ai.providers`; double-check `contextWindow`/`maxTokens` against each console.)
+| Order | Engine | Key variable | Default model | Model override |
+|---:|---|---|---|---|
+| 1 | Zhipu GLM | `GLM_API_KEY` | `glm-4v-flash` | — |
+| 2 | DeepSeek | `DEEPSEEK_API_KEY` | `deepseek-v4-flash-vision-exp` | `DEEPSEEK_VISION_MODEL` |
+| 3 | SiliconFlow | `SILICONFLOW_API_KEY` | `Qwen/Qwen3-VL-8B-Instruct` | `SILICONFLOW_VISION_MODEL` |
+| 4 | SenseNova | `SENSENOVA_API_KEY` | `sensenova-6.8-flash-lite` | `SENSENOVA_VISION_MODEL` |
+| 5 | Gemini | `GEMINI_API_KEY` | `gemini-3.6-flash` | `GEMINI_MODEL` |
 
-### SiliconFlow (try this first — you already have the key)
+Optional engines join only when their key is available. Provider catalogs and pricing change frequently; verify model IDs, quotas and free-tier terms in the provider console.
 
-```yaml
-    siliconflow-vision:
-      apiKeyEnv: SILICONFLOW_API_KEY
-      displayName: SiliconFlow Qwen2.5-VL (vision)
-      api: openai-completions
-      baseURL: https://api.siliconflow.cn/v1
-      models:
-        - id: Qwen/Qwen2.5-VL-7B-Instruct
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+## Image generation providers
+
+`media-tools` uses:
+
+1. SenseNova U1 Fast when `SENSENOVA_API_KEY` is set.
+2. SiliconFlow Kolors when SenseNova is not configured and `SILICONFLOW_API_KEY` is set.
+
+There is no bundled image-generation key and no anonymous shared endpoint.
+
+## Secret locations
+
+Skill scripts read environment variables first, then:
+
+```text
+~/.dsh/secrets/media-tools.env
+~/.codex/secrets/media-tools.env
 ```
 
-### ModelScope
+`vision-review` also reads `~/.dsh/.credentials.yaml`, including a `refs` mapping.
 
-```yaml
-    modelscope-vision:
-      apiKeyEnv: MODELSCOPE_API_KEY
-      displayName: ModelScope Qwen2.5-VL (vision)
-      api: openai-completions
-      baseURL: https://api-inference.modelscope.cn/v1
-      models:
-        - id: Qwen/Qwen2.5-VL-7B-Instruct
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+Example:
+
+```sh
+# ~/.dsh/secrets/media-tools.env
+GLM_API_KEY=...
+DEEPSEEK_API_KEY=...
+SILICONFLOW_API_KEY=...
+SENSENOVA_API_KEY=...
+GEMINI_API_KEY=...
+GEMINI_PROXY=http://127.0.0.1:7897
 ```
 
-### Alibaba Bailian (DashScope)
+## Custom OpenAI-compatible engines
 
-```yaml
-    dashscope-vision:
-      apiKeyEnv: DASHSCOPE_API_KEY
-      displayName: Qwen VL (vision)
-      api: openai-completions
-      baseURL: https://dashscope.aliyuncs.com/compatible-mode/v1
-      models:
-        - id: qwen-vl-plus
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
+Set `VISION_FALLBACKS` to a JSON array:
+
+```json
+[
+  {
+    "name": "internal-vl",
+    "baseUrl": "https://vision.example.com/v1",
+    "apiKeyEnv": "INTERNAL_VL_KEY",
+    "model": "vl-model-name",
+    "maxTokens": 4096,
+    "jsonObject": true
+  }
+]
 ```
 
-### Google Gemini (OpenAI-compatible endpoint)
+Required fields are `name`, `baseUrl` and `model`; `apiKeyEnv` defaults to `OPENAI_API_KEY`.
 
-```yaml
-    gemini-vision:
-      apiKeyEnv: GEMINI_API_KEY
-      displayName: Gemini 2.5 Flash (vision)
-      api: openai-completions
-      baseURL: https://generativelanguage.googleapis.com/v1beta/openai
-      models:
-        - id: gemini-2.5-flash
-          input: [ text, image ]
-          contextWindow: 262144
-          maxTokens: 8192
-```
+## Native DSH provider configuration
 
-### OpenRouter
+To use images directly in a normal DSH conversation, configure an image-capable model in DSH **Models** settings. That route is independent from the scripts above: the plugin can provide `vision-review` and `media-tools` without changing your model picker.
 
-```yaml
-    openrouter-vision:
-      apiKeyEnv: OPENROUTER_API_KEY
-      displayName: OpenRouter vision (free models)
-      api: openai-completions
-      baseURL: https://openrouter.ai/api/v1
-      models:
-        - id: qwen/qwen2.5-vl-72b-instruct:free
-          input: [ text, image ]
-          contextWindow: 32768
-          maxTokens: 4096
-```
+## Privacy
 
-### Groq
-
-```yaml
-    groq-vision:
-      apiKeyEnv: GROQ_API_KEY
-      displayName: Groq Llama 3.2 Vision
-      api: openai-completions
-      baseURL: https://api.groq.com/openai/v1
-      models:
-        - id: llama-3.2-11b-vision-preview
-          input: [ text, image ]
-          contextWindow: 131072
-          maxTokens: 4096
-```
-
-## Notes
-
-- **Default describe model**: paste-image auto-description uses the **first** image-capable model in registration order. To change the default, put the provider you want first (or remove other vision routes).
-- **Quotas change**: free quotas and model ids rotate — when a call errors, check the console for the current free list.
-- **Privacy**: images are sent to the chosen provider's API; pick mainland/global providers according to your data-compliance needs.
-- Sources: [free-vision-skill](https://github.com/lora-sys/free-vision-skill), [ModelVisionSkill](https://github.com/yan-stone-computer/ModelVisionSkill) and the providers' official consoles.
+Images are sent to the provider actually selected by the failover chain, not to this repository. For internal screenshots, customer data, IDs or documents, use only providers approved by your organization.
