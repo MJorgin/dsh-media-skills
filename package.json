@@ -1,6 +1,6 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Free image reading and generation skills for DeepSeek Harness v0.1.6: visual QA, illustration generation, provider fallback, and no bundled keys.",
   "type": "module",
   "main": "index.js",
@@ -9,13 +9,14 @@
   },
   "scripts": {
     "check:node": "node scripts/check-dsh-manifest.mjs && node scripts/check-dsh-bundle.mjs && node scripts/check-docs-links.mjs && node --check index.js",
-    "check:python": "python3 -m py_compile skills/vision-review/scripts/vision.py skills/media-tools/scripts/generate.py",
+    "check:python": "node scripts/check-python.mjs",
     "test": "npm run check:node && npm run check:python"
   },
   "files": [
     "index.js",
     "cordis.patch.yml",
     "skills",
+    "scripts",
     "README.md",
     "LICENSE"
   ],

@@ -30,4 +30,4 @@ jobs:
         with:
           python-version: '3.11'
       - name: Compile skill scripts
-        run: python -m py_compile skills/vision-review/scripts/vision.py skills/media-tools/scripts/generate.py
+        run: node scripts/check-python.mjs

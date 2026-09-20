@@ -10,8 +10,9 @@ Engines (tried in order):
    the OpenAI-compatible Gemini endpoint carries the same code path.
 6. VISION_FALLBACKS — any extra OpenAI-compatible multimodal endpoints (JSON).
 
-The plugin never writes model routes or settings; keys come only from the
-environment, ~/.dsh/secrets/media-tools.env, or ~/.dsh/.credentials.yaml.
+The plugin never writes model routes or settings; keys come from the
+environment, ~/.dsh/secrets/media-tools.env, the legacy Codex secrets file,
+or ~/.dsh/.credentials.yaml.
 
 `--structured` mirrors the ModLens evidence contract: a JSON object with
 summary / ocr.full_text / layout regions in reading order / semantics
@@ -58,9 +59,6 @@ def siliconflow_engine():
         "jsonObject": False,
     }
 
-# 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
-# Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
-# 仅该引擎走代理，智谱等国内引擎保持直连。
 # 备用引擎：DeepSeek-V4-Flash-Vision-Exp（用户显式配置后才加入）。
 # v0.1.6 不再由本插件隐式写入模型路由；这里只读取用户自己的 DEEPSEEK_API_KEY。
 # 注意它通常是付费模型（走 DeepSeek 余额），是否可用以账号和当前模型列表为准。
@@ -77,6 +75,9 @@ def deepseek_engine():
         "extraBody": {"thinking": {"type": "disabled"}},
     }
 
+# 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
+# Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
+# 仅该引擎走代理，智谱等国内引擎保持直连。
 def gemini_engine():
     proxy = load_key("GEMINI_PROXY") or os.environ.get("HTTPS_PROXY")
     return {

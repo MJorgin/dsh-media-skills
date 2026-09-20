@@ -15,7 +15,9 @@
  * @module dsh-media-skills
  */
 
+import { readFileSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const PROVIDER_NAME = 'dsh-media-skills'
@@ -41,14 +43,12 @@ function frontmatter(raw) {
   return { name, description, bodyStart: match[0].length }
 }
 
-const candidates = await Promise.all(
-  SKILL_NAMES.map(async (name) => {
-    const body = skillPath(name, 'SKILL.md')
-    const raw = await readFile(body, 'utf8')
-    const metadata = frontmatter(raw)
-    if (metadata.name !== name) {
-      throw new Error(`${body} declares ${metadata.name}, expected ${name}`)
-    }
+function createProvider() {
+  const candidates = SKILL_NAMES.map((name) => {
+    const directory = skillPath(name)
+    const body = join(directory, 'SKILL.md')
+    const metadata = frontmatter(readFileSync(body, 'utf8'))
+    if (metadata.name !== name) throw new Error(`${body} declares ${metadata.name}, expected ${name}`)
     return {
       path: body,
       name,
@@ -56,33 +56,25 @@ const candidates = await Promise.all(
       invocation: { modelInvocable: true, userInvocable: true },
       provider: PROVIDER_NAME,
       source: 'bundled',
-      resourceBase: { kind: 'directory', path: skillPath(name) },
+      resourceBase: { kind: 'directory', path: directory },
       rank: 600,
       locator: { body, bodyStart: metadata.bodyStart },
     }
-  }),
-)
+  })
 
-const provider = {
-  name: PROVIDER_NAME,
-  list: (_options) => Promise.resolve(candidates),
-  async get(candidate, _options) {
-    const selected = candidates.find((item) => (
-      item.name === candidate?.name && item.provider === candidate?.provider
-    ))
-    if (!selected) return undefined
-    const raw = await readFile(selected.locator.body, 'utf8')
-    return {
-      path: selected.path,
-      name: selected.name,
-      description: selected.description,
-      invocation: selected.invocation,
-      provider: selected.provider,
-      source: selected.source,
-      resourceBase: selected.resourceBase,
-      content: raw.slice(selected.locator.bodyStart).trim(),
-    }
-  },
+  return {
+    name: PROVIDER_NAME,
+    list: (_options) => Promise.resolve(candidates),
+    async get(candidate, options = {}) {
+      const selected = candidates.find((item) => (
+        item.name === candidate?.name && item.provider === candidate?.provider
+      ))
+      if (!selected) return undefined
+      const { rank: _rank, locator, ...summary } = selected
+      const raw = await readFile(locator.body, { encoding: 'utf8', signal: options.signal })
+      return { ...summary, content: raw.slice(locator.bodyStart).trim() }
+    },
+  }
 }
 
 /** Cordis plugin name. */
@@ -97,5 +89,5 @@ export const inject = ['skills']
  * uninstalling the bundle removes the provider without extra global state.
  */
 export function apply(ctx) {
-  ctx.skills.registerProvider(() => provider)
+  ctx.skills.registerProvider(createProvider)
 }
