@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  dsh-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Validate DSH bundle manifest
+        run: node scripts/check-dsh-manifest.mjs
+      - name: Validate runtime provider lifecycle
+        run: node scripts/check-dsh-bundle.mjs
+      - name: Validate README links and anchors
+        run: node scripts/check-docs-links.mjs
+      - name: Validate JavaScript syntax
+        run: node --check index.js
+
+  skill-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Compile skill scripts
+        run: node scripts/check-python.mjs

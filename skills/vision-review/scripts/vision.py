@@ -3,11 +3,16 @@
 
 Engines (tried in order):
 1. Zhipu GLM-4V-Flash (free) — primary.
-2. SiliconFlow Qwen3-VL — auto-joins when SILICONFLOW_API_KEY is set.
-3. SenseNova (商汤日日新) — auto-joins when SENSENOVA_API_KEY is set.
-4. Google Gemini (free key) — auto-joins when GEMINI_API_KEY is set;
+2. DeepSeek vision model — paid, joins only when DEEPSEEK_API_KEY is set.
+3. SiliconFlow Qwen3-VL — auto-joins when SILICONFLOW_API_KEY is set.
+4. SenseNova (商汤日日新) — auto-joins when SENSENOVA_API_KEY is set.
+5. Google Gemini (free key) — auto-joins when GEMINI_API_KEY is set;
    the OpenAI-compatible Gemini endpoint carries the same code path.
-5. VISION_FALLBACKS — any extra OpenAI-compatible multimodal endpoints (JSON).
+6. VISION_FALLBACKS — any extra OpenAI-compatible multimodal endpoints (JSON).
+
+The plugin never writes model routes or settings; keys come from the
+environment, ~/.dsh/secrets/media-tools.env, the legacy Codex secrets file,
+or ~/.dsh/.credentials.yaml.
 
 `--structured` mirrors the ModLens evidence contract: a JSON object with
 summary / ocr.full_text / layout regions in reading order / semantics
@@ -54,12 +59,9 @@ def siliconflow_engine():
         "jsonObject": False,
     }
 
-# 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
-# Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
-# 仅该引擎走代理，智谱等国内引擎保持直连。
-# 备用引擎：DeepSeek-V4-Flash-Vision-Exp（推理型视觉模型，2026-08 实测）。
-# 与主 agent 共用同一个 DEEPSEEK_API_KEY（v0.1.1 起 harness 的 deepseek-official
-# 路由原生带此模型）；注意它是付费模型（走 DeepSeek 余额），质量高于 GLM-4V-Flash。
+# 备用引擎：DeepSeek-V4-Flash-Vision-Exp（用户显式配置后才加入）。
+# v0.1.6 不再由本插件隐式写入模型路由；这里只读取用户自己的 DEEPSEEK_API_KEY。
+# 注意它通常是付费模型（走 DeepSeek 余额），是否可用以账号和当前模型列表为准。
 # 实测要点：思考默认吃掉全部输出预算 → 必须传 thinking={"type":"disabled"}，
 # 并把 max_tokens 提到 4096，否则 content 为空（finish_reason=length）。
 def deepseek_engine():
@@ -73,6 +75,9 @@ def deepseek_engine():
         "extraBody": {"thinking": {"type": "disabled"}},
     }
 
+# 备用引擎：Google Gemini（免费 key，AI Studio 领取），走 OpenAI 兼容端点。
+# Google 域名可能需要代理：在 secrets 文件里写 GEMINI_PROXY=http://127.0.0.1:7897 即可，
+# 仅该引擎走代理，智谱等国内引擎保持直连。
 def gemini_engine():
     proxy = load_key("GEMINI_PROXY") or os.environ.get("HTTPS_PROXY")
     return {
@@ -107,8 +112,7 @@ def load_key(name):
             for line in env.read_text().splitlines():
                 if line.startswith(name + "="):
                     return line.split("=", 1)[1].strip()
-    # harness 凭据库——与主 agent 同一个 key 直接可用。
-    # v0.1.1 起为 refs 子映射格式（refs: {KEY: value}），旧版为扁平 KEY: value。
+    # DSH 凭据库——支持 refs 子映射格式（refs: {KEY: value}）和旧版扁平 KEY: value。
     creds = Path.home() / ".dsh" / ".credentials.yaml"
     if creds.exists():
         try:
