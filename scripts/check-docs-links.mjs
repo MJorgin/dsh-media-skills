@@ -20,13 +20,20 @@ const files = [
     .map((lang) => path.join('docs', 'lang', `README_${lang}.md`)),
 ]
 
+/**
+ * Mirror GitHub's heading slugger (github-slugger): drop punctuation/emoji,
+ * lowercase, then turn spaces into hyphens.
+ *
+ * Note the deliberate absence of a trim: an emoji followed by a space leaves
+ * that space in place, so "## 🔑 Keys & privacy" really is "#-keys--privacy"
+ * on GitHub. Trimming or collapsing here would reject correct TOC links.
+ */
 const slug = (heading) => heading
   .replace(/`[^`]*`/g, (m) => m.slice(1, -1))
   .replace(/!?\[[^\]]*\]\([^)]*\)/g, '')
   .toLowerCase()
-  .replace(/[^\p{L}\p{N}\s-]/gu, '')
-  .trim()
-  .replace(/\s+/g, '-')
+  .replace(/[^\p{L}\p{N} -]/gu, '')
+  .replace(/ /g, '-')
 
 const stripInline = (line) => line
   .replace(/^#+\s*/, '')
