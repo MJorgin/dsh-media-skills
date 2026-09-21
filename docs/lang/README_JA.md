@@ -1,29 +1,23 @@
 <div align="center">
 
-<img src="../social-preview.png" alt="dsh-media-skills — DeepSeek Harness のための画像レビューと画像生成" width="100%">
+<img src="../social-preview.png" alt="dsh-media-skills — DeepSeek Harness のための無料画像読み取り・生成スキル" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### DeepSeek Harness v0.1.6 向けの画像レビュー・画像生成スキル
+### *チャット欄に画像を直接貼り付け —— 無料のビジョンモデルと画像読み取り・生成スキル*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
-[![DeepSeek Harness](https://img.shields.io/badge/DSH-v0.1.6--alpha.2-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.6-alpha.2)
-[![No bundled keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](#キーの設定)
-[![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](README_JA.md)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
 
 <br>
 
-軽量な DSH プラグインです。キーは自分で用意する（bring-your-own-key）2 つのメディアスキルを提供します。
+[DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) に「目」と「筆」を——2 つの無料スキル、1 つの無料ビジョンモデル、
+さらにテキスト専用セッションへの画像貼り付け。キーのハードコードは一切なし。
 
-- 👁️ **`vision-review`** — 画像の記述、OCR、スクリーンショットの検査、文字の重なりやはみ出しといった UI 問題の検出、オプションで構造化エビデンスの出力。
-- 🎨 **`media-tools`** — SenseNova U1 Fast または SiliconFlow Kolors でイラスト、アバター、背景、バナーを生成。
-
-このプラグインは DSH v0.1.6 のスキルプロバイダー・ライフサイクルを使用し、**DSH コアへのパッチ、モデル設定の変更、プロバイダー登録、隠し設定の書き込みは一切行いません**。
-
-[なぜ](#なぜ使うのか) · [インストール](#インストール) · [キー設定](#キーの設定) · [使い方](#使い方) · [手動インストール](#手動ディレクトリインストール) · [検証](#検証) · [FAQ](#faq)
+[機能](#-機能) · [クイックスタート](#-クイックスタート) · [使い方](#-使い方) · [ビジョン設定ガイド](../SETUP_VISION.md)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -31,194 +25,97 @@
 
 ---
 
-## なぜ使うのか
+## ✨ 機能
 
-DeepSeek Harness v0.1.6 は、画像入力を受け付けるモデル向けにモダンな添付ファイル・ファイルワークフローをすでに備えています。このバンドルは、ネイティブの添付ファイル機能ではカバーしきれない、相補的な 2 つの仕事に集中します。
+| 機能 | 内容 | モデル | 費用 |
+|---|---|---|---|
+| 🖼️ 画像貼り付け自動読み取り | **テキスト専用セッション**（例: deepseek-v4-pro）の入力欄に「画像を追加」ボタン（画像アイコン）が現れ、貼り付けた画像はビジョンモデルが自動でテキスト説明に変換して現行モデルへ渡す（**v0.1.1 以降は DeepSeek-V4-Flash-Vision-Exp がデフォルト**） | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: 智譜 GLM-4V-Flash | GLM 無料・DeepSeek は残高払い（v0.1.1 デフォルト） |
+| 🧠 ビジョンモデルルート | ≤ v0.1.1 ではインストール後、モデルセレクターに**自動で**「智譜 GLM-4V-Flash（視覚）」が追加されます（**v0.1.6** では **設定 → モデル** から一度追加）。新規セッションで画像について直接会話できます | 智譜 GLM-4V-Flash | 無料 |
+| 👁️ `vision-review` | 画像・スクリーンショットの分析 / 認識 / 説明、UI の視覚的バグ（重なり・はみ出し・ずれ）の検出、ウォーターマーク / ロゴ検出、画像のテキスト化。エンジンチェーン: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（エージェントと同じキー・任意で有料）→ SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | 無料（DeepSeek は任意・有料） |
+| 🎨 `media-tools` | 画像・イラスト・アバター・背景・バナーの生成 | SenseNova U1 Fast → SiliconFlow Kolors | 無料・ウォーターマークなし |
 
-| ニーズ | スキル | できること |
-|---|---|---|
-| 明示的なスクリーンショット QA | `vision-review` | 描画の完全性、重なり、はみ出し、ズレ、透かし、見た目の一貫性をチェック。 |
-| OCR と画像のテキスト化 | `vision-review` | スクリーンショット・写真・スキャンをテキスト化。構造化 JSON 契約も選択可能。 |
-| プロバイダーのフェイルオーバー | `vision-review` | 設定済みエンジンを決まった順序で試行し、失敗を報告。 |
-| 画像素材の制作 | `media-tools` | 設定済みの SenseNova または SiliconFlow キーで実用的な画像ファイルを生成。 |
+> ⚠️ 正直な注記：「画像貼り付け自動読み取り」は DeepSeek Harness **本体**の機能です——**v0.1.6 / v0.1.1** は標準搭載、rc.7 / rc.8 は同梱のコアパッチ（`api-proxy` の画像受付ロジック）で有効になります。このバンドルが提供するのは**読み取り/生成スキル**（≤ v0.1.1 ではモデルルートも）です。ビジョンモデルはどの DSH ビルドでも動作します。
 
-モデルルーティングは DSH とその **Models** UI に任せます。そのため v0.1.6 の実行時の有効化・無効化・アンインストール・再起動と互換性があり、グローバル状態を残しません。
+## ⚡ クイックスタート
 
-## v0.1.6 の変更点
+1. バンドルをインストール：
 
-- `ctx.skills.registerProvider(...)` で 2 つのバンドルスキルを登録。
-- 旧バージョンの暗黙的な `llm-pi-ai` 設定書き込みとモデルルートのシードをすべて削除。
-- スキルのメタデータを各 `SKILL.md` から直接読み取り、文言のズレを防止。
-- 実行時プラグイン・ライフサイクルをサポート。登録はプラグイン fiber に紐づき、クリーンに除去可能。
-- 旧コアパッチは `<= v0.1.1-rc.2` 向けの歴史資料としてのみ保持。v0.1.6 では不要。
-- 静的 manifest 検証と、擬似コンテキストによる実行時プロバイダーテストを追加。
+   ```sh
+   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+   ```
 
-## インストール
+2. **キー**：
+   - **v0.1.6**：インストールにキーは不要——2 つのスキルが実行時に登録されます。スキル用キー（`GLM_API_KEY`、`SILICONFLOW_API_KEY`、任意で `GEMINI_API_KEY`）は `~/.dsh/secrets/media-tools.env` に置きます（[キー](#-キー) 参照）。ネイティブのモデルルートは **設定 → モデル** でご自身が設定してください。
+   - **v0.1.1-rc.1 以降は追加キー不要**——貼り付け読み取りとビジョンルートはエージェントの既存 `DEEPSEEK_API_KEY` で動きます。無料エンジンを使う場合（または rc.7/rc.8）は、まず無料でキーを取得：[open.bigmodel.cn](https://open.bigmodel.cn) に登録/ログイン → 「API Keys」（glm-4v-flash は無料）。生成も使うなら [siliconflow.cn](https://siliconflow.cn) でも作成（Kolors は無料）。その後 Zhipu のキーを設定—— Web GUI（**設定 → モデル**）またはクレデンシャルファイルで：
 
-### 方法 1: DSH Plugin Manager
+   ```sh
+   # ~/.dsh/.credentials.yaml（chmod 600）
+   GLM_API_KEY: <あなたの Zhipu キー>
+   ```
 
-DSH の Plugin Manager で以下を追加します。
+3. `dsh web` を**完全に再起動**し、`Cmd+Shift+R` でハードリフレッシュ。
 
-```text
-github:MJorgin/dsh-media-skills
-```
+4. 確認：スキル一覧に **`vision-review`** と **`media-tools`** が表示されること（v0.1.6 のビジョンルートは **設定 → モデル** でご自身で追加；≤ v0.1.1 ではモデルセレクターに **「智譜 GLM-4V-Flash（視覚）」** が表示されます）。本体が貼り付け読み取りに対応していれば、入力欄左下に **🖼️「画像を追加」ボタン**が表示される。任意のセッションに画像を貼ると、テキスト説明として届く。
 
-その後プロファイルを再起動してください。
+詳細な手順・仕組み・トラブルシューティング：**[../SETUP_VISION.md](../SETUP_VISION.md)**
 
-### 方法 2: CLI
+## 🔑 キー
 
-一般的な web プロファイルの場合:
+キーは**このリポジトリに一切保存されない**。スキルスクリプトは次の順で読み取る：環境変数 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（後方互換）。ビジョンモデルルートは DSH のクレデンシャルストアから `GLM_API_KEY` を読む（≤ v0.1.1。v0.1.6 ではルートを **設定 → モデル** でご自身が設定します）。
 
-```sh
-dsh plugin --profile web add github:MJorgin/dsh-media-skills
-```
-
-`web` は実際に使う DSH プロファイルに置き換えてください。インストール後、そのプロファイルを再起動すると新しいバンドルがマウントされます。
-
-ビルドは不要です。ESM と Python スクリプトがそのまま動く状態で同梱され、依存関係のインストールや `prepare` スクリプトはありません。
-
-## キーの設定
-
-キーがこのリポジトリに保存されることはありません。スキルスクリプトはまず環境変数を読み、その後以下を読みます。
-
-```text
-~/.dsh/secrets/media-tools.env
-~/.codex/secrets/media-tools.env   # 旧バージョン互換
-```
-
-`vision-review` は以下のファイルからも互換キーを読み取れます。
-
-```text
-~/.dsh/.credentials.yaml
-```
-
-`media-tools` は環境変数と 2 つの `media-tools.env` を読みます。これらの場所のいずれかに明示的に設定してください。
-
-| キー | 利用スキル | 備考 |
-|---|---|---|
-| `GLM_API_KEY` | `vision-review` | プライマリの智譜 `glm-4v-flash`。最新の料金・無料枠条件を要確認。 |
-| `DEEPSEEK_API_KEY` | `vision-review` | 任意の有料 DeepSeek ビジョンモデル。DSH 認証ストアからも読取。 |
-| `SILICONFLOW_API_KEY` | 両方 | レビューは Qwen3-VL、生成は Kolors。 |
-| `SENSENOVA_API_KEY` | 両方 | レビューは SenseNova ビジョンモデル、生成は U1 Fast。 |
-| `GEMINI_API_KEY` | `vision-review` | 任意の Gemini フォールバック。ネットワークによっては `GEMINI_PROXY` が必要。 |
-
-secrets ファイルの例:
+キー入手先（いずれも無料）：智譜 [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）；SiliconFlow [siliconflow.cn](https://siliconflow.cn) → API Keys（Kolors）。
 
 ```sh
-# ~/.dsh/secrets/media-tools.env, chmod 600 推奨
+# ~/.dsh/secrets/media-tools.env（chmod 600、1 行に KEY=value）
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
-SENSENOVA_API_KEY=...
-GEMINI_API_KEY=...
 ```
 
-### DSH ネイティブの画像モデル
+## 🚀 使い方
 
-このプラグインは DSH のモデル選択にモデルを追加しません。通常の DSH 会話でネイティブに画像を受け付けたい場合は、DSH の **Models** 設定でマルチモーダルモデル/プロバイダーを設定し、DSH 標準の添付フローを使ってください。
+画像を読む 3 つの方法：
 
-マルチモーダルチャットの応答だけでなく、スクリプト化されたレビュー/OCR ワークフロー、プロバイダーのフェイルオーバーチェーン、構造化エビデンスが必要な場合は `vision-review` を使ってください。
+| 方法 | 使い方 | 向いている場面 |
+|---|---|---|
+| **A. 直接貼り付け（推奨）** | 任意のセッションで画像ボタン / ドラッグ / ペーストして送信 | 日常的な画像の質問——ファイル保存もモデル切り替えも不要 |
+| **B. ビジョンモデルセッション** | 新規会話で「智譜 GLM-4V-Flash（視覚）」を選び、画像を貼って会話 | 画像を中心にした複数ターンの会話、ネイティブ `read_image` |
+| **C. ファイル + スキル** | 画像をワークスペースに置き「vision-review でこの画像を読んで」と言う | 一括チェック、スクリプト化した処理 |
 
-## 使い方
+説明の言語はメッセージの言語に自動追従（中国語メッセージ→中国語の説明、英語メッセージ→英語の説明、テキストなし→中国語）。
 
-### ビジョンレビュー
+そのほか、こう言うだけ：
 
-DSH に `vision-review` を使うよう依頼するか、スキルディレクトリから直接スクリプトを実行します。
+- 「この画像を見て / このスクリーンショットの視覚バグをチェックして」→ `vision-review`
+- 「〜の画像を生成して」→ `media-tools`
 
-```bash
-python3 scripts/vision.py screenshot.png
-python3 scripts/vision.py a.png b.png --structured
-python3 scripts/vision.py screenshot.png --provider=siliconflow-qwen
-python3 scripts/vision.py --doctor
+## 🗺️ 構成
+
 ```
-
-デフォルトプロンプトは、描画の完全性、文字の重なり・ズレ・はみ出し、配色の階層、透かし、明らかな視覚バグをチェックします。特定タスクには絞り込んだプロンプトを渡せます。
-
-```bash
-python3 scripts/vision.py page.png --prompt="ボタン、見出し、チャートの重なりを位置付きで指摘してください"
-```
-
-フェイルオーバーチェーンには、対応するキーが利用可能なエンジンだけが参加します。`--structured` を付けると、要約、OCR、読み順のレイアウト、セマンティクス、視覚メモ、不確実性を含む構造化出力が得られます。
-
-### 画像生成
-
-```bash
-python3 skills/media-tools/scripts/generate.py "雲海に浮かぶ中国宮殿、写実的で映画的、雄大な構図" palace.jpg 16:9
-```
-
-`SENSENOVA_API_KEY` があれば SenseNova、なければ `SILICONFLOW_API_KEY` がある場合に SiliconFlow Kolors を使います。SenseNova のサイズは正確な寸法または一般的な比率で指定でき、最も近い対応サイズにマッピングされます。
-
-## 手動ディレクトリインストール
-
-このリポジトリには複数スキルが含まれるため、プラグインとしてのインストールを推奨します。v0.1.6 のファイルシステムプロバイダーはスキルルートの 1 階層だけをスキャンするため、リポジトリを直接 `~/.dsh/skills/` にクローンしてもネストされた `skills/*/SKILL.md` は発見されません。
-
-手動インストールではスキルごとにリンクします。
-
-```sh
-git clone https://github.com/MJorgin/dsh-media-skills.git ~/.dsh/bundles/dsh-media-skills
-mkdir -p ~/.dsh/skills
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/vision-review ~/.dsh/skills/vision-review
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/media-tools ~/.dsh/skills/media-tools
-```
-
-リンク作成後に DSH を再起動してください。
-
-## 検証
-
-ローカルの全チェックを実行します。
-
-```sh
-npm test
-```
-
-DSH バンドル manifest の検証、DSH 風コンテキストを通した実行時プロバイダーの登録・読込テスト、JavaScript 構文チェック、両スキルスクリプトの Python コンパイルチェックを行います。
-
-## 歴史的パッチ
-
-旧コアパッチは、古い DSH ビルドを保守するユーザー向けに残されています。
-
-- [中文説明](../HARNESS_PATCH.md)
-- [English notes](../HARNESS_PATCH_EN.md)
-
-これらが適用されるのは `v0.1.1-rc.2` までの歴史的ビルドです。v0.1.6 の新規ユーザーは適用しないでください。
-
-## プロジェクト構成
-
-```text
 dsh-media-skills/
-├── package.json              # DSH バンドル manifest とテストコマンド
-├── cordis.patch.yml          # Cordis プラグインの挿入
-├── index.js                  # バンドルスキルプロバイダーの登録
+├── package.json           # dsh.bundle マニフェスト
+├── cordis.patch.yml       # プラグインレイヤー
+├── index.js               # DSH v0.1.6 のプロバイダーライフサイクルで 2 つのスキルを登録
 ├── skills/
-│   ├── vision-review/        # 画像分析とスクリーンショット QA
-│   └── media-tools/          # 画像生成
-├── scripts/                  # バンドル検証ヘルパー
-├── examples/                 # サンプル画像とテストカード
-└── docs/                     # セットアップガイド、翻訳、歴史資料
+│   ├── vision-review/     # 画像読み取り
+│   └── media-tools/       # 画像生成
+├── docs/
+│   ├── SETUP_VISION.md    # ビジョン設定ガイド（中国語）
+│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
+│   └── lang/              # 各言語 README
+├── scripts/make-banner.py # docs/social-preview.png の再生成
+└── docs/social-preview.png
 ```
 
-## FAQ
+## 🤝 DSH プラグインエコシステムに参加
 
-**DSH v0.1.6 にコアパッチは必要ですか？**
-いいえ。DSH でマルチモーダルモデルを設定すればネイティブに画像会話できます。専用のレビュー・生成ワークフローにはスキルスクリプトを使ってください。
+DeepSeek Harness 開発者プレビューは、Harness 開発者向けのテスト段階にあります。コアプラグインとベース API は進化を続けます。オープンソースで、オープンで、再利用可能で、組み合わせ可能なインフラの上で、世界中の開発者とともに知能の限界を探求していきましょう。
 
-**プラグインはモデル選択にモデルを自動追加しますか？**
-いいえ。v0.1.6 にはモデル・プラグイン管理があり、プラグインはスキルを登録するだけでモデル設定を変更しません。
+- [dsh-plugin トピック](https://github.com/topics/dsh-plugin)
+- [クイックスタート](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
+- [DeepSeek Harness リポジトリ](https://github.com/deepseek-ai/deepseek-harness)
 
-**すべてのプロバイダーは無料ですか？**
-料金や無料枠は変わることがあります。GLM-4V-Flash と Kolors は無料枠に友好的ですが、DeepSeek は有料です。依存する前に各プロバイダーの最新条件を確認してください。
+> このリポジトリに [`dsh-plugin`](https://github.com/topics/dsh-plugin) トピックを付けて発見されやすくしましょう。
 
-**API キーは同梱されていますか？**
-いいえ。キーは環境変数、DSH 認証ストア、またはローカルの secrets ファイルにのみ存在します。
-
-**社内の機密スクリーンショットはどこに送るべきですか？**
-組織が承認したプロバイダーだけに送ってください。社内文書をポリシーで許可されずに Gemini などの外部プロバイダーへ送らないでください。
-
-## 例
-
-<img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
-
-詳細は [examples/README.md](../../examples/README.md)。
-
-## License
+## 📄 License
 
 [MIT](../../LICENSE)

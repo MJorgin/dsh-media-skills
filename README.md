@@ -1,29 +1,34 @@
 <div align="center">
 
-<img src="docs/social-preview.png" alt="dsh-media-skills — image review and generation for DeepSeek Harness" width="100%">
+<img src="docs/social-preview.png" alt="dsh-media-skills — free image reading & generation for DeepSeek Harness" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### Image review and image generation skills for DeepSeek Harness v0.1.6
+### *Give DeepSeek Harness eyes — and a brush. Read images in any chat, generate new ones, all with free models.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
-[![DeepSeek Harness](https://img.shields.io/badge/DSH-v0.1.6--alpha.2-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.6-alpha.2)
-[![No bundled keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](#configure-keys)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Free vision](https://img.shields.io/badge/vision-GLM%2BDeepSeek%2BGemini-2EA44F)](docs/SETUP_VISION_EN.md)
+[![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
+[![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
+[![Harness](https://img.shields.io/badge/Harness-v0.1.6%20ready-4D6BFE)](docs/HARNESS_PATCH_EN.md)
 
 <br>
 
-A lightweight DSH plugin that contributes two bring-your-own-key media skills:
+DeepSeek Harness is brilliant at reasoning — but a text-only model can't see the image you just dragged into the chat. This bundle fixes that with **two free skills**, a **free vision model route**, and a **vision engine failover chain**:
 
-- 👁️ **`vision-review`** — describe images, run OCR, inspect screenshots, detect UI issues such as overlapping or overflowing text, and output optional structured evidence.
-- 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners through SenseNova U1 Fast or SiliconFlow Kolors.
+- 📎 **Paste to read** — paste, drag, or pick an image in any session; the free vision model turns it into text your current model understands. *(Native on v0.1.6 / v0.1.1; on rc.7 / rc.8 via the bundled core patches — see [docs/HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md).)*
+- 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
+- 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners with a free, watermark-free model.
+- 🔀 **Engine failover** — GLM-4V-Flash (free) → **DeepSeek-V4-Flash-Vision-Exp** (same key as your agent, higher quality) → SiliconFlow Qwen3-VL → SenseNova → Google Gemini ([AI Studio](https://aistudio.google.com)) → any OpenAI-compatible endpoint, with ModLens-style structured evidence output.
 
-The plugin uses the DSH v0.1.6 skill-provider lifecycle and **does not patch DSH core, modify model settings, register providers, or write hidden configuration**.
+No hardcoded keys, no paid API, no file saving, no session switching.
 
-[Why](#why) · [Install](#install) · [Configure keys](#configure-keys) · [Usage](#usage) · [Manual directory install](#manual-directory-install) · [Verification](#verification) · [FAQ](#faq)
+[Why](#-why) · [Quick start](#-quick-start) · [See it in action](#-see-it-in-action) · [Usage](#-usage) · [Keys & privacy](#-keys--privacy) · [FAQ](#-faq) · [Examples](#-examples)
 
 [**English**](README.md) · [**简体中文**](docs/lang/README_ZH.md) · [**繁體中文**](docs/lang/README_ZH_TW.md) · [**日本語**](docs/lang/README_JA.md) · [**한국어**](docs/lang/README_KO.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**Português**](docs/lang/README_PT.md) · [**Русский**](docs/lang/README_RU.md)
 
@@ -31,194 +36,159 @@ The plugin uses the DSH v0.1.6 skill-provider lifecycle and **does not patch DSH
 
 ---
 
-## Why
+## 🤔 Why
 
-DeepSeek Harness v0.1.6 already supports modern image attachments and file workflows for models that accept image input. This bundle focuses on two complementary jobs that remain useful after native attachment support:
+Most DSH vision plugins only **read** images — and many push you through a shared third-party endpoint. `dsh-media-skills` takes a different stance:
 
-| Need | Skill | How it helps |
+| | This bundle | Typical vision-only plugin |
 |---|---|---|
-| Explicit screenshot QA | `vision-review` | Checks rendering completeness, overlap, overflow, misalignment, watermarks and visual consistency. |
-| OCR and image-to-text | `vision-review` | Turns screenshots, photos and scanned content into text, with an optional structured JSON contract. |
-| Provider failover | `vision-review` | Uses configured engines in a predictable chain and reports each failed attempt. |
-| Image asset production | `media-tools` | Generates usable image files through a configured SenseNova or SiliconFlow key. |
+| Read images for free | ✅ GLM-4V-Flash (free) · DeepSeek-V4-Flash-Vision-Exp (v0.1.1 default, same key) | ✅ |
+| **Generate** images for free | ✅ SenseNova U1 Fast → SiliconFlow Kolors | ❌ usually absent |
+| Auto model route in the picker | ✅ automatic on ≤ v0.1.1 · on v0.1.6 you pick it in **Settings → Models** (the plugin never writes settings) | sometimes |
+| Keys committed to the repo | ❌ never — keys stay local | ⚠️ often required |
+| Docs in multiple languages | ✅ 9 languages | ❌ usually English only |
+| Privacy | ✅ you choose the provider; images only go to your provider | shared free endpoints can see your images |
 
-The plugin leaves model routing to DSH and its **Models** UI. That makes it compatible with v0.1.6 runtime enabling, disabling, uninstalling and restarting without leaving global state behind.
+**Why bring your own free key instead of a built-in anonymous endpoint?** Privacy and reliability. Your images go only to the provider you choose, under your account and your rate limits — no shared third-party service in the middle.
 
-## What changed for v0.1.6
+**New-version adaptation**: on DeepSeek Harness **v0.1.6**, image attachments are native and this bundle installs as a standard runtime plugin — **no core patches, no settings writes**; you add or pick model routes yourself in **Settings → Models**. On **v0.1.1-rc.1 / rc.2**, the deepseek-official route ships **DeepSeek-V4-Flash-Vision-Exp** natively — paste-image transcription and the vision model route pick it up automatically with the key your agent already uses (**zero extra keys**). rc.7 / rc.8 apply the bundled patches (see [HARNESS_PATCH](docs/HARNESS_PATCH.md), historical).
 
-- Registers both bundled skills through `ctx.skills.registerProvider(...)`.
-- Removes the old implicit `llm-pi-ai` settings mutation and all model-route seeding.
-- Reads skill metadata directly from each `SKILL.md`, preventing copy drift.
-- Supports runtime plugin lifecycle: registration is owned by the plugin fiber and can be removed cleanly.
-- Treats old core patches as historical material for DSH `<= v0.1.1-rc.2`; they are not required for v0.1.6.
-- Adds static manifest validation and a runtime fake-context provider test.
+## ✨ What you get
 
-## Install
+| Capability | What it does | Model | Cost |
+|---|---|---|---|
+| 🖼️ Paste-image reading | In a **text-only** session, paste, drag, or pick (add-image button, restored by the client-ux patches) an image into the composer; it is described by the vision model (**v0.1.1: DeepSeek-V4-Flash-Vision-Exp by default**; rc.7/rc.8: GLM-4V-Flash with SiliconFlow Qwen3-VL failover, 15s per route) and handed to the current model as text beside a live thumbnail. *(Harness-core feature on rc.7/rc.8: requires the api-proxy admission patch + the rc.8 client-ux patch — see [docs/HARNESS_PATCH.md](docs/HARNESS_PATCH.md) / [HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md), patch files included for rc.7, rc.8, v0.1.1-rc.1 and v0.1.1-rc.2; this bundle supplies the vision route + skill it depends on)* | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: GLM-4V-Flash + Qwen3-VL | GLM free; DeepSeek billed to your balance (v0.1.1 default) |
+| 🧠 Vision model route | 「智谱 GLM-4V-Flash（视觉）」 appears in the model selector automatically on ≤ v0.1.1 (on **v0.1.6**, add it once in **Settings → Models**); on **v0.1.1** the deepseek route also ships **DeepSeek-V4-Flash-Vision-Exp** natively (same key) — pick either for a new conversation and talk about images directly | Zhipu GLM-4V-Flash · DeepSeek-V4-Flash-Vision-Exp (v0.1.1) | GLM free; DeepSeek billed |
+| 👁️ `vision-review` | Analyze / recognize / describe images & screenshots; catch UI visual bugs (overlap, overflow, misalignment); detect watermarks/logos; turn images into text. Optional `--structured` mode returns ModLens-style evidence JSON (summary, full OCR, reading-order layout, entities/relations, uncertainty). Engine failover chain: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp / SiliconFlow Qwen3-VL / SenseNova / Google Gemini (auto-join with keys) → any OpenAI-compatible endpoint | GLM-4V-Flash + DeepSeek-Vision-Exp + Qwen3-VL + SenseNova + Gemini | GLM/SiliconFlow free; DeepSeek uses your API balance (optional) |
+| 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, banners | SenseNova U1 Fast → SiliconFlow Kolors | Free, no watermark |
 
-### Option 1: DSH Plugin Manager
+## ⚡ Quick start
 
-Open DSH's Plugin Manager and add:
-
-```text
-github:MJorgin/dsh-media-skills
-```
-
-Then restart the profile.
-
-### Option 2: CLI
-
-For the common web profile:
+Install from the DSH **Plugin Manager** (`github:MJorgin/dsh-media-skills`) or the CLI:
 
 ```sh
-dsh plugin --profile web add github:MJorgin/dsh-media-skills
+dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
-Replace `web` with the DSH profile you actually use. Restart that profile after installation so the new bundle is mounted.
+1. **Keys**:
+   - **v0.1.6**: no keys needed to install — the two skills register at runtime. Skill keys (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, optional `GEMINI_API_KEY`) go in `~/.dsh/secrets/media-tools.env` (see [Keys & privacy](#-keys--privacy)); native model routes are yours to configure in **Settings → Models**.
+   - **v0.1.1-rc.1+**: zero extra keys — paste reading and the vision route run on your agent's existing `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp).
+   - **rc.7 / rc.8** (or to add the free engines): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (`glm-4v-flash` is free); SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → **API Keys** (Kolors is free); *(optional)* Google Gemini — [aistudio.google.com](https://aistudio.google.com) → **Get API key**; joins the vision failover chain automatically
+2. **Add them** in the Web GUI (**Settings → Models**), or use the credentials file:
 
-No build step is required: the package ships ready-to-run ESM and Python scripts and has no dependency installation or `prepare` script.
+   ```sh
+   # ~/.dsh/.credentials.yaml (chmod 600)
+   GLM_API_KEY: <your key>
+   ```
 
-## Configure keys
+3. **Restart** `dsh web`, then hard-refresh (`Cmd+Shift+R`).
 
-Keys are never stored in this repository. Skill scripts read environment variables first, then:
+Verify: the skills **`vision-review`** and **`media-tools`** show up in the skill list (on v0.1.6 add the vision route yourself in **Settings → Models**; on ≤ v0.1.1 the model selector shows **智谱 GLM-4V-Flash（视觉）**). If your Harness build supports paste-image reading, the input bar also has a 📎 **Add image** button — paste an image in any session and it arrives as a text description.
 
-```text
-~/.dsh/secrets/media-tools.env
-~/.codex/secrets/media-tools.env   # legacy fallback
-```
+Full walkthrough and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
 
-`vision-review` can also read compatible keys from:
+## 📸 See it in action
 
-```text
-~/.dsh/.credentials.yaml
-```
+*Paste an image in a text-only session → the free vision model describes it → your model answers. The same bundle also generates new images on demand.*
 
-`media-tools` reads environment variables and the two `media-tools.env` files; configure its keys explicitly in one of those locations.
+<img src="docs/screenshots/demo-paste.png" alt="Demo: paste an image into a text-only DeepSeek Harness session, the vision model reads it, and the model answers; the same bundle can also generate images" width="100%">
 
-| Key | Used by | Notes |
+*How it works in one picture:*
+
+<img src="docs/screenshots/how-it-works.png" alt="How paste-image reading works: paste → vision model describes → text description arrives at the current model" width="100%">
+
+
+## 🚀 Usage
+
+Three ways to read images:
+
+| Way | How | When |
 |---|---|---|
-| `GLM_API_KEY` | `vision-review` | Primary Zhipu `glm-4v-flash` engine; verify current Zhipu pricing/free-tier terms. |
-| `DEEPSEEK_API_KEY` | `vision-review` | Optional paid DeepSeek vision model; also read from DSH credential storage. |
-| `SILICONFLOW_API_KEY` | Both skills | Qwen3-VL for review and Kolors for generation. |
-| `SENSENOVA_API_KEY` | Both skills | SenseNova vision model for review and U1 Fast for generation. |
-| `GEMINI_API_KEY` | `vision-review` | Optional Gemini fallback; may require `GEMINI_PROXY` on some networks. |
+| **A. Paste directly (recommended)** | In any session, click the 📎 button / drag / paste an image and send | Everyday image questions — no file saving, no model switching |
+| **B. Vision model session** | New conversation, pick 智谱 GLM-4V-Flash（视觉）, paste images and chat | Multi-turn image conversations, native `read_image` |
+| **C. Files + skill** | Put the image in the workspace and say “read this image with vision-review” | Batch review, scripted workflows |
 
-Example secrets file:
+Descriptions follow your message language (Chinese message → Chinese description; English message → English description; no text → Chinese).
+
+Also just say:
+
+- “Look at this image / check this screenshot for visual bugs” → `vision-review`
+- “Generate an image of …” → `media-tools`
+
+## 🔑 Keys & privacy
+
+Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store (≤ v0.1.1; on v0.1.6 routes are yours to configure in **Settings → Models**).
+
+Where to get the keys (all free): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors). Google (optional, joins the vision failover chain automatically) — [aistudio.google.com](https://aistudio.google.com) → Get API key.
 
 ```sh
-# ~/.dsh/secrets/media-tools.env, chmod 600
+# ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
-SENSENOVA_API_KEY=...
-GEMINI_API_KEY=...
+GEMINI_API_KEY=...   # optional
 ```
 
-### Native DSH image models
+Your images are sent only to the provider you configure — never to this repo, never to a shared anonymous endpoint.
 
-This plugin does not add a model to the DSH model picker. To have a normal DSH conversation natively accept images, configure a multimodal model/provider in DSH's **Models** settings. Then use DSH's native attachment flow.
+> Privacy note on Gemini: Google's free-tier key comes with data-use terms — requests may be used to improve Google products. For sensitive images (IDs, internal docs, customer data), prefer the direct domestic engines (Zhipu / SiliconFlow).
 
-Use `vision-review` when you want a dedicated scripted review/OCR workflow, a provider failover chain, or structured evidence instead of only a multimodal chat response.
+## ❓ FAQ
 
-## Usage
+**Does paste-image reading require a DeepSeek Harness core patch?**
+The auto-describe pipeline lives in the Harness **core** — native on v0.1.6 / v0.1.1, `api-proxy` image-admission logic on rc.7 / rc.8 (see [docs/HARNESS_PATCH_EN.md](docs/HARNESS_PATCH_EN.md)). This bundle ships the **skills** (plus the vision model route on ≤ v0.1.1) — the vision model works on any DSH build, but paste-image reading requires a Harness build with that core support.
 
-### Vision review
+**Why not just use a built-in free endpoint with no key at all?**
+We prefer to let you own the route: your images go to the provider you pick, under your rate limits, with no shared middleman. The keys are free and take about two minutes to create.
 
-Ask DSH to use `vision-review`, or run its script from the skill directory:
+**Is `media-tools` really free?**
+Yes — SiliconFlow Kolors is free and watermark-free. If a model is temporarily disabled, the skill lists available models and you can switch.
 
-```bash
-python3 scripts/vision.py screenshot.png
-python3 scripts/vision.py a.png b.png --structured
-python3 scripts/vision.py screenshot.png --provider=siliconflow-qwen
-python3 scripts/vision.py --doctor
-```
+## 🎁 Examples
 
-The default prompt checks rendering completeness, overlapping/misaligned/overflowing text, color hierarchy, watermarks and obvious visual bugs. For a specific task, pass a focused prompt:
-
-```bash
-python3 scripts/vision.py page.png --prompt="检查按钮、标题和图表是否有重叠，并指出具体位置"
-```
-
-The failover chain joins engines only when their keys are available. Optional `--structured` output includes summary, OCR, reading-order layout, semantics, visual notes and uncertainty.
-
-### Image generation
-
-```bash
-python3 skills/media-tools/scripts/generate.py "a cinematic Chinese palace in the clouds, realistic, grand scale" palace.jpg 16:9
-```
-
-SenseNova is used when `SENSENOVA_API_KEY` is available. Otherwise the script uses SiliconFlow Kolors when `SILICONFLOW_API_KEY` is available. SenseNova sizes can be supplied as exact dimensions or common ratios; the script maps them to the nearest supported size.
-
-## Manual directory install
-
-Plugin installation is recommended because this repository contains multiple skills. The v0.1.6 filesystem provider scans only one directory level under a skill root, so cloning the repository directly into `~/.dsh/skills/` will not discover nested `skills/*/SKILL.md` files.
-
-To install manually, link each skill separately:
-
-```sh
-git clone https://github.com/MJorgin/dsh-media-skills.git ~/.dsh/bundles/dsh-media-skills
-mkdir -p ~/.dsh/skills
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/vision-review ~/.dsh/skills/vision-review
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/media-tools ~/.dsh/skills/media-tools
-```
-
-Restart DSH after creating the links.
-
-## Verification
-
-Run the complete local checks:
-
-```sh
-npm test
-```
-
-This runs DSH bundle manifest validation, runtime provider registration/loading through a fake DSH-like context, JavaScript syntax validation, and Python compilation for both skill scripts.
-
-## Historical patches
-
-The old core patches remain available for users maintaining legacy DSH builds:
-
-- [Chinese notes](docs/HARNESS_PATCH.md)
-- [English notes](docs/HARNESS_PATCH_EN.md)
-
-They apply to historical builds through `v0.1.1-rc.2`. New v0.1.6 users should not apply them.
-
-## Project layout
-
-```text
-dsh-media-skills/
-├── package.json              # DSH bundle manifest and test commands
-├── cordis.patch.yml          # Cordis plugin insertion
-├── index.js                  # Registers the bundled skill provider
-├── skills/
-│   ├── vision-review/        # Image analysis and screenshot QA
-│   └── media-tools/          # Image generation
-├── scripts/                  # Bundle validation helpers
-├── examples/                 # Example images and test card
-└── docs/                     # Setup guides, translations and historical notes
-```
-
-## FAQ
-
-**Do I need a core patch on DSH v0.1.6?**
-No. Configure a multimodal model in DSH for native image conversations, or use the skill scripts for dedicated review and generation workflows.
-
-**Does the plugin add a model to the model selector automatically?**
-No. DSH v0.1.6 provides model and plugin management; the plugin only registers skills and never mutates model settings.
-
-**Are all providers free?**
-Provider pricing and free-tier policies can change. GLM-4V-Flash and Kolors have been free-tier friendly, while DeepSeek usage is paid. Check the provider's current terms before relying on a workflow.
-
-**Are API keys included?**
-No. Keys stay in your environment, DSH credential storage, or local secrets files.
-
-**Where should I send sensitive internal screenshots?**
-Only to providers approved by your organization. Avoid Gemini or other external providers for internal documents unless company policy permits them.
-
-## Examples
+Sample material to try instantly — 6 AI-generated images with their prompts, plus a purpose-built vision test card (title, buttons, bar-chart values) for checking reading accuracy:
 
 <img src="examples/generated/fox-forest.jpg" width="30%"> <img src="examples/generated/cat-astronaut.jpg" width="30%"> <img src="examples/vision-test-card.png" width="30%">
 
-More details: [examples/README.md](examples/README.md).
+→ [examples/README.md](examples/README.md)
 
-## License
+## 🗺️ Layout
+
+```
+dsh-media-skills/
+├── package.json           # dsh.bundle manifest
+├── cordis.patch.yml       # plugin layer
+├── index.js               # registers the two skills via the DSH v0.1.6 provider lifecycle
+├── skills/
+│   ├── vision-review/     # image reading
+│   └── media-tools/       # image generation
+├── examples/              # sample images + vision test card
+├── docs/
+│   ├── screenshots/       # demo mockup & how-it-works diagram
+│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
+│   ├── SETUP_VISION.md    # 详细配置指南（中文）
+│   ├── HARNESS_PATCH_EN.md# core patch notes (English)
+│   ├── HARNESS_PATCH.md   # 本体补丁说明（中文）
+│   ├── COMPARE_MODLENS.md # 与 ModLens 的对比/共存（中文）
+│   └── lang/              # READMEs in 9 languages
+├── scripts/make-banner.py # regenerates docs/social-preview.png
+└── docs/social-preview.png
+```
+
+## 🧩 Using ModLens alongside?
+
+Both this bundle and [ModLens](https://github.com/liustack/modlens) give text-only models vision. Installed together they do not conflict: ModLens intercepts pastes first (path → `modlens_read_image` tool), and this bundle's api-proxy fallback handles anything it doesn't take over. See [docs/COMPARE_MODLENS.md](docs/COMPARE_MODLENS.md) (中文) for the full comparison, the paste routing order, and how to point ModLens at the same free Zhipu endpoint.
+
+## 🤝 Join the DSH plugin ecosystem
+
+DeepSeek Harness developer preview is still in its testing phase for Harness developers; core plugins and base APIs will keep iterating. We look forward to exploring the upper limits of intelligence together with developers worldwide, on top of open-source, open, reusable, and composable infrastructure.
+
+- [dsh-plugin topic](https://github.com/topics/dsh-plugin)
+- [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
+- [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
+- [dsh-agent-conductor](https://github.com/MJorgin/dsh-agent-conductor) — 同作者的指挥家：在 DSH 里派活给 11 种外部 agent CLI（Codex / Claude Code / TraeCode…）
+
+> This repo is tagged [`dsh-plugin`](https://github.com/topics/dsh-plugin) and listed in the [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) curated list. PRs, issues and translations are welcome.
+
+## 📄 License
 
 [MIT](LICENSE)

@@ -1,29 +1,33 @@
 <div align="center">
 
-<img src="../social-preview.png" alt="dsh-media-skills —— 為 DeepSeek Harness 提供圖片審查與生成能力" width="100%">
+<img src="../social-preview.png" alt="dsh-media-skills — DeepSeek Harness 的免費圖片讀取與生成" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### 面向 DeepSeek Harness v0.1.6 的圖片審查與圖片生成技能
+### *賦予 DeepSeek Harness 眼睛——以及一支畫筆。在任何對話中讀取圖片、生成新圖片，全部使用免費模型。*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
-[![DeepSeek Harness](https://img.shields.io/badge/DSH-v0.1.6--alpha.2-4D6BFE)](https://github.com/deepseek-ai/deepseek-harness/releases/tag/dsh-v0.1.6-alpha.2)
-[![No bundled keys](https://img.shields.io/badge/keys-%E5%BE%9E%E4%B8%8D%E5%85%A7%E5%BB%BA-8B5CF6)](#金鑰與隱私)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Free vision](https://img.shields.io/badge/vision-GLM%2BDeepSeek%2BGemini-2EA44F)](../SETUP_VISION_EN.md)
+[![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](../FREE_VISION_PROVIDERS_EN.md)
+[![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README_ZH_TW.md#-金鑰與隱私)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](README_ZH_TW.md)
 
 <br>
 
-一個輕量 DSH 外掛，提供兩個「自帶金鑰」（bring-your-own-key）的媒體技能：
+DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你剛拖進對話的圖片。這個套件以**兩個免費技能**、一個**免費視覺模型路由**以及一條**視覺引擎容錯移轉鏈**解決這個問題：
 
-- 👁️ **`vision-review`** —— 描述圖片、OCR、審查截圖，發現文字重疊/溢出等 UI 問題，並可輸出結構化證據。
-- 🎨 **`media-tools`** —— 透過 SenseNova U1 Fast 或 SiliconFlow Kolors 生成插畫、頭像、背景和 Banner。
+- 🖼️ **貼上即讀取**——在任何工作階段中貼上、拖曳或挑選圖片；視覺模型會把它轉成你目前模型能理解的文字（**v0.1.1 起預設 DeepSeek-V4-Flash-Vision-Exp，與主 agent 同 key**）。
+- 👁️ **`vision-review`**——分析圖片與螢幕截圖、找出 UI 視覺錯誤、偵測浮水印、將圖片轉成文字。
+- 🎨 **`media-tools`**——用免費、無浮水印的模型生成插圖、頭像、背景與橫幅。
+- 🔀 **引擎容錯移轉**——GLM-4V-Flash → **DeepSeek-V4-Flash-Vision-Exp**（與主 agent 同 key）→ SiliconFlow Qwen3-VL → SenseNova → Google Gemini（[AI Studio](https://aistudio.google.com)）→ 任何 OpenAI 相容端點，並輸出 ModLens 風格的結構化證據。
 
-外掛使用 DSH v0.1.6 的技能提供者生命週期，**不修改 DSH 核心、不變更模型設定、不註冊模型提供者、不寫入隱藏設定**。
+不寫死金鑰、無需付費 API、不需儲存檔案、不用切換工作階段。
 
-[為什麼](#為什麼) · [安裝](#安裝) · [設定金鑰](#設定金鑰) · [用法](#用法) · [手動目錄安裝](#手動目錄安裝) · [驗證](#驗證) · [FAQ](#faq)
+[為什麼](#-為什麼) · [快速開始](#-快速開始) · [看看實際效果](#-看看實際效果) · [使用方法](#-使用方法) · [金鑰與隱私](#-金鑰與隱私) · [常見問題](#-常見問題) · [範例](#-範例)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -31,194 +35,153 @@
 
 ---
 
-## 為什麼
+## 🤔 為什麼
 
-DeepSeek Harness v0.1.6 已為支援圖片輸入的模型提供了現代的附件與檔案工作流程。本 bundle 聚焦原生附件支援之外仍然有價值的兩類互補工作：
+多數 DSH 視覺外掛只能**讀取**圖片——而且很多會把你導向共用的第三方端點。`dsh-media-skills` 採取不同的立場：
 
-| 需求 | 技能 | 作用 |
+| | 本套件 | 一般僅視覺外掛 |
 |---|---|---|
-| 明確的截圖 QA | `vision-review` | 檢查渲染完整性、重疊、溢出、錯位、浮水印與視覺一致性。 |
-| OCR 與圖片轉文字 | `vision-review` | 把截圖、照片和掃描件轉成文字，可選結構化 JSON 契約。 |
-| 提供者故障轉移 | `vision-review` | 按固定順序嘗試已設定的引擎，並回報每次失敗。 |
-| 圖片素材生產 | `media-tools` | 透過已設定的 SenseNova 或 SiliconFlow 金鑰生成可用圖片檔案。 |
+| 免費讀取圖片 | ✅ Zhipu GLM-4V-Flash | ✅ |
+| 免費**生成**圖片 | ✅ SiliconFlow Kolors | ❌ 通常沒有 |
+| 選取器中自動加入模型路由 | ✅ ≤ v0.1.1 自動安裝 · v0.1.6 請在 **設定 → 模型** 自行選擇（外掛不寫入設定） | 有時 |
+| 金鑰提交至儲存庫 | ❌ 絕不——金鑰僅存本機 | ⚠️ 通常需要 |
+| 多語言說明文件 | ✅ 9 種語言 | ❌ 通常只有英文 |
+| 隱私 | ✅ 由你選擇供應商；圖片只會傳給你的供應商 | 共用免費端點可能看到你的圖片 |
 
-模型路由交給 DSH 及其 **Models** 介面負責。因此外掛相容 v0.1.6 的執行階段啟用、停用、解除安裝與重啟，不殘留全域狀態。
+**為什麼要自備免費金鑰，而不是使用內建的匿名端點？** 隱私與可靠性。你的圖片只會傳給你選擇的供應商，在你的帳戶與速率限制之下運作——中間沒有任何共用的第三方服務。
 
-## v0.1.6 有什麼變化
+## ✨ 你會獲得什麼
 
-- 透過 `ctx.skills.registerProvider(...)` 註冊兩個內建技能。
-- 移除舊的隱含 `llm-pi-ai` 設定寫入和所有模型路由播種邏輯。
-- 技能中繼資料直接讀取各自的 `SKILL.md`，避免描述漂移。
-- 支援執行階段外掛生命週期：註冊歸屬於外掛 fiber，可被乾淨移除。
-- 舊核心補丁僅作為 `<= v0.1.1-rc.2` 的歷史資料保留；v0.1.6 不再需要。
-- 新增靜態 manifest 校驗和執行階段 fake-context 提供者測試。
+| 功能 | 作用 | 模型 | 費用 |
+|---|---|---|---|
+| 🖼️ 貼上圖片讀取 | 在**純文字**工作階段中，輸入列會多出「Add image」按鈕（圖片圖標）；貼上的圖片會由視覺模型自動描述，並以文字形式交給目前的模型 | Zhipu GLM-4V-Flash | 免費 |
+| 🧠 視覺模型路由 | ≤ v0.1.1 會自動出現在模型選擇器（**v0.1.6**：在 **設定 → 模型** 自行加入一次）——在開新對話時選用它，即可直接針對圖片交談 | Zhipu GLM-4V-Flash | 免費 |
+| 👁️ `vision-review` | 分析／辨識／描述圖片與螢幕截圖；找出 UI 視覺錯誤（重疊、溢出、未對齊）；偵測浮水印／標誌；將圖片轉成文字。選用的 `--structured` 模式會回傳 ModLens 風格的證據 JSON（摘要、完整 OCR、閱讀順序版面、實體／關係、不確定性）。引擎容錯移轉鏈：GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（與主 agent 同 key，可選付費）→ SiliconFlow Qwen3-VL／SenseNova／Google Gemini（有金鑰即自動加入）→ 任何 OpenAI 相容端點 | GLM-4V-Flash＋DeepSeek-Vision-Exp＋Qwen3-VL＋SenseNova＋Gemini | 免費（DeepSeek 可選付費） |
+| 🎨 `media-tools` | 生成圖片、插圖、頭像、背景、橫幅 | SenseNova U1 Fast → SiliconFlow Kolors | 免費、無浮水印 |
 
-## 安裝
-
-### 方式一：DSH Plugin Manager
-
-在 DSH 的 Plugin Manager 中新增：
-
-```text
-github:MJorgin/dsh-media-skills
-```
-
-然後重啟該 profile。
-
-### 方式二：CLI
-
-以常用的 web profile 為例：
+## ⚡ 快速開始
 
 ```sh
-dsh plugin --profile web add github:MJorgin/dsh-media-skills
+dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
-請把 `web` 替換為你實際使用的 DSH profile。安裝後重啟該 profile 以掛載新 bundle。
+1. **金鑰**：
+   - **v0.1.6**：安裝無需金鑰——兩個技能隨外掛運行時註冊。使用技能時把金鑰（`GLM_API_KEY`、`SILICONFLOW_API_KEY`、可選 `GEMINI_API_KEY`）寫入 `~/.dsh/secrets/media-tools.env`（見 [金鑰與隱私](#-金鑰與隱私)）；原生模型路由由你在 **設定 → 模型** 自行配置。
+   - **v0.1.1-rc.1+**：零額外設定——貼上讀取與視覺路由直接使用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
+   - **rc.7 / rc.8**（或想加免費引擎）：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys**（`glm-4v-flash` 免費）；SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → **API Keys**（Kolors 免費）；*（選用）* Google Gemini——[aistudio.google.com](https://aistudio.google.com) → **Get API key**；會自動加入視覺容錯移轉鏈
+2. **加入金鑰**：在網頁介面（**設定 → 模型**）中輸入，或使用憑證檔案：
 
-無需建置：套件內是開箱即用的 ESM 與 Python 腳本，沒有相依套件安裝，也沒有 `prepare` 腳本。
+   ```sh
+   # ~/.dsh/.credentials.yaml (chmod 600)
+   GLM_API_KEY: <你的金鑰>
+   ```
 
-## 設定金鑰
+3. **重新啟動** `dsh web`，然後強制重新整理（`Cmd+Shift+R`）。
 
-金鑰永遠不會存放在本倉庫中。技能腳本優先讀取環境變數，然後讀取：
+驗證：技能清單出現 **`vision-review`** 與 **`media-tools`**（v0.1.6 的視覺路由請在 **設定 → 模型** 自行配置；≤ v0.1.1 模型選擇器會顯示**智譜 GLM-4V-Flash（視覺）**）。如果你的 Harness 版本支援貼上圖片讀取，輸入列也會有 🖼️ **Add image** 按鈕——在任何工作階段貼上圖片，它就會以文字描述的形式抵達。
 
-```text
-~/.dsh/secrets/media-tools.env
-~/.codex/secrets/media-tools.env   # 歷史相容
-```
+完整步驟與疑難排解：[../SETUP_VISION_EN.md](../SETUP_VISION_EN.md)。
 
-`vision-review` 還可以從以下檔案讀取相容金鑰：
+## 📸 看看實際效果
 
-```text
-~/.dsh/.credentials.yaml
-```
+*在純文字工作階段貼上圖片 → 免費視覺模型描述它 → 你的模型回答。同一個套件也能按需求生成新圖片。*
 
-`media-tools` 讀取環境變數和兩個 `media-tools.env` 檔案；請在上述位置明確設定它的金鑰。
+<img src="../screenshots/demo-paste.png" alt="示範：在純文字 DeepSeek Harness 工作階段貼上圖片，視覺模型讀取後由模型回答；同一個套件也能生成圖片" width="100%">
 
-| 金鑰 | 使用方 | 說明 |
+*一張圖看懂運作方式：*
+
+<img src="../screenshots/how-it-works.png" alt="貼上圖片讀取的運作方式：貼上 → 視覺模型描述 → 文字描述送達目前的模型" width="100%">
+
+## 🚀 使用方法
+
+讀取圖片的三種方式：
+
+| 方式 | 做法 | 時機 |
 |---|---|---|
-| `GLM_API_KEY` | `vision-review` | 主引擎智譜 `glm-4v-flash`；請核實智譜當前定價/免費額度條款。 |
-| `DEEPSEEK_API_KEY` | `vision-review` | 可選的付費 DeepSeek 視覺模型；也會從 DSH 認證儲存讀取。 |
-| `SILICONFLOW_API_KEY` | 兩個技能 | 審查用 Qwen3-VL，生成用 Kolors。 |
-| `SENSENOVA_API_KEY` | 兩個技能 | 審查用 SenseNova 視覺模型，生成用 U1 Fast。 |
-| `GEMINI_API_KEY` | `vision-review` | 可選 Gemini 備用引擎；部分網路下可能需要 `GEMINI_PROXY`。 |
+| **A. 直接貼上（建議）** | 在任何工作階段中，點擊 🖼️ 按鈕／拖曳／貼上圖片後送出 | 日常圖片問答——不需儲存檔案、不用切換模型 |
+| **B. 視覺模型工作階段** | 開新對話，選擇智譜 GLM-4V-Flash（視覺），貼上圖片開始交談 | 多輪圖片對話、原生 `read_image` |
+| **C. 檔案＋技能** | 把圖片放進工作區，說「用 vision-review 讀取這張圖片」 | 批次審查、腳本化工作流程 |
 
-secrets 檔案範例：
+描述會跟隨你的訊息語言（中文訊息 → 中文描述；英文訊息 → 英文描述；沒有文字 → 中文）。
+
+也可以直接說：
+
+- 「看看這張圖片／檢查這張截圖有沒有視覺錯誤」 → `vision-review`
+- 「生成一張……的圖片」 → `media-tools`
+
+## 🔑 金鑰與隱私
+
+金鑰**絕不儲存在這個儲存庫中**。技能腳本依序讀取：環境變數 → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env`（舊版備援）。視覺模型路由會從 DSH 的憑證存放區讀取 `GLM_API_KEY`（≤ v0.1.1；v0.1.6 的路由由你在 **設定 → 模型** 自行設定）。
+
+哪裡取得金鑰：v0.1.1+ 直接用主 agent 的 DEEPSEEK_API_KEY（免申請）。免費引擎：Zhipu——[open.bigmodel.cn](https://open.bigmodel.cn) → API Keys（glm-4v-flash）。SiliconFlow——[siliconflow.cn](https://siliconflow.cn) → API Keys（Kolors）。Google（選用，會自動加入視覺容錯移轉鏈）——[aistudio.google.com](https://aistudio.google.com) → Get API key。
 
 ```sh
-# ~/.dsh/secrets/media-tools.env，建議 chmod 600
+# ~/.dsh/secrets/media-tools.env（chmod 600，每行一個 KEY=value）
 GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
-SENSENOVA_API_KEY=...
-GEMINI_API_KEY=...
+GEMINI_API_KEY=...   # 選用
 ```
 
-### DSH 原生圖片模型
+你的圖片只會傳給你設定的供應商——絕不會傳給這個儲存庫，也不會傳給共用的匿名端點。
 
-本外掛不會向 DSH 模型選擇器新增模型。若希望一般 DSH 對話原生接收圖片，請在 DSH 的 **Models** 設定中設定多模態模型/提供者，然後使用 DSH 原生附件流程。
+> Gemini 的隱私提醒：Google 免費層級金鑰附有資料使用條款——請求內容可能被用於改善 Google 產品。對於敏感圖片（身分證件、內部文件、客戶資料），建議優先使用直接連線的引擎（Zhipu／SiliconFlow）。
 
-當你需要專門的腳本化審查/OCR 工作流程、提供者故障轉移鏈或結構化證據，而不只是多模態對話回覆時，使用 `vision-review`。
+## ❓ 常見問題
 
-## 用法
+**貼上圖片讀取是否需要修補 DeepSeek Harness 核心？**
+自動描述管線位於 Harness **核心**——**v0.1.6 / v0.1.1** 為原生支援，rc.7 / rc.8 則是 `api-proxy` 的圖片准入邏輯（請見 [../HARNESS_PATCH_EN.md](../HARNESS_PATCH_EN.md)，歷史文件）。這個套件提供**讀圖／生圖技能**（≤ v0.1.1 另含視覺模型路由）：視覺模型在任何 DSH 版本都能運作，但貼上圖片讀取需要具備該核心支援的 Harness 版本。
 
-### 視覺審查
+**為什麼不乾脆使用完全不需要金鑰的內建免費端點？**
+我們傾向讓你自己掌控路由：你的圖片會傳給你選擇的供應商，在你的速率限制之下運作，中間沒有共用的仲介。金鑰免費，大約兩分鐘就能建立。
 
-請 DSH 使用 `vision-review`，或在技能目錄下直接執行腳本：
+**`media-tools` 真的免費嗎？**
+是的——SiliconFlow Kolors 免費且無浮水印。如果某個模型暫時停用，技能會列出可用模型，你可以自行切換。
 
-```bash
-python3 scripts/vision.py screenshot.png
-python3 scripts/vision.py a.png b.png --structured
-python3 scripts/vision.py screenshot.png --provider=siliconflow-qwen
-python3 scripts/vision.py --doctor
-```
+## 🎁 範例
 
-預設 prompt 會檢查渲染完整性、文字重疊/錯位/溢出、配色層次、浮水印和明顯視覺 bug。針對具體任務可傳入聚焦 prompt：
-
-```bash
-python3 scripts/vision.py page.png --prompt="檢查按鈕、標題和圖表是否有重疊，並指出具體位置"
-```
-
-故障轉移鏈只會在對應金鑰可用時加入引擎。可選的 `--structured` 輸出包含摘要、OCR、按閱讀順序的版面、語義、視覺備註和不確定項。
-
-### 圖片生成
-
-```bash
-python3 skills/media-tools/scripts/generate.py "雲海中的中國宮殿，寫實電影感，氣勢恢宏" palace.jpg 16:9
-```
-
-設定了 `SENSENOVA_API_KEY` 時使用 SenseNova，否則在有 `SILICONFLOW_API_KEY` 時使用 SiliconFlow Kolors。SenseNova 尺寸可傳精確尺寸或常見比例，腳本會映射到最接近的支援尺寸。
-
-## 手動目錄安裝
-
-建議使用外掛安裝，因為本倉庫包含多個技能。v0.1.6 的檔案系統提供者只掃描技能根目錄下一層，直接把倉庫複製進 `~/.dsh/skills/` 無法發現巢狀的 `skills/*/SKILL.md`。
-
-手動安裝需要分別連結每個技能：
-
-```sh
-git clone https://github.com/MJorgin/dsh-media-skills.git ~/.dsh/bundles/dsh-media-skills
-mkdir -p ~/.dsh/skills
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/vision-review ~/.dsh/skills/vision-review
-ln -s ~/.dsh/bundles/dsh-media-skills/skills/media-tools ~/.dsh/skills/media-tools
-```
-
-建立連結後重啟 DSH。
-
-## 驗證
-
-執行完整本地檢查：
-
-```sh
-npm test
-```
-
-內容包括：DSH bundle manifest 校驗、透過仿 DSH 上下文進行執行階段提供者註冊/載入驗證、JavaScript 語法檢查，以及兩個技能腳本的 Python 編譯檢查。
-
-## 歷史補丁
-
-舊核心補丁仍為維護歷史 DSH 組建的使用者保留：
-
-- [中文說明](../HARNESS_PATCH.md)
-- [English notes](../HARNESS_PATCH_EN.md)
-
-它們僅適用於截至 `v0.1.1-rc.2` 的歷史組建。v0.1.6 新使用者不要套用。
-
-## 專案結構
-
-```text
-dsh-media-skills/
-├── package.json              # DSH bundle manifest 與測試命令
-├── cordis.patch.yml          # Cordis 外掛插入項
-├── index.js                  # 註冊內建技能提供者
-├── skills/
-│   ├── vision-review/        # 圖片分析與截圖 QA
-│   └── media-tools/          # 圖片生成
-├── scripts/                  # bundle 校驗輔助腳本
-├── examples/                 # 範例圖片與測試卡
-└── docs/                     # 安裝指南、譯文與歷史資料
-```
-
-## FAQ
-
-**DSH v0.1.6 需要核心補丁嗎？**
-不需要。在 DSH 中設定多模態模型即可進行原生圖片對話；專門的審查與生成工作流程則使用技能腳本。
-
-**外掛會自動向模型選擇器新增模型嗎？**
-不會。DSH v0.1.6 已提供模型與外掛管理；外掛只註冊技能，絕不變更模型設定。
-
-**所有提供者都是免費的嗎？**
-提供者定價與免費額度政策可能變化。GLM-4V-Flash 和 Kolors 一向對免費額度友善，DeepSeek 則為付費。依賴某條工作流程前請查看提供者當前條款。
-
-**內建 API 金鑰嗎？**
-不。金鑰只存在於你的環境變數、DSH 認證儲存或本地 secrets 檔案中。
-
-**敏感的公司內部截圖應該發給誰？**
-只發給你所在組織批准的提供者。除非公司政策允許，內部文件不要發給 Gemini 或其他外部提供者。
-
-## 範例
+可立即試用的範例素材——6 張 AI 生成圖片及其提示詞，加上一張專為檢查讀取準確度設計的視覺測試卡（標題、按鈕、長條圖數值）：
 
 <img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
 
-更多內容見 [examples/README.md](../../examples/README.md)。
+→ [../../examples/README.md](../../examples/README.md)
 
-## License
+## 🗺️ 目錄結構
+
+```
+dsh-media-skills/
+├── package.json           # dsh.bundle 清單
+├── cordis.patch.yml       # 外掛層
+├── index.js               # 透過 v0.1.6 provider 生命週期註冊兩個技能
+├── skills/
+│   ├── vision-review/     # 圖片讀取
+│   └── media-tools/       # 圖片生成
+├── examples/              # 範例圖片＋視覺測試卡
+├── docs/
+│   ├── screenshots/       # 示範樣板與運作原理示意圖
+│   ├── SETUP_VISION_EN.md # 詳細設定指南（英文）
+│   ├── SETUP_VISION.md    # 詳細設定指南（中文）
+│   ├── HARNESS_PATCH_EN.md# 核心修補說明（英文）
+│   ├── HARNESS_PATCH.md   # 主程式修補說明（中文）
+│   ├── COMPARE_MODLENS.md # 與 ModLens 的比較／共存（中文）
+│   └── lang/              # 9 種語言的 README
+├── scripts/make-banner.py # 重新生成 docs/social-preview.png
+└── docs/social-preview.png
+```
+
+## 🧩 想與 ModLens 並用？
+
+這個套件和 [ModLens](https://github.com/liustack/modlens) 都能賦予純文字模型視覺能力。兩者同時安裝不會衝突：ModLens 會先攔截貼上的圖片（路徑 → `modlens_read_image` 工具），這個套件的 api-proxy 備援則處理它未接管的部分。完整的比較、貼上路由順序，以及如何將 ModLens 指向同一個免費 Zhipu 端點，請見 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)（中文）。
+
+## 🤝 加入 DSH 外掛生態系
+
+DeepSeek Harness 開發者預覽版對 Harness 開發者而言仍處於測試階段；核心外掛與基礎 API 將持續迭代。我們期待與全球開發者一起，在開放原始碼、開放、可重用且可組合的基礎設施之上，探索智慧的極限。
+
+- [dsh-plugin topic](https://github.com/topics/dsh-plugin)
+- [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)
+- [DeepSeek Harness repo](https://github.com/deepseek-ai/deepseek-harness)
+
+> 這個儲存庫已標記為 [`dsh-plugin`](https://github.com/topics/dsh-plugin) 並收錄於 [awesome-dsh-plugin](https://github.com/awesome-dsh-plugin/awesome-dsh-plugin) 精選清單。歡迎提交 PR、回報問題與翻譯貢獻。
+
+## 📄 授權條款
 
 [MIT](../../LICENSE)
