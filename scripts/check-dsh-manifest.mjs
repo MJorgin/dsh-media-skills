@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Guard the DSH v0.1.6 multi-skill bundle against manifest drift.
+ * Guard the DSH v0.1.6+ multi-skill bundle against manifest drift.
  *
  * The packaged provider reads metadata directly from each SKILL.md, while
  * package.json/cordis.patch.yml decide whether DSH can load that provider.

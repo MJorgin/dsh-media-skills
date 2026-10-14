@@ -3,7 +3,7 @@
  * Load the bundle through a minimal DSH-like skill registry.
  *
  * This complements the manifest guard by executing index.js, registering its
- * provider factory, listing both skills through the v0.1.6 method shape, and
+ * provider factory, listing both skills through the v0.1.6+ method shape (including desktop 0.2.0-rc.2), and
  * loading each Markdown body without its YAML frontmatter.
  */
 
