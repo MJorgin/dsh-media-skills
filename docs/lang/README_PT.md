@@ -6,18 +6,19 @@
 
 # 🎨 dsh-media-skills
 
-### *Cole imagens direto no chat — modelo de visão, leitura e geração de imagens grátis.*
+### *Dê ao DeepSeek Harness skills reutilizáveis de revisão e geração de imagens — verificado no Desktop 0.2.0-rc.2.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Harness](https://img.shields.io/badge/Harness-0.2.0%20verified%20%7C%200.2.1--rc.2%20source%20checked-4D6BFE)](../DESKTOP_0.2.md)
 
 <br>
 
 Dê ao [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) «olhos» e um «pincel» —
-duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, sem chaves hardcoded.
+Ele adiciona dois skills em runtime e uma cadeia de failover de visão com suas próprias chaves. Foi verificado em runtime no Desktop **0.2.0-rc.2**, e a tag **dsh-v0.2.1-rc.2** teve o mesmo contrato de provider verificado no código-fonte, sem chaves embutidas.
 
-[Recursos](#-recursos) · [Início rápido](#-início-rápido) · [Uso](#-uso) · [Guia de visão](../SETUP_VISION.md)
+[Recursos](#-recursos) · [Início rápido](#-início-rápido) · [Compatibilidade](#-compatibilidade) · [Uso](#-uso) · [Guia de visão](../SETUP_VISION.md)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -29,12 +30,12 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 | Recurso | O que faz | Modelo | Custo |
 |---|---|---|---|
-| 🖼️ Leitura de imagens coladas | Em sessões **somente texto** (ex.: deepseek-v4-pro), a barra de entrada ganha um botão «Adicionar imagem» (ícone de imagem); imagens coladas são descritas pelo modelo de visão e entregues ao modelo atual como texto (**a partir do v0.1.1, DeepSeek-V4-Flash-Vision-Exp por padrão**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM grátis; DeepSeek cobrado do seu saldo (padrão no v0.1.1) |
-| 🧠 Rota de modelo de visão | Em ≤ v0.1.1, após instalar adiciona **automaticamente** «智譜 GLM-4V-Flash（視覚）」 ao seletor de modelos (**no v0.1.6**: adicione uma vez em **Configurações → Modelos**); use em conversas novas para falar sobre imagens | Zhipu GLM-4V-Flash | Grátis |
-| 👁️ `vision-review` | Analisar / reconhecer / descrever imagens e capturas de tela; encontrar bugs visuais de UI (sobreposição, estouro, desalinhamento); detectar marcas d'água/logos; transformar imagens em texto. Cadeia de motores: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (mesma chave do agente, pago opcional) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Grátis (DeepSeek pago opcional) |
+| 🖼️ Anexos nativos de imagem | No Desktop 0.2 / v0.1.6+, você pode colar, arrastar ou escolher imagens quando a **rota ativa suporta imagens**; a rota padrão `deepseek-flash` suporta. Rotas somente texto retornam `MODEL_DOES_NOT_SUPPORT_IMAGES`; a transcrição automática antiga não é mais usada. | `deepseek-flash` padrão ou uma rota de visão configurada | Conforme o provedor selecionado |
+| 🔀 Cadeia de failover de visão | Em fluxos com caminho de arquivo, o `vision-review` pode usar GLM-4V-Flash, DeepSeek Vision, Qwen3-VL, SenseNova, Gemini e endpoints compatíveis com OpenAI. | Suas chaves e rotas | Planos gratuitos ou provedores opcionais |
+| 👁️ `vision-review` | Analisa imagens e capturas locais, faz OCR, detecta marcas de água/logos e falhas visuais de UI, e pode emitir evidências JSON estruturadas. Suporta caminhos longos, lotes e `--structured`. | GLM-4V-Flash + provedores de visão opcionais | Planos gratuitos GLM/SiliconFlow; outros opcionais |
 | 🎨 `media-tools` | Gerar imagens, ilustrações, avatares, fundos e banners | SenseNova U1 Fast → SiliconFlow Kolors | Grátis, sem marca d'água |
 
-> ⚠️ Nota honesta: a leitura de imagens coladas vive no **núcleo** do DeepSeek Harness — nativa em **v0.1.6 / v0.1.1**; em rc.7 / rc.8 através dos patches de núcleo incluídos (admissão de imagens em `api-proxy`). Este bundle entrega as **skills** (em ≤ v0.1.1 também a rota de modelo); o modelo de visão funciona em qualquer build do DSH.
+> ⚠️ Observação importante: no Desktop 0.2, anexos nativos só são aceitos quando o modelo ativo declara `inputModalities: ["text", "image"]`. **Não é necessário patch no núcleo**, não altere um `app.asar` assinado e o bundle não grava configurações de modelo. Em uma rota somente texto, use `vision-review` com um caminho local de imagem.
 
 ## ⚡ Início rápido
 
@@ -45,8 +46,8 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
    ```
 
 2. **Chaves**:
-   - **v0.1.6**: nenhuma chave é necessária para instalar — os dois skills se registram em tempo de execução. As chaves dos skills (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, opcional `GEMINI_API_KEY`) ficam em `~/.dsh/secrets/media-tools.env` (veja [Chaves](#-chaves)); as rotas de modelo nativas você configura em **Configurações → Modelos**.
-   - **no v0.1.1-rc.1+ nenhuma chave extra é necessária** — a leitura de imagens coladas e a rota de visão usam o `DEEPSEEK_API_KEY` existente do agente. Para os motores gratuitos (ou rc.7/rc.8): primeiro consiga a chave grátis — cadastre-se em [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash é grátis). Para gerar, crie também uma em [siliconflow.cn](https://siliconflow.cn) (Kolors é grátis). Depois configure — GUI web (**Configurações → Modelos**) ou arquivo de credenciais:
+   - **Desktop 0.2 / v0.1.6+**: não são necessárias chaves para instalar — os dois skills são registrados em runtime, e a rota padrão `deepseek-flash` suporta conversas nativas com imagem. As chaves para a cadeia do skill (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, `GEMINI_API_KEY` opcional) ficam em `~/.dsh/secrets/media-tools.env`; rotas adicionais são configuradas em **Configurações → Modelos**.
+   - **Versões prévias antigas (≤ v0.1.1)**: a leitura colada e a rota de visão da época podiam usar a `DEEPSEEK_API_KEY` já existente do agente. Esse comportamento de transcrição automática não se aplica ao Desktop 0.2.
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -55,15 +56,15 @@ duas skills grátis, um modelo de visão grátis e leitura de imagens coladas, s
 
 3. **Reinicie totalmente** o `dsh web` e faça uma atualização forçada (`Cmd+Shift+R`).
 
-4. Verifique: na lista de skills aparecem **`vision-review`** e **`media-tools`** (no v0.1.6 configure a rota de visão em **Configurações → Modelos**; em ≤ v0.1.1 o seletor de modelos mostra **智譜 GLM-4V-Flash（視覚）**). Se o seu build suportar a leitura de imagens coladas, a barra de entrada mostra um botão 🖼️ **Adicionar imagem** — cole uma imagem em qualquer sessão e ela chegará como descrição em texto.
+4. Verifique: **`vision-review`** e **`media-tools`** aparecem na lista de skills. No Desktop 0.2, selecione uma rota com suporte a imagem, como **`deepseek-flash`**, antes de enviar um anexo nativo; uma rota somente texto retorna `MODEL_DOES_NOT_SUPPORT_IMAGES` e não descreve a imagem automaticamente.
 
 Guia completo, funcionamento e solução de problemas: **[../SETUP_VISION.md](../SETUP_VISION.md)**
 
 ## 🔑 Chaves
 
-Chaves **nunca são armazenadas neste repo**. Os scripts leem, em ordem: variáveis de ambiente → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (fallback legado). A rota do modelo de visão lê `GLM_API_KEY` do armazenamento de credenciais do DSH (≤ v0.1.1; no v0.1.6 você configura as rotas em **Configurações → Modelos**).
+As chaves **nunca são armazenadas neste repositório**. A cadeia independente do `vision-review` lê, nesta ordem: variáveis de ambiente → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (fallback legado). A antiga rota GLM automática vale apenas para ≤ v0.1.1; no Desktop 0.2 / v0.1.6+, as rotas ficam em **Configurações → Modelos**.
 
-Onde obter (ambas grátis): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
+Onde obter chaves para os motores do skill (limites gratuitos conforme os termos do provedor): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors). Google Gemini é opcional na cadeia de failover.
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, uma KEY=value por linha)
@@ -77,16 +78,31 @@ Três formas de ler imagens:
 
 | Forma | Como | Quando |
 |---|---|---|
-| **A. Colar diretamente (recomendado)** | Em qualquer sessão, clique no botão 🖼️ / arraste / cole uma imagem e envie | Perguntas do dia a dia sobre imagens — sem salvar arquivos nem trocar de modelo |
-| **B. Sessão com modelo de visão** | Nova conversa, escolha 智譜 GLM-4V-Flash（視覚）, cole imagens e converse | Conversas de várias rodadas sobre imagens, `read_image` nativo |
-| **C. Arquivos + skill** | Coloque a imagem no workspace e diga «leia esta imagem com vision-review» | Revisão em lote, fluxos com scripts |
+| **A. Anexo nativo (recomendado)** | Selecione uma rota com suporte a imagem (padrão `deepseek-flash`), clique em 🖼️ / arraste / cole e envie | Perguntas visuais do dia a dia |
+| **B. Sessão com modelo de visão** | Em uma nova conversa, escolha `deepseek-flash` ou uma rota GLM/Qwen/SenseNova configurada e anexe imagens | Conversas visuais nativas com vários turnos |
+| **C. Arquivos + skill** | Coloque a imagem no workspace e peça “leia esta imagem com vision-review”, ou execute `scripts/vision.py` com um caminho | Revisão em lote, OCR/QA estruturado e rotas somente texto |
 
-O idioma da descrição segue o da sua mensagem (mensagem em chinês → descrição em chinês; em inglês → em inglês; sem texto → chinês).
+Anexos nativos vão diretamente ao modelo visual selecionado. No `vision-review`, indique idioma e formato no pedido ou use `--structured`.
 
 Basta dizer:
 
 - «Olhe esta imagem / verifique este screenshot em busca de bugs visuais» → `vision-review`
 - «Gere uma imagem de …» → `media-tools`
+
+## 🔌 Compatibilidade
+
+| Build do DSH | Status |
+|---|---|
+| Desktop **0.2.0-rc.2** | **Verificado em runtime.** Plugin de runtime padrão; os dois skills são registrados por `ctx.skills.registerProvider()`. Anexos nativos são aceitos apenas com `inputModalities: ["text", "image"]`; a rota padrão `deepseek-flash` suporta. Sem patches no núcleo nem gravação de configurações. |
+| Tag **dsh-v0.2.1-rc.2** | **Fonte verificada.** `@deepseek-ai/dsh-skill@0.2.1-rc.2` mantém a factory do provider, `list()`/`get()`, os campos de candidate e a admissão de imagem. Não havia localmente um build Desktop rc.2 empacotado para um teste completo de inicialização. |
+| **v0.1.6** | Mesmo ciclo de provider suportado; rotas opcionais GLM/SiliconFlow/SenseNova/Gemini são configuradas em **Configurações → Modelos**. |
+| v0.1.1 e versões prévias anteriores | Comportamento apenas histórico. Não aplique patches antigos do núcleo aos builds assinados do Desktop 0.2. |
+
+Veja as [notas de compatibilidade do Desktop 0.2](../DESKTOP_0.2.md) para a lista completa de verificações.
+
+### Coexistência com ModLens
+
+O bundle pode ser instalado com [ModLens](https://github.com/liustack/modlens), mas o Desktop 0.2 não tem mais o fallback antigo de transcrição automática do api-proxy. Escolha deliberadamente o fluxo colar-para-caminho do ModLens ou `pasteToPath: false` para enviar anexos nativos a um modelo visual. A comparação histórica em chinês está em [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md).
 
 ## 🗺️ Estrutura
 
@@ -94,7 +110,7 @@ Basta dizer:
 dsh-media-skills/
 ├── package.json           # manifesto dsh.bundle
 ├── cordis.patch.yml       # camada de plugin
-├── index.js               # registra os dois skills pelo ciclo de vida do provider do DSH v0.1.6
+├── index.js               # registra os dois skills pelo runtime de provider DSH v0.1.6+ / Desktop 0.2
 ├── skills/
 │   ├── vision-review/     # leitura de imagens
 │   └── media-tools/       # geração de imagens

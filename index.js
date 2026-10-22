@@ -2,7 +2,7 @@
  * DeepSeek Harness v0.1.6+ runtime bundle for free media skills.
  *
  * Runtime-verified against desktop 0.2.0-rc.2; the same contract was
- * source-checked against upstream tag dsh-v0.2.1-alpha.2.
+ * source-checked against upstream tag dsh-v0.2.1-rc.2.
  *
  * The bundle contributes two skills:
  * - `vision-review`: read images and inspect screenshots/visual design;

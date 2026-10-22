@@ -1,11 +1,11 @@
 # DeepSeek Harness Desktop 0.2 Compatibility
 
-*Last checked: 2026-10-14 · runtime: DSH desktop CLI/runtime `0.2.0-rc.2` · latest source tag: `dsh-v0.2.1-alpha.2` · plugin `dsh-media-skills@0.4.2`.*
+*Last checked: 2026-10-22 · runtime: DSH desktop CLI/runtime `0.2.0-rc.2` · latest source tag: `dsh-v0.2.1-rc.2` · plugin `dsh-media-skills@0.4.3`.*
 
 ## Compatibility status
 
 - **0.2.0-rc.2 installed desktop build:** runtime verified with the CLI, composed profile, and the repository test suite.
-- **dsh-v0.2.1-alpha.2 upstream tag:** source-compatible. `@deepseek-ai/dsh-skill@0.2.1-alpha.2` retains `registerProvider()`, provider `list()`/`get()`, the array or `{ candidates, complete }` observation shape, and the existing candidate fields. Image admission still uses `MODEL_DOES_NOT_SUPPORT_IMAGES` for text-only routes. A packaged alpha desktop build was not available locally for a boot test.
+- **dsh-v0.2.1-rc.2 upstream tag:** source-compatible. `@deepseek-ai/dsh-skill@0.2.1-rc.2` retains `registerProvider()`, provider `list()`/`get()`, the array or `{ candidates, complete }` observation shape, and the existing candidate fields. Image admission still uses `MODEL_DOES_NOT_SUPPORT_IMAGES` for text-only routes. A packaged rc.2 desktop build was not available locally for a boot test.
 
 ## Summary
 
@@ -41,7 +41,7 @@ Use one of these workflows:
 - `node --check index.js`
 - `node scripts/check-python.mjs`
 - DSH CLI `--version` returned `0.2.0-rc.2`.
-- `@deepseek-ai/dsh-skill@0.2.1-alpha.2` and `packages/api/session-controller/src/commands.ts` at tag `dsh-v0.2.1-alpha.2` were source-compared; no breaking provider-contract change was found.
+- `@deepseek-ai/dsh-skill@0.2.1-rc.2` and `packages/api/session-controller/src/commands.ts` at tag `dsh-v0.2.1-rc.2` were source-compared; no breaking provider-contract change was found.
 - A temporary `DSH_HOME` profile composed the plugin layer successfully (`--dump-config` shows `# == dsh-media-skills` and the inserted plugin row).
 
 ## Do not do this on desktop 0.2

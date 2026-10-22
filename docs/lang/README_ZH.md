@@ -20,7 +20,7 @@
 
 <br>
 
-DeepSeek Harness 很会推理，但图片能否发送取决于当前模型声明的输入模态。这个 bundle 提供**两个运行时 Skill** 和**自带 Key 的视觉引擎故障转移链**，已在桌面端 **0.2.0-rc.2** 完成运行时验证，并对最新 tag **dsh-v0.2.1-alpha.2** 做了同契约源码比对：
+DeepSeek Harness 很会推理，但图片能否发送取决于当前模型声明的输入模态。这个 bundle 提供**两个运行时 Skill** 和**自带 Key 的视觉引擎故障转移链**，已在桌面端 **0.2.0-rc.2** 完成运行时验证，并对最新 tag **dsh-v0.2.1-rc.2** 做了同契约源码比对：
 
 - 🖼️ **原生图片附件** —— 桌面端 0.2 / v0.1.6+ 可在**当前模型支持图片**时粘贴、拖拽或选择图片（默认 `deepseek-flash` 支持）；纯文本模型会拒绝图片，旧的自动转述兜底不再生效。
 - 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
@@ -57,7 +57,7 @@ DeepSeek Harness 很会推理，但图片能否发送取决于当前模型声明
 | DSH 版本 | 状态 |
 |---|---|
 | 桌面端 **0.2.0-rc.2** | **运行时已验证**：标准运行时插件，两个技能通过 `ctx.skills.registerProvider()` 注册；当前模型声明 `inputModalities: ["text", "image"]` 时才接受原生图片附件，默认 `deepseek-flash` 支持。无需核心补丁、不写设置。 |
-| Tag **dsh-v0.2.1-alpha.2** | **源码已比对**：`@deepseek-ai/dsh-skill@0.2.1-alpha.2` 保留相同的 provider factory、数组/`{candidates, complete}` 返回形状、candidate 字段和图片准入逻辑；本机没有 alpha 桌面安装包，因此未做完整启动验证。 |
+| Tag **dsh-v0.2.1-rc.2** | **源码已比对**：`@deepseek-ai/dsh-skill@0.2.1-rc.2` 保留相同的 provider factory、数组/`{candidates, complete}` 返回形状、candidate 字段和图片准入逻辑；本机没有 rc.2 桌面安装包，因此未做完整启动验证。 |
 | **v0.1.6** | 使用同一套受支持的 provider 生命周期；GLM / SiliconFlow / SenseNova / Gemini 等额外路由在 **设置 → 模型** 自行配置。 |
 | v0.1.1 及更早预览版 | 仅保留历史说明；不要把旧核心补丁用于已签名的桌面端 0.2。 |
 
@@ -141,7 +141,7 @@ GEMINI_API_KEY=...   # 可选
 ## ❓ 常见问题
 
 **桌面端 0.2 还需要核心补丁吗？**
-不需要。桌面端 **0.2.0-rc.2** 通过标准运行时插件/provider 生命周期加载本 bundle，图片准入由当前模型的 `inputModalities` 决定。请不要修改已签名的 `app.asar`；旧 alpha/rc 补丁仅作历史归档。若当前是纯文本路由，DSH 会返回 `MODEL_DOES_NOT_SUPPORT_IMAGES`，此时切换到图片模型，或用文件路径调用 `vision-review`。
+不需要。桌面端 **0.2.0-rc.2** 通过标准运行时插件/provider 生命周期加载本 bundle，图片准入由当前模型的 `inputModalities` 决定。请不要修改已签名的 `app.asar`；旧预览版补丁仅作历史归档。若当前是纯文本路由，DSH 会返回 `MODEL_DOES_NOT_SUPPORT_IMAGES`，此时切换到图片模型，或用文件路径调用 `vision-review`。
 
 **为什么不用内置免费端点、完全免 Key？**
 我们更希望路由掌握在你自己手里：图片只发给你选的提供方，走你的速率限制，中间没有共享第三方。Key 全免费，申请大约两分钟。
@@ -163,7 +163,7 @@ GEMINI_API_KEY=...   # 可选
 dsh-media-skills/
 ├── package.json           # dsh.bundle 清单
 ├── cordis.patch.yml       # 插件层
-├── index.js               # 通过 v0.1.6 provider 生命周期注册两个技能
+├── index.js               # 通过 v0.1.6+ / Desktop 0.2 provider 生命周期注册两个技能
 ├── skills/
 │   ├── vision-review/     # 读图
 │   └── media-tools/       # 生图

@@ -15,11 +15,11 @@
 [![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
 [![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
-[![Harness](https://img.shields.io/badge/Harness-0.2.0%20verified%20%7C%200.2.1--alpha%20source%20checked-4D6BFE)](docs/DESKTOP_0.2.md)
+[![Harness](https://img.shields.io/badge/Harness-0.2.0%20verified%20%7C%200.2.1--rc.2%20source%20checked-4D6BFE)](docs/DESKTOP_0.2.md)
 
 <br>
 
-DeepSeek Harness is brilliant at reasoning, but image input depends on the active model's modalities. This bundle contributes **two runtime skills** plus a **bring-your-own-key vision failover chain**, runtime-verified against desktop **0.2.0-rc.2**, with the latest tag **dsh-v0.2.1-alpha.2** source-checked for the same skill contract:
+DeepSeek Harness is brilliant at reasoning, but image input depends on the active model's modalities. This bundle contributes **two runtime skills** plus a **bring-your-own-key vision failover chain**, runtime-verified against desktop **0.2.0-rc.2**, with the latest tag **dsh-v0.2.1-rc.2** source-checked for the same skill contract:
 
 - 📎 **Native image attachments** — on desktop 0.2 / v0.1.6+, paste, drag, or pick an image when the **current model supports images** (the default `deepseek-flash` does). Text-only routes reject image admission instead of using the old auto-transcription hook.
 - 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
@@ -56,7 +56,7 @@ Most DSH vision plugins only **read** images — and many push you through a sha
 | DSH build | Status |
 |---|---|
 | Desktop **0.2.0-rc.2** | **Runtime verified.** Standard runtime plugin; both skills register through `ctx.skills.registerProvider()`. Native attachments are admitted only when the active model advertises `inputModalities: ["text", "image"]`; the default `deepseek-flash` route does. No core patches or settings writes. |
-| Tag **dsh-v0.2.1-alpha.2** | **Source checked.** `@deepseek-ai/dsh-skill@0.2.1-alpha.2` keeps the same provider factory, array/`{candidates, complete}` observation, candidate fields, and image-admission behavior. No alpha desktop build was available locally for a full boot test. |
+| Tag **dsh-v0.2.1-rc.2** | **Source checked.** `@deepseek-ai/dsh-skill@0.2.1-rc.2` keeps the same provider factory, array/`{candidates, complete}` observation, candidate fields, and image-admission behavior. No packaged rc.2 desktop build was available locally for a full boot test. |
 | **v0.1.6** | Same supported provider lifecycle. Configure optional GLM/SiliconFlow/SenseNova/Gemini routes yourself in **Settings → Models**. |
 | v0.1.1 and older preview builds | Historical behavior/docs only. Do not apply the old core patches to signed desktop 0.2 builds. |
 
@@ -143,7 +143,7 @@ Your images are sent only to the provider you configure — never to this repo, 
 ## ❓ FAQ
 
 **Does desktop 0.2 need a core patch?**
-No. Desktop **0.2.0-rc.2** loads this bundle through the standard runtime plugin/provider lifecycle, and image admission is based on the active model's `inputModalities`. Do not patch the signed `app.asar`; old alpha/rc patches are historical only. If a text-only route is selected, DSH returns `MODEL_DOES_NOT_SUPPORT_IMAGES`; choose an image-capable route or invoke `vision-review` with a file path.
+No. Desktop **0.2.0-rc.2** loads this bundle through the standard runtime plugin/provider lifecycle, and image admission is based on the active model's `inputModalities`. Do not patch the signed `app.asar`; older preview-build patches are historical only. If a text-only route is selected, DSH returns `MODEL_DOES_NOT_SUPPORT_IMAGES`; choose an image-capable route or invoke `vision-review` with a file path.
 
 **Why not just use a built-in free endpoint with no key at all?**
 We prefer to let you own the route: your images go to the provider you pick, under your rate limits, with no shared middleman. The keys are free and take about two minutes to create.
@@ -165,7 +165,7 @@ Sample material to try instantly — 6 AI-generated images with their prompts, p
 dsh-media-skills/
 ├── package.json           # dsh.bundle manifest
 ├── cordis.patch.yml       # plugin layer
-├── index.js               # registers the two skills via the DSH v0.1.6 provider lifecycle
+├── index.js               # registers the two skills via the DSH v0.1.6+ / Desktop 0.2 provider lifecycle
 ├── skills/
 │   ├── vision-review/     # image reading
 │   └── media-tools/       # image generation
