@@ -6,7 +6,7 @@
 
 # 🎨 dsh-media-skills
 
-### *给 DeepSeek Harness 装上眼睛和画笔 —— 任意会话直接贴图，还能免费生成图片。*
+### *给 DeepSeek Harness 提供可复用的读图与生图技能 —— 已在桌面端 0.2.0-rc.2 验证。*
 
 > 本翻译已与英文版同步；若后续版本出现差异，以英文版 [README.md](../../README.md) 为准。
 
@@ -20,14 +20,14 @@
 
 <br>
 
-DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的图片。这个 bundle 用**两个免费 Skill + 一条视觉模型路由（v0.1.1 起原生自带 DeepSeek-V4-Flash-Vision-Exp）+ 一条视觉引擎故障转移链**解决这件事：
+DeepSeek Harness 很会推理，但图片能否发送取决于当前模型声明的输入模态。这个 bundle 提供**两个运行时 Skill** 和**自带 Key 的视觉引擎故障转移链**，已在桌面端 **0.2.0-rc.2** 完成运行时验证，并对最新 tag **dsh-v0.2.1-rc.2** 做了同契约源码比对：
 
-- 🖼️ **贴图直读** —— 任意会话粘贴 / 拖拽 / 选择图片，免费视觉模型自动转述成文字，交给当前模型理解。*（v0.1.6 / v0.1.1 原生支持；rc.7 / rc.8 依赖本仓库配套补丁，见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）*
+- 🖼️ **原生图片附件** —— 桌面端 0.2 / v0.1.6+ 可在**当前模型支持图片**时粘贴、拖拽或选择图片（默认 `deepseek-flash` 支持）；纯文本模型会拒绝图片，旧的自动转述兜底不再生效。
 - 👁️ **`vision-review`** —— 分析图片与截图、检查界面视觉 Bug、检测水印 Logo、把图片转成文字。
 - 🎨 **`media-tools`** —— 免费生成插画、头像、背景、Banner，无水印。
 - 🔀 **引擎故障转移** —— GLM-4V-Flash（免费）→ **DeepSeek-V4-Flash-Vision-Exp**（与主 agent 同 key，付费可选）→ SiliconFlow Qwen3-VL → SenseNova → Google Gemini（免费 key 从 [AI Studio](https://aistudio.google.com) 领取）→ 任意 OpenAI 兼容端点，支持 modlens 同款结构化证据输出。
 
-无 Key 硬编码、无需付费、不用存文件、不用切会话。
+桌面端 0.2 上无需核心补丁、不写隐藏设置、不内置任何 Key；生成图片只保存到技能明确指定的路径。
 
 [为什么](#-为什么) · [快速开始](#-快速开始) · [效果预览](#-效果预览) · [使用方式](#-使用方式) · [密钥与隐私](#-密钥与隐私) · [常见问题](#-常见问题) · [示例](#-示例)
 
@@ -43,25 +43,33 @@ DeepSeek Harness 很会推理，但纯文本模型看不见你拖进聊天框的
 
 | 对比项 | 本 bundle | 常见「只读图」插件 |
 |---|---|---|
-| 免费读图 | ✅ 智谱 GLM-4V-Flash（免费）· v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp（同 key） | ✅ |
+| 读图能力 | ✅ 桌面端 0.2 走当前选中的图片模型；`vision-review` 额外提供 GLM-4V-Flash 与多引擎脚本化故障转移 | ✅ |
 | **免费生图** | ✅ SenseNova U1 Fast → SiliconFlow Kolors | ❌ 通常没有 |
-| 自动写入模型路由 | ✅ ≤ v0.1.1 自动配置 · v0.1.6 在 **设置 → 模型** 自行选择（插件不写设置） | 视插件而定 |
+| 模型路由管理 | ✅ 桌面端 0.2 / v0.1.6+ 不写设置，统一在 **设置 → 模型** 选择；旧版自动写入仅属历史行为 | 视插件而定 |
 | Key 是否入库 | ❌ 绝不，密钥只留在本地 | ⚠️ 经常要求配置 |
 | 多语言文档 | ✅ 9 种语言 | ❌ 通常只有英文 |
 | 隐私 | ✅ 图片只发给你自己选的提供方 | 共享免费端点可能看到你的图片 |
 
 **为什么用「自带免费 Key」而不是内置匿名端点？** 为了隐私和稳定性。你的图片只发给你选的提供方，走你自己的账号和速率限制，中间没有任何共享第三方服务。
 
-**新版本适配**：DeepSeek Harness **v0.1.6** 原生支持图片附件，本 bundle 以标准运行时插件方式安装——**不改本体、不写设置**，模型路由由你在 **设置 → 模型** 中自行配置。**v0.1.1-rc.1 / rc.2** 的 deepseek-official 路由原生自带 **DeepSeek-V4-Flash-Vision-Exp**——贴图自动转述与视觉模型路由会直接使用它，与主 agent 同一个 `DEEPSEEK_API_KEY`，**零额外配置**。rc.7 / rc.8 则应用本仓库配套补丁（见 [HARNESS_PATCH.md](../HARNESS_PATCH.md)，历史文档）。
+**新版本适配**：
+
+| DSH 版本 | 状态 |
+|---|---|
+| 桌面端 **0.2.0-rc.2** | **运行时已验证**：标准运行时插件，两个技能通过 `ctx.skills.registerProvider()` 注册；当前模型声明 `inputModalities: ["text", "image"]` 时才接受原生图片附件，默认 `deepseek-flash` 支持。无需核心补丁、不写设置。 |
+| Tag **dsh-v0.2.1-rc.2** | **源码已比对**：`@deepseek-ai/dsh-skill@0.2.1-rc.2` 保留相同的 provider factory、数组/`{candidates, complete}` 返回形状、candidate 字段和图片准入逻辑；本机没有 rc.2 桌面安装包，因此未做完整启动验证。 |
+| **v0.1.6** | 使用同一套受支持的 provider 生命周期；GLM / SiliconFlow / SenseNova / Gemini 等额外路由在 **设置 → 模型** 自行配置。 |
+| v0.1.1 及更早预览版 | 仅保留历史说明；不要把旧核心补丁用于已签名的桌面端 0.2。 |
+
+完整检查清单和 `MODEL_DOES_NOT_SUPPORT_IMAGES` 行为见 [桌面端 0.2 兼容说明](../DESKTOP_0.2.md)。
 
 ## ✨ 能力一览
 
-| 能力 | 说明 | 模型 | 费用 |
+| 能力 | 桌面端 0.2 的行为 | 模型 / 引擎 | 费用 |
 |---|---|---|---|
-| 🖼️ 贴图自动转述 | **纯文本会话**的输入框有「添加图片」按钮（图片图标，rc.7 / rc.8 由配套 client-ux 补丁恢复）与粘贴/拖放入摄；贴图后由视觉模型自动转成文字描述发给当前模型（**v0.1.1 默认 DeepSeek-V4-Flash-Vision-Exp**；rc.7/rc.8 为 GLM-4V-Flash + SiliconFlow 故障转移，单路由 15s），气泡保留原图缩略图。*（Harness 本体功能，需 api-proxy 准入补丁 + client-ux 补丁（rc.7/rc.8 各一份），支持 rc.7/rc.8/v0.1.1-rc.1；本 bundle 提供其依赖的视觉路由与技能）* | v0.1.1：DeepSeek-Vision-Exp · rc.7/8：GLM-4V-Flash | GLM 免费；DeepSeek 走余额（v0.1.1 默认） |
-| 🧠 视觉模型路由 | ≤ v0.1.1 安装后**自动**写入模型选择器「智谱 GLM-4V-Flash（视觉）」（**v0.1.6** 在 **设置 → 模型** 加一次即可）；**v0.1.1** 的 deepseek 路由还原生自带 **DeepSeek-V4-Flash-Vision-Exp**（同 key）——新会话选任一即可直接看图对话 | 智谱 GLM-4V-Flash · DeepSeek-V4-Flash-Vision-Exp（v0.1.1） | GLM 免费；DeepSeek 走余额 |
-| 👁️ `vision-review` | 分析 / 识别 / 描述图片与截图；找界面视觉 bug（重叠、溢出、错位）；检测水印 Logo；图片转文字。可选 `--structured` 输出 modlens 同款结构化证据 JSON（summary / 全文 OCR / 阅读顺序版面 / 实体关系 / 不确定性）。引擎故障转移链：GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp（与主 agent 同 key，付费可选）→ SiliconFlow Qwen3-VL / SenseNova / Google Gemini（有 key 自动入链）→ 任意 OpenAI 兼容端点 | GLM-4V-Flash + DeepSeek-Vision-Exp + Qwen3-VL + SenseNova + Gemini | 免费（DeepSeek 付费可选） |
-| 🎨 `media-tools` | 生成图片、插画、头像、背景、banner | SenseNova U1 Fast → SiliconFlow Kolors | 免费、无水印 |
+| 🖼️ 原生图片附件 | 在选中图片模型时，可粘贴、拖拽或点附件按钮发送。DSH 按当前模型的 `inputModalities` 做准入；纯文本路由返回 `MODEL_DOES_NOT_SUPPORT_IMAGES`，不会执行旧版自动转述管道。 | 默认 `deepseek-flash`，或你配置的视觉路由 | 以所选服务商为准 |
+| 👁️ `vision-review` | 分析 / 识别 / 描述本地图片与截图；检查重叠、溢出、错位、水印 Logo、OCR，或输出结构化 JSON 证据。故障转移链：GLM-4V-Flash → DeepSeek 视觉模型 → SiliconFlow Qwen3-VL → SenseNova → Google Gemini → 自定义 OpenAI 兼容端点。 | GLM-4V-Flash + 可选 DeepSeek/Qwen/SenseNova/Gemini | GLM/SiliconFlow 免费额度；其他引擎可选 |
+| 🎨 `media-tools` | 按提示词生成图片、插画、头像、背景、Banner，并写到明确指定的输出路径。 | SenseNova U1 Fast → SiliconFlow Kolors | 服务商免费额度/条款；不内置 Key |
 
 ## ⚡ 快速开始
 
@@ -72,7 +80,7 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 ```
 
 1. **Key**：
-   - **v0.1.6**：安装无需 Key——两个技能随插件运行时注册。使用技能时把 Key（`GLM_API_KEY`、`SILICONFLOW_API_KEY`、可选 `GEMINI_API_KEY`）写进 `~/.dsh/secrets/media-tools.env`（见 [密钥与隐私](#-密钥与隐私)）；原生模型路由在 **设置 → 模型** 自行配置。
+   - **桌面端 0.2 / v0.1.6+**：安装无需 Key——两个技能随插件运行时注册；默认 `deepseek-flash` 已支持原生图片对话。使用技能脚本时把 Key（`GLM_API_KEY`、`SILICONFLOW_API_KEY`、可选 `GEMINI_API_KEY`）写进 `~/.dsh/secrets/media-tools.env`；额外模型路由在 **设置 → 模型** 自行配置。
    - **v0.1.1-rc.1+**：零额外配置——贴图转述与视觉路由直接用主 agent 的 `DEEPSEEK_API_KEY`（DeepSeek-V4-Flash-Vision-Exp）。
    - **rc.7 / rc.8**（或想加免费引擎）：智谱：[open.bigmodel.cn](https://open.bigmodel.cn) → 「API Keys」（glm-4v-flash 免费）；SiliconFlow：[siliconflow.cn](https://siliconflow.cn) → 「API 密钥」（Kolors 免费）；*（可选）* Google Gemini：[aistudio.google.com](https://aistudio.google.com) → 「Get API key」，配好后自动加入读图回退链
 2. **填入**：Web 界面（**设置 → 模型**），或写在凭据文件里：
@@ -82,21 +90,21 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
    GLM_API_KEY: <你的智谱 Key>
    ```
 
-3. **彻底重启** `dsh web`，然后 `Cmd+Shift+R` 强刷页面。
+3. **彻底重启 DSH**（桌面端则重启应用；浏览器页面再按 `Cmd+Shift+R` 强刷）。
 
-验证：技能列表出现 **`vision-review`** 与 **`media-tools`**；若你的 DSH 版本支持贴图转述，输入框左下角还会出现 **🖼️「添加图片」按钮**。任意会话贴一张图——它会以文字描述的形式到达。
+验证：技能列表出现 **`vision-review`** 与 **`media-tools`**。桌面端 0.2 发送原生图片附件前，请确认当前路由是支持图片的 **`deepseek-flash`** 等模型；纯文本路由会返回 `MODEL_DOES_NOT_SUPPORT_IMAGES`。
 
 完整步骤与排错：**[../SETUP_VISION.md](../SETUP_VISION.md)**
 
 ## 📸 效果预览
 
-*纯文本会话里贴一张图 → 免费视觉模型转述 → 当前模型回答；同一个 bundle 还能按需生成新图。*
+*给支持图片的 DSH 路由发送附件，或把文件路径交给 `vision-review` 做脚本化 QA；同一个 bundle 还能按需生成新图。*
 
-<img src="../screenshots/demo-paste.png" alt="演示：纯文本 DSH 会话中贴图，视觉模型读取并转述，模型回答；同一 bundle 还能生成图片" width="100%">
+<img src="../screenshots/demo-paste.png" alt="历史读图流程演示；桌面端 0.2 需要选择图片模型，或通过文件路径调用技能" width="100%">
 
 *工作原理一图流：*
 
-<img src="../screenshots/how-it-works.png" alt="贴图直读原理：贴图 → 视觉模型转述 → 文字描述到达当前模型" width="100%">
+<img src="../screenshots/how-it-works.png" alt="旧预览版的图片转述流程示意图" width="100%">
 
 ## 🚀 使用方式
 
@@ -104,11 +112,11 @@ dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
 
 | 方式 | 怎么用 | 适用场景 |
 |---|---|---|
-| **A. 直接贴图（推荐）** | 任意会话点图片按钮选图 / 拖拽 / 粘贴，直接发送 | 日常看图，不用切会话、不用存文件 |
-| **B. 视觉模型会话** | 新开对话，模型选「智谱 GLM-4V-Flash（视觉）」，贴图对话 | 多轮围绕图片对话、原生读图（`read_image`） |
-| **C. 文件 + 技能** | 把图放到工作区，说「用 vision-review 读一下这张图」 | 批量检查、脚本化处理 |
+| **A. 原生附件（推荐）** | 先选支持图片的路由（默认 `deepseek-flash`），再点附件按钮 / 拖拽 / 粘贴并发送 | 日常多模态看图问题 |
+| **B. 图片模型会话** | 新开对话，选择 `deepseek-flash` 或你配置的 GLM/Qwen/SenseNova 视觉路由，再贴图对话 | 多轮原生图片对话 |
+| **C. 文件 + 技能** | 把图放到工作区，说「用 vision-review 读一下这张图」，或把路径传给 `scripts/vision.py` | 批量检查、结构化 OCR/QA、纯文本路由场景 |
 
-转述语言自动跟随你发消息的语言（中文消息出中文描述、英文消息出英文描述；没打字默认中文）。
+原生附件会直接发送给当前选中的图片模型；使用 `vision-review` 时，可在提示词里指定语言或输出格式（也可用 `--structured`）。
 
 另外直接说：
 
@@ -132,8 +140,8 @@ GEMINI_API_KEY=...   # 可选
 
 ## ❓ 常见问题
 
-**贴图直读需要给 DeepSeek Harness 本体打补丁吗？**
-「贴图自动转述」的管道属于 DeepSeek Harness **本体**——v0.1.6 / v0.1.1 原生，rc.7 / rc.8 为 `api-proxy` 图片准入逻辑（见 [../HARNESS_PATCH.md](../HARNESS_PATCH.md)）。本 bundle 提供**读图/生图技能**（≤ v0.1.1 另含视觉路由）；任何 DSH 版本装上后视觉模型都可用，但贴图直读需要你的 DSH 本体包含对应支持——判断方法见 [../SETUP_VISION.md](../SETUP_VISION.md) 常见问题 Q1。
+**桌面端 0.2 还需要核心补丁吗？**
+不需要。桌面端 **0.2.0-rc.2** 通过标准运行时插件/provider 生命周期加载本 bundle，图片准入由当前模型的 `inputModalities` 决定。请不要修改已签名的 `app.asar`；旧预览版补丁仅作历史归档。若当前是纯文本路由，DSH 会返回 `MODEL_DOES_NOT_SUPPORT_IMAGES`，此时切换到图片模型，或用文件路径调用 `vision-review`。
 
 **为什么不用内置免费端点、完全免 Key？**
 我们更希望路由掌握在你自己手里：图片只发给你选的提供方，走你的速率限制，中间没有共享第三方。Key 全免费，申请大约两分钟。
@@ -155,7 +163,7 @@ GEMINI_API_KEY=...   # 可选
 dsh-media-skills/
 ├── package.json           # dsh.bundle 清单
 ├── cordis.patch.yml       # 插件层
-├── index.js               # 通过 v0.1.6 provider 生命周期注册两个技能
+├── index.js               # 通过 v0.1.6+ / Desktop 0.2 provider 生命周期注册两个技能
 ├── skills/
 │   ├── vision-review/     # 读图
 │   └── media-tools/       # 生图
@@ -174,7 +182,7 @@ dsh-media-skills/
 
 ## 🧩 与 ModLens 共存？
 
-本 bundle 和 [ModLens](https://github.com/liustack/modlens) 都能给纯文本模型补视觉能力。两个一起装不冲突：ModLens 的粘贴拦截在前（路径 → `modlens_read_image` 工具），本 bundle 的 api-proxy 转述兜底（可关闭 ModLens 的粘贴接管，让贴图始终走「图片附件 → 自动转述」）。完整对比、粘贴路由顺序、以及把 ModLens 指向同一个免费智谱端点的方法见 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)。
+本 bundle 可与 [ModLens](https://github.com/liustack/modlens) 同时安装，但桌面端 0.2 已没有旧的 api-proxy 自动转述兜底。请明确选择一种粘贴行为：保留 ModLens 的“粘贴转文件路径”工具流，或设置 `pasteToPath: false`，让 DSH 对支持图片的模型走原生附件。历史对比和配置见 [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md)。
 
 ## 🤝 加入 DSH 插件生态
 

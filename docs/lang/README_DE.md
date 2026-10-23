@@ -6,18 +6,19 @@
 
 # 🎨 dsh-media-skills
 
-### *Bilder direkt ins Chatfeld einfügen — kostenloses Vision-Modell, Bildlesen und Bildgenerierung.*
+### *Gib DeepSeek Harness wiederverwendbare Bildprüfungs- und Bildgenerierungs-Skills — verifiziert mit Desktop 0.2.0-rc.2.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](../../LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
 [![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Harness](https://img.shields.io/badge/Harness-0.2.0%20verified%20%7C%200.2.1--rc.2%20source%20checked-4D6BFE)](../DESKTOP_0.2.md)
 
 <br>
 
 Gib [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) „Augen“ und einen „Pinsel“ —
-zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bildern, ganz ohne hartkodierte Keys.
+Es bringt zwei Runtime-Skills sowie eine eigene Vision-Failover-Kette mit, wurde mit Desktop **0.2.0-rc.2** lauffähig geprüft und der aktuelle Tag **dsh-v0.2.1-rc.2** wurde quelltextseitig gegen denselben Provider-Vertrag geprüft — ohne hartkodierte Keys.
 
-[Funktionen](#-funktionen) · [Schnellstart](#-schnellstart) · [Nutzung](#-nutzung) · [Vision-Einrichtung](../SETUP_VISION.md)
+[Funktionen](#-funktionen) · [Schnellstart](#-schnellstart) · [Kompatibilität](#-kompatibilität) · [Nutzung](#-nutzung) · [Vision-Einrichtung](../SETUP_VISION.md)
 
 [**English**](../../README.md) · [**简体中文**](README_ZH.md) · [**繁體中文**](README_ZH_TW.md) · [**日本語**](README_JA.md) · [**한국어**](README_KO.md) · [**Español**](README_ES.md) · [**Deutsch**](README_DE.md) · [**Português**](README_PT.md) · [**Русский**](README_RU.md)
 
@@ -29,12 +30,12 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 | Funktion | Beschreibung | Modell | Kosten |
 |---|---|---|---|
-| 🖼️ Bild-Einfügen mit Auto-Beschreibung | In **rein textbasierten** Sitzungen (z. B. deepseek-v4-pro) bekommt die Eingabeleiste einen „Bild hinzufügen“-Button (Bildsymbol); eingefügte Bilder werden vom Vision-Modell automatisch als Text beschrieben und an das aktuelle Modell übergeben (**ab v0.1.1 Standard: DeepSeek-V4-Flash-Vision-Exp**) | v0.1.1: DeepSeek-Vision-Exp · rc.7/8: Zhipu GLM-4V-Flash | GLM kostenlos; DeepSeek wird deinem Guthaben belastet (v0.1.1-Standard) |
-| 🧠 Vision-Modell-Route | Bis ≤ v0.1.1 erscheint „智譜 GLM-4V-Flash（視覚）“ nach der Installation **automatisch** im Modell-Auswahlmenü (**v0.1.6**: einmalig unter **Einstellungen → Modelle** hinzufügen); in neuen Unterhaltungen direkt über Bilder sprechen | Zhipu GLM-4V-Flash | Kostenlos |
-| 👁️ `vision-review` | Bilder/Screenshots analysieren, erkennen, beschreiben; visuelle UI-Bugs finden (Überlappung, Überlauf, Fehlausrichtung); Wasserzeichen/Logos erkennen; Bilder in Text umwandeln. Engine-Kette: GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp (gleicher Schlüssel wie der Agent, optional kostenpflichtig) → SenseNova / SiliconFlow / Gemini | GLM-4V-Flash＋DeepSeek-Vision-Exp＋SenseNova＋Gemini | Kostenlos (DeepSeek optional kostenpflichtig) |
+| 🖼️ Native Bildanhänge | Auf Desktop 0.2 / v0.1.6+ kannst du Bilder einfügen, ziehen oder auswählen, wenn die **aktuelle Route Bilder unterstützt** – die Standardroute `deepseek-flash` tut das. Rein textliche Routen lehnen Anhänge mit `MODEL_DOES_NOT_SUPPORT_IMAGES` ab; die alte Auto-Beschreibungs-Weiterleitung existiert auf diesem Pfad nicht. | Standard `deepseek-flash` oder eigene Vision-Route | Gemäß gewähltem Anbieter |
+| 🔀 Vision-Failover-Kette | Für Dateipfad- und Skript-Workflows prüft `vision-review` wahlweise GLM-4V-Flash, DeepSeek Vision, Qwen3-VL, SenseNova, Gemini und eigene OpenAI-kompatible Endpunkte. | Eigene Keys und Routen | Kostenlose Kontingente oder optionale Anbieter |
+| 👁️ `vision-review` | Analysiert lokale Bilder und Screenshots, erkennt OCR-Text, Wasserzeichen/Logos sowie visuelle UI-Fehler und kann strukturierte JSON-Beweise ausgeben. Lange Pfade, Stapelprüfungen und `--structured` werden unterstützt. | GLM-4V-Flash + optionale Vision-Anbieter | GLM/SiliconFlow kostenlose Tarife, weitere optional |
 | 🎨 `media-tools` | Bilder, Illustrationen, Avatare, Hintergründe und Banner generieren | SenseNova U1 Fast → SiliconFlow Kolors | Kostenlos, ohne Wasserzeichen |
 
-> ⚠️ Ehrlicher Hinweis: Das Bild-Einfügen mit Auto-Beschreibung steckt im **Kern** von DeepSeek Harness — nativ ab **v0.1.6 / v0.1.1**, in rc.7 / rc.8 über die mitgelieferten Kern-Patches (Bildannahme in `api-proxy`). Dieses Bundle liefert die **Skills** (bis ≤ v0.1.1 zusätzlich die Modell-Route); das Vision-Modell funktioniert mit jedem DSH-Build.
+> ⚠️ Wichtiger Hinweis: Auf Desktop 0.2 werden Bildanhänge nur zugelassen, wenn das aktive Modell `inputModalities: ["text", "image"]` meldet. Es ist **kein Kern-Patch** nötig, signierte `app.asar`-Dateien dürfen nicht verändert werden, und das Bundle schreibt keine Modell-Einstellungen. Für eine textliche Route rufe `vision-review` mit einem lokalen Bildpfad auf.
 
 ## ⚡ Schnellstart
 
@@ -45,8 +46,8 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
    ```
 
 2. **Keys**:
-   - **v0.1.6**: Zur Installation sind keine Keys nötig — die beiden Skills registrieren sich zur Laufzeit. Skill-Keys (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, optional `GEMINI_API_KEY`) gehören in `~/.dsh/secrets/media-tools.env` (siehe [Keys](#-keys)); native Modell-Routen richtest du selbst unter **Einstellungen → Modelle** ein.
-   - **ab v0.1.1-rc.1 sind keine zusätzlichen Keys nötig** — Einfüge-Lesen und Vision-Route laufen über den vorhandenen `DEEPSEEK_API_KEY` des Agenten. Für die kostenlosen Engines (oder rc.7/rc.8): zuerst kostenlos einen Key holen — Registrieren auf [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (glm-4v-flash ist kostenlos). Für die Generierung zusätzlich einen bei [siliconflow.cn](https://siliconflow.cn) erstellen (Kolors ist kostenlos). Dann hinterlegen — Web-GUI (**Einstellungen → Modelle**) oder Credentials-Datei:
+   - **Desktop 0.2 / v0.1.6+**: Für die Installation ist kein Key nötig — beide Skills registrieren sich zur Laufzeit, und die Standardroute `deepseek-flash` unterstützt native Bildanhänge. Keys für die Skill-Failover-Kette (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, optional `GEMINI_API_KEY`) gehören in `~/.dsh/secrets/media-tools.env`; zusätzliche Routen konfigurierst du selbst in **Einstellungen → Modelle**.
+   - **Ältere Vorschauversionen (≤ v0.1.1)**: Paste-Lesen und die damalige Vision-Route konnten den vorhandenen `DEEPSEEK_API_KEY` des Agenten nutzen. Dieses automatische Transkriptionsverhalten gilt nicht für Desktop 0.2.
 
    ```sh
    # ~/.dsh/.credentials.yaml (chmod 600)
@@ -55,15 +56,15 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 
 3. `dsh web` **vollständig neu starten** und die Seite mit `Cmd+Shift+R` hart neu laden.
 
-4. Prüfen: Die Skills **`vision-review`** und **`media-tools`** erscheinen in der Skill-Liste (auf v0.1.6 richtest du die Vision-Route selbst unter **Einstellungen → Modelle** ein; bis ≤ v0.1.1 erscheint **智譜 GLM-4V-Flash（視覚）** im Modell-Auswahlmenü). Unterstützt dein Build das Bild-Einfügen, zeigt die Eingabeleiste einen 🖼️ **„Bild hinzufügen“-Button** — füge in einer beliebigen Sitzung ein Bild ein, es kommt als Textbeschreibung an.
+4. Prüfe: **`vision-review`** und **`media-tools`** erscheinen in der Skill-Liste. Auf Desktop 0.2 wähle vor einem nativen Anhang eine bildfähige Route wie **`deepseek-flash`**; eine reine Textroute gibt `MODEL_DOES_NOT_SUPPORT_IMAGES` zurück und beschreibt das Bild nicht automatisch.
 
 Komplette Anleitung, Funktionsweise und Fehlerbehebung: **[../SETUP_VISION.md](../SETUP_VISION.md)**
 
 ## 🔑 Keys
 
-Keys werden **nie in diesem Repo gespeichert**. Die Skripte lesen in dieser Reihenfolge: Umgebungsvariablen → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (Legacy-Fallback). Die Vision-Modell-Route liest `GLM_API_KEY` aus dem DSH-Credential-Speicher (≤ v0.1.1; auf v0.1.6 richtest du die Routen selbst unter **Einstellungen → Modelle** ein).
+Keys werden **nie in diesem Repo gespeichert**. Die eigenständige `vision-review`-Kette liest in dieser Reihenfolge: Umgebungsvariablen → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (Legacy-Fallback). Die automatische alte GLM-Routeneinrichtung gilt nur für ≤ v0.1.1; auf Desktop 0.2 / v0.1.6+ bleiben Routen in **Einstellungen → Modelle** deine Entscheidung.
 
-Bezugsquellen (beide kostenlos): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors).
+Key-Quellen für die Skill-Engines (kostenlose Tarife nach Anbieterbedingungen): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors). Google Gemini ist optional und kann in die Failover-Kette einbezogen werden.
 
 ```sh
 # ~/.dsh/secrets/media-tools.env (chmod 600, eine KEY=value pro Zeile)
@@ -77,16 +78,31 @@ Drei Wege, Bilder zu lesen:
 
 | Weg | So geht's | Wann |
 |---|---|---|
-| **A. Direkt einfügen (empfohlen)** | In beliebiger Sitzung 🖼️-Button klicken / ziehen / einfügen und senden | Alltägliche Bildfragen — kein Speichern, kein Modellwechsel |
-| **B. Vision-Modell-Sitzung** | Neue Unterhaltung, 智譜 GLM-4V-Flash（視覚） wählen, Bilder einfügen und chatten | Mehrstufige Gespräche über Bilder, natives `read_image` |
-| **C. Dateien + Skill** | Bild in den Workspace legen und sagen: „lies dieses Bild mit vision-review“ | Stapelprüfung, geskriptete Abläufe |
+| **A. Nativer Anhang (empfohlen)** | Wähle eine bildfähige Route (Standard `deepseek-flash`), dann auf 🖼️ klicken / Bild ziehen / einfügen und senden | Alltägliche multimodale Bildfragen |
+| **B. Bildfähige Modell-Sitzung** | Neue Unterhaltung, `deepseek-flash` oder eine konfigurierte GLM/Qwen/SenseNova-Route wählen und Bilder anhängen | Mehrrundige native Bildgespräche |
+| **C. Dateien + Skill** | Bild im Workspace ablegen und „lies dieses Bild mit vision-review“ sagen oder `scripts/vision.py` mit einem Pfad aufrufen | Stapelprüfung, strukturiertes OCR/QA, Text-Routen |
 
-Die Beschreibungssprache folgt deiner Nachrichtensprache (chinesische Nachricht → chinesische Beschreibung; englische → englische; kein Text → Chinesisch).
+Native Anhänge gehen direkt an das gewählte bildfähige Modell. Für `vision-review` kannst du Antwortsprache und Ausgabeformat im Prompt angeben oder `--structured` verwenden.
 
 Einfach sagen:
 
 - „Schau dir dieses Bild an / prüfe diesen Screenshot auf visuelle Bugs“ → `vision-review`
 - „Erzeuge ein Bild von …“ → `media-tools`
+
+## 🔌 Kompatibilität
+
+| DSH-Build | Status |
+|---|---|
+| Desktop **0.2.0-rc.2** | **Laufzeitgeprüft.** Standard-Runtime-Plugin; beide Skills registrieren sich über `ctx.skills.registerProvider()`. Native Anhänge werden nur bei `inputModalities: ["text", "image"]` zugelassen; die Standardroute `deepseek-flash` unterstützt das. Keine Kern-Patches oder Einstellungs-Schreibvorgänge. |
+| Tag **dsh-v0.2.1-rc.2** | **Quelltext geprüft.** `@deepseek-ai/dsh-skill@0.2.1-rc.2` behält Provider-Factory, `list()`/`get()`, Candidate-Felder und die Bildzulassung bei. Lokal war kein paketierter rc.2-Desktop-Build für einen vollständigen Starttest verfügbar. |
+| **v0.1.6** | Gleicher unterstützter Provider-Lebenszyklus; optionale GLM/SiliconFlow/SenseNova/Gemini-Routen konfigurierst du in **Einstellungen → Modelle**. |
+| v0.1.1 und ältere Vorschauversionen | Nur historisches Verhalten. Alte Kern-Patches nicht auf signierte Desktop-0.2-Builds anwenden. |
+
+Siehe [Desktop-0.2-Kompatibilitätsnotizen](../DESKTOP_0.2.md) für die vollständige Prüfliste.
+
+### ModLens-Koexistenz
+
+Das Bundle kann zusammen mit [ModLens](https://github.com/liustack/modlens) installiert werden, aber Desktop 0.2 enthält nicht mehr die alte api-proxy-Auto-Transkription. Wähle bewusst zwischen ModLens’ Paste-zu-Pfad-Workflow und `pasteToPath: false`, damit native Anhänge an ein bildfähiges Modell gehen. Der historische Vergleich liegt auf Chinesisch unter [../COMPARE_MODLENS.md](../COMPARE_MODLENS.md).
 
 ## 🗺️ Struktur
 
@@ -94,7 +110,7 @@ Einfach sagen:
 dsh-media-skills/
 ├── package.json           # dsh.bundle-Manifest
 ├── cordis.patch.yml       # Plugin-Ebene
-├── index.js               # registriert die zwei Skills über den DSH-v0.1.6-Provider-Lebenszyklus
+├── index.js               # registriert die zwei Skills über die DSH v0.1.6+ / Desktop 0.2-Provider-Laufzeit
 ├── skills/
 │   ├── vision-review/     # Bildlesen
 │   └── media-tools/       # Bildgenerierung
