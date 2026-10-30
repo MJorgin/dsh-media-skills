@@ -41,7 +41,7 @@ dos skills gratuitas, un modelo de visión gratuito y lectura de imágenes pegad
 1. Instala el bundle:
 
    ```sh
-   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+   dsh plugin --profile <name> add dsh-media-skills
    ```
 
 2. **Claves**:

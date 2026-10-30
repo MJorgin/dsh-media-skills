@@ -12,13 +12,13 @@ This guide covers two related but different workflows:
 Use the DSH Plugin Manager:
 
 ```text
-github:MJorgin/dsh-media-skills
+dsh-media-skills
 ```
 
 Or use the CLI:
 
 ```sh
-dsh plugin --profile web add github:MJorgin/dsh-media-skills
+dsh plugin --profile web add dsh-media-skills
 ```
 
 Replace `web` with your DSH profile. Restart the profile after installation.

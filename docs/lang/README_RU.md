@@ -41,7 +41,7 @@
 1. Установите бандл:
 
    ```sh
-   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+   dsh plugin --profile <name> add dsh-media-skills
    ```
 
 2. **Ключи**:

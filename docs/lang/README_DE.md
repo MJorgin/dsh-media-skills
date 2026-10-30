@@ -41,7 +41,7 @@ zwei kostenlose Skills, ein kostenloses Vision-Modell und das Einfügen von Bild
 1. Bundle installieren:
 
    ```sh
-   dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+   dsh plugin --profile <name> add dsh-media-skills
    ```
 
 2. **Keys**:

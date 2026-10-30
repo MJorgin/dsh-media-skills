@@ -72,11 +72,13 @@ See [Desktop 0.2 compatibility notes](docs/DESKTOP_0.2.md) for the exact verific
 
 ## ⚡ Quick start
 
-Install from the DSH **Plugin Manager** (`github:MJorgin/dsh-media-skills`) or the CLI:
+Install from the DSH **Plugin Manager** (`dsh-media-skills`) or the CLI:
 
 ```sh
-dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+dsh plugin --profile <name> add dsh-media-skills
 ```
+
+Or straight from GitHub: `dsh plugin --profile <name> add github:MJorgin/dsh-media-skills`.
 
 1. **Keys**:
    - **Desktop 0.2 / v0.1.6+**: no keys are needed to install — the two skills register at runtime. The default `deepseek-flash` route supports native image chat. Skill keys (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, optional `GEMINI_API_KEY`) go in `~/.dsh/secrets/media-tools.env`; extra model routes are configured in **Settings → Models**.

@@ -73,10 +73,10 @@ DeepSeek Harness 很会推理，但图片能否发送取决于当前模型声明
 
 ## ⚡ 快速开始
 
-在 DSH **插件管理器**里添加 `github:MJorgin/dsh-media-skills`，或命令行安装：
+在 DSH **插件管理器**里添加 `dsh-media-skills`，或命令行安装：
 
 ```sh
-dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+dsh plugin --profile <name> add dsh-media-skills
 ```
 
 1. **Key**：

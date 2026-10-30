@@ -62,7 +62,7 @@ DeepSeek Harness 的推理能力十分出色——但純文字模型看不見你
 ## ⚡ 快速開始
 
 ```sh
-dsh plugin --profile <name> add github:MJorgin/dsh-media-skills
+dsh plugin --profile <name> add dsh-media-skills
 ```
 
 1. **金鑰**：
