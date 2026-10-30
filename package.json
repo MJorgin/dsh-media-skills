@@ -17,9 +17,26 @@
     "cordis.patch.yml",
     "skills",
     "scripts",
+    "docs/*.md",
+    "docs/lang/*.md",
     "README.md",
     "LICENSE"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MJorgin/dsh-media-skills.git"
+  },
+  "homepage": "https://github.com/MJorgin/dsh-media-skills#readme",
+  "bugs": {
+    "url": "https://github.com/MJorgin/dsh-media-skills/issues"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
   "keywords": [
     "deepseek-harness",
     "deepseek-harness-desktop",
