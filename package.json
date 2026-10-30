@@ -1,6 +1,6 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Free image reading and generation skills for DeepSeek Harness v0.1.6+ (runtime-verified on desktop 0.2.0-rc.2; source-checked against dsh-v0.2.1-alpha.2): visual QA, illustration generation, provider fallback, and no bundled keys.",
   "type": "module",
   "main": "index.js",
