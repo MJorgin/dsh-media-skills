@@ -23,7 +23,7 @@ window.__ModuleLoader__.load({
     const STYLE_ID = 'dsh-media-skills-style'
     const STORE_KEY = 'dsh-media-skills.works'
     const PANEL_ID = 'media-desk'
-    const TABS = [['generate', '生成'], ['works', '作品'], ['keys', '密钥']]
+    const TABS = [['generate', '生成'], ['works', '作品'], ['keys', '生图 Key']]
 
     const CSS = `
 .dshm-page {
@@ -97,7 +97,33 @@ window.__ModuleLoader__.load({
 .dshm-work .t { margin-top: 8px; font-size: 13px; color: var(--dsw-alias-label-secondary, #61666b); }
 .dshm-work .m { margin-top: 2px; font-size: 12px; color: var(--dsw-alias-label-caption, #adb2b8); }
 
-.dshm-keys { margin-top: 24px; display: grid; gap: 12px; max-width: 620px; }
+.dshm-keys { margin-top: 24px; display: grid; gap: 14px; max-width: 680px; }
+.dshm-krow { border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
+.dshm-krow .kh { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.dshm-krow .kh b { font-size: 14px; font-weight: 500; }
+.dshm-krow .kh span { font-size: 12px; color: var(--dsw-alias-label-tertiary, #81858c); }
+.dshm-krow .kh span::before { content: ""; display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; background: #2f7d5c; vertical-align: 1px; }
+.dshm-krow[data-off="true"] .kh span::before { background: var(--dsw-alias-label-caption, #adb2b8); }
+.dshm-krow .kf { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dshm-krow .kf.full { grid-template-columns: 1fr; }
+.dshm-lab { display: block; font-size: 11.5px; color: var(--dsw-alias-label-tertiary, #81858c); margin-bottom: 4px; }
+.dshm-input {
+  width: 100%; box-sizing: border-box; height: 32px; padding: 0 10px;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 8px;
+  background: var(--dsw-alias-bg-base, #fff); color: inherit; font: inherit; font-size: 13px; outline: none;
+}
+.dshm-input:focus { border-color: var(--dsw-alias-label-tertiary, #81858c); }
+.dshm-kfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.dshm-kfoot a { font-size: 12px; color: var(--dsw-alias-label-tertiary, #81858c); text-decoration: none; }
+.dshm-kfoot a:hover { text-decoration: underline; }
+.dshm-save {
+  height: 30px; padding: 0 16px; border-radius: 15px; border: 0; cursor: pointer;
+  background: var(--dsw-alias-button-primary-fill, #0f1115); color: var(--dsw-alias-label-primary-foreground, #fff);
+  font: inherit; font-size: 12.5px;
+}
+.dshm-save:disabled { opacity: .5; cursor: default; }
+.dshm-addrow { margin-top: 4px; height: 34px; border-radius: 17px; border: 1px dashed var(--dsw-alias-border-l2, rgba(0,0,0,.2)); background: none; cursor: pointer; font: inherit; font-size: 13px; color: var(--dsw-alias-label-tertiary, #81858c); }
+.dshm-err { margin-top: 10px; font-size: 12.5px; color: #c0392b; }
 .dshm-key { border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 12px; padding: 14px 16px; }
 .dshm-key .n { display: flex; align-items: center; justify-content: space-between; font-size: 14px; }
 .dshm-key .s { font-size: 12px; color: var(--dsw-alias-label-tertiary, #81858c); display: flex; align-items: center; gap: 6px; }
@@ -108,11 +134,15 @@ window.__ModuleLoader__.load({
 `
 
     function ensureStyles() {
-      if (document.getElementById(STYLE_ID) !== null) return
-      const style = document.createElement('style')
-      style.id = STYLE_ID
-      style.textContent = CSS
-      document.head.appendChild(style)
+      let style = document.getElementById(STYLE_ID)
+      if (style === null) {
+        style = document.createElement('style')
+        style.id = STYLE_ID
+        document.head.appendChild(style)
+      }
+      // The bundle can be swapped live (client HMR): keep the sheet in sync with
+      // the code that is running now instead of reusing the previous version's.
+      if (style.textContent !== CSS) style.textContent = CSS
     }
 
     function PanelIcon() {
@@ -146,6 +176,85 @@ window.__ModuleLoader__.load({
       return clean.length > 18 ? `${clean.slice(0, 18)}…` : clean
     }
 
+    function KeysTab({ status, onSaved }) {
+      const providers = status?.providers ?? []
+      const [drafts, setDrafts] = React.useState({})
+      const [saving, setSaving] = React.useState(null)
+      const [error, setError] = React.useState(null)
+      const [adding, setAdding] = React.useState(false)
+      const [form, setForm] = React.useState({ label: '', baseUrl: '', model: '', key: '' })
+
+      const draftOf = (provider) => ({
+        baseUrl: provider.baseUrl ?? '',
+        model: provider.model ?? '',
+        key: '',
+        ...(drafts[provider.id] ?? {}),
+      })
+      const edit = (id, patch) => setDrafts((all) => ({ ...all, [id]: { ...(all[id] ?? {}), ...patch } }))
+
+      const save = async (provider) => {
+        const draft = draftOf(provider)
+        setSaving(provider.id); setError(null)
+        try {
+          await api('/keys', { method: 'POST', body: JSON.stringify({ id: provider.id, baseUrl: draft.baseUrl, model: draft.model, key: draft.key }) })
+          setDrafts((all) => ({ ...all, [provider.id]: { key: '' } }))
+          onSaved()
+        } catch (e) { setError(e.message) } finally { setSaving(null) }
+      }
+
+      const addCustom = async () => {
+        setSaving('custom'); setError(null)
+        try {
+          await api('/keys/custom', { method: 'POST', body: JSON.stringify(form) })
+          setForm({ label: '', baseUrl: '', model: '', key: '' })
+          setAdding(false)
+          onSaved()
+        } catch (e) { setError(e.message) } finally { setSaving(null) }
+      }
+
+      return h('div', null,
+        h('div', { className: 'dshm-keys' },
+          providers.map((provider) => {
+            const draft = draftOf(provider)
+            return h('div', { key: provider.id, className: 'dshm-krow', 'data-off': String(!provider.configured) },
+              h('div', { className: 'kh' },
+                h('b', null, provider.label),
+                h('span', null, provider.configured ? `已配置 ${provider.keyHint ?? ''}`.trim() : '未配置')),
+              h('div', { className: 'kf' },
+                h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
+                  h('input', { className: 'dshm-input', value: draft.baseUrl, onChange: (e) => edit(provider.id, { baseUrl: e.target.value }) })),
+                h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
+                  h('input', { className: 'dshm-input', value: draft.model, onChange: (e) => edit(provider.id, { model: e.target.value }) }))),
+              h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? 'API Key（留空表示不改）' : 'API Key'),
+                h('input', { className: 'dshm-input', type: 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) })),
+              h('div', { className: 'dshm-kfoot' },
+                provider.docs
+                  ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, '获取 Key ↗')
+                  : h('span', null, ''),
+                h('button', { className: 'dshm-save', disabled: saving === provider.id, onClick: () => save(provider) },
+                  saving === provider.id ? '保存中…' : '保存')))
+          }),
+          adding
+            ? h('div', { className: 'dshm-krow' },
+                h('div', { className: 'kh' }, h('b', null, '自定义提供方'), h('span', null, 'OpenAI 兼容')),
+                h('div', { className: 'kf' },
+                  h('div', null, h('label', { className: 'dshm-lab' }, '名称'),
+                    h('input', { className: 'dshm-input', placeholder: '例如 即梦 / 可灵', value: form.label, onChange: (e) => setForm({ ...form, label: e.target.value }) })),
+                  h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
+                    h('input', { className: 'dshm-input', placeholder: '模型 ID', value: form.model, onChange: (e) => setForm({ ...form, model: e.target.value }) }))),
+                h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
+                  h('input', { className: 'dshm-input', placeholder: 'https://api.example.com/v1', value: form.baseUrl, onChange: (e) => setForm({ ...form, baseUrl: e.target.value }) })),
+                h('div', null, h('label', { className: 'dshm-lab' }, 'API Key'),
+                  h('input', { className: 'dshm-input', type: 'password', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) })),
+                h('div', { className: 'dshm-kfoot' },
+                  h('a', { href: '#', onClick: (e) => { e.preventDefault(); setAdding(false) } }, '取消'),
+                  h('button', { className: 'dshm-save', disabled: saving === 'custom', onClick: addCustom },
+                    saving === 'custom' ? '保存中…' : '添加')))
+            : h('button', { className: 'dshm-addrow', onClick: () => setAdding(true) }, '＋ 添加自定义提供方')),
+        error !== null ? h('div', { className: 'dshm-err' }, error) : null,
+        h('div', { className: 'dshm-hint' }, 'Key 写进本机 ~/.dsh/secrets/media-tools.env（权限 600），技能和面板共用同一份。'))
+    }
+
     function MediaPage() {
       const [tab, setTab] = React.useState('generate')
       const [status, setStatus] = React.useState(null)
@@ -163,7 +272,10 @@ window.__ModuleLoader__.load({
       React.useEffect(refresh, [refresh])
 
       const limit = status?.quota?.limit ?? 5
-      const left = Math.max(0, limit - works.length)
+      // Quota is per day, not per lifetime: yesterday's work must not lock the panel.
+      const today = new Date().toDateString()
+      const usedToday = works.filter((work) => new Date(work.at).toDateString() === today).length
+      const left = Math.max(0, limit - usedToday)
       const empty = prompt.trim() === ''
       const model = status?.providers?.find((p) => p.configured)?.label ?? '未配置密钥'
 
@@ -243,13 +355,7 @@ window.__ModuleLoader__.load({
                 h('div', { className: 't' }, work.title),
                 h('div', { className: 'm' }, `${new Date(work.at).toLocaleDateString('zh-CN')} · ${work.size}`))))
       } else {
-        const providers = status?.providers ?? []
-        body = h('div', null,
-          h('div', { className: 'dshm-keys' }, providers.map((p) =>
-            h('div', { key: p.id, className: 'dshm-key', 'data-off': String(!p.configured) },
-              h('div', { className: 'n' }, p.label, h('span', { className: 's' }, p.configured ? '已配置' : '未配置')),
-              h('div', { className: 'v' }, p.role)))),
-          h('div', { className: 'dshm-hint' }, '密钥保存在本机凭据服务里，也可以继续用 media-tools.env。'))
+        body = h(KeysTab, { status, onSaved: refresh })
       }
 
       return h('div', { className: 'dshm-page' },

@@ -18,7 +18,7 @@
  * @module dsh-media-skills
  */
 
-import { createReadStream, mkdirSync, readFileSync, statSync } from 'node:fs'
+import { createReadStream, mkdirSync, readFileSync, statSync, writeFileSync, chmodSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { dirname, join } from 'node:path'
@@ -119,9 +119,21 @@ const MEDIA_PREFIX = '/media'
 
 /** Providers the bundled skills know how to drive. */
 const PROVIDERS = [
-  { id: 'sensenova', label: 'SenseNova U1', env: 'SENSENOVA_API_KEY', role: '主用' },
-  { id: 'siliconflow', label: 'SiliconFlow Kolors', env: 'SILICONFLOW_API_KEY', role: '备用' },
-  { id: 'gemini', label: 'Gemini', env: 'GEMINI_API_KEY', role: '视觉' },
+  {
+    id: 'sensenova', label: 'SenseNova U1 Fast', env: 'SENSENOVA_API_KEY', role: '生图 · 主用',
+    baseUrl: 'https://api.sensenova.cn/v1', model: 'sense-nova-u1-fast',
+    docs: 'https://platform.sensenova.cn',
+  },
+  {
+    id: 'siliconflow', label: 'SiliconFlow Kolors', env: 'SILICONFLOW_API_KEY', role: '生图 · 备用',
+    baseUrl: 'https://api.siliconflow.cn/v1', model: 'Kwai-Kolors/Kolors',
+    docs: 'https://cloud.siliconflow.cn',
+  },
+  {
+    id: 'gemini', label: 'Gemini', env: 'GEMINI_API_KEY', role: '识图 · 可选',
+    baseUrl: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash',
+    docs: 'https://aistudio.google.com/apikey',
+  },
 ]
 
 /** Parse `KEY=value` lines out of one secrets file; missing files read as empty. */
@@ -147,20 +159,137 @@ function secretsOf() {
   }
 }
 
-/** Provider table plus the package version, for the panel's 密钥 tab. */
+/** Where the panel keeps its own provider overrides (base URL, model, custom rows). */
+function settingsPath() {
+  const home = process.env.DSH_HOME ?? join(homedir(), '.dsh')
+  return join(home, 'media-desk.json')
+}
+
+/** Read the panel's overrides; a missing or broken file reads as empty. */
+export function readSettings() {
+  try {
+    const parsed = JSON.parse(readFileSync(settingsPath(), 'utf8'))
+    return parsed !== null && typeof parsed === 'object' ? parsed : {}
+  } catch {
+    return {}
+  }
+}
+
+/** Merge-persist the panel's overrides. */
+function writeSettings(next) {
+  const file = settingsPath()
+  mkdirSync(dirname(file), { recursive: true })
+  writeFileSync(file, `${JSON.stringify(next, null, 2)}\n`, { mode: 0o600 })
+  try { chmodSync(file, 0o600) } catch { /* best effort on odd filesystems */ }
+}
+
+/** Write one `<ENV>=<value>` line into the media-tools secrets file, keeping the rest. */
+function writeSecret(env, value) {
+  const home = process.env.DSH_HOME ?? join(homedir(), '.dsh')
+  const file = join(home, 'secrets', 'media-tools.env')
+  mkdirSync(dirname(file), { recursive: true })
+  let lines = []
+  try { lines = readFileSync(file, 'utf8').split(/\r?\n/) } catch { lines = [] }
+  const kept = lines.filter((line) => line.trim() !== '' && !line.startsWith(`${env}=`))
+  if (value !== '') kept.push(`${env}=${value}`)
+  writeFileSync(file, `${kept.join('\n')}\n`, { mode: 0o600 })
+  try { chmodSync(file, 0o600) } catch { /* best effort */ }
+}
+
+/** Mask a key for display: keep the last four characters only. */
+function maskKey(key) {
+  if (typeof key !== 'string' || key === '') return ''
+  return key.length <= 4 ? '••••' : `••••${key.slice(-4)}`
+}
+
+/** Provider table plus the package version, for the panel's 生图 Key tab. */
 export function mediaStatus() {
   const secrets = secretsOf()
-  return {
-    ok: true,
-    version: JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version,
-    providers: PROVIDERS.map((provider) => ({
+  const settings = readSettings()
+  const overrides = settings.providers ?? {}
+  const providers = PROVIDERS.map((provider) => {
+    const override = overrides[provider.id] ?? {}
+    const key = process.env[provider.env] ?? secrets[provider.env] ?? ''
+    return {
       id: provider.id,
       label: provider.label,
       role: provider.role,
-      configured: Boolean(process.env[provider.env] ?? secrets[provider.env]),
-    })),
+      baseUrl: override.baseUrl ?? provider.baseUrl,
+      model: override.model ?? provider.model,
+      docs: provider.docs,
+      configured: key !== '',
+      keyHint: maskKey(key),
+      custom: false,
+    }
+  })
+  for (const custom of Array.isArray(settings.custom) ? settings.custom : []) {
+    providers.push({
+      id: custom.id, label: custom.label, role: '生图 · 自定义',
+      baseUrl: custom.baseUrl, model: custom.model, docs: custom.docs ?? '',
+      configured: Boolean(custom.key), keyHint: maskKey(custom.key ?? ''), custom: true,
+    })
+  }
+  return {
+    ok: true,
+    version: JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8')).version,
+    providers,
     quota: { limit: 5 },
   }
+}
+
+/** Apply one provider edit: preset keys go to the env file, custom rows to the panel file. */
+export function saveProvider(input) {
+  const id = String(input?.id ?? '')
+  if (id === '') throw new Error('缺少提供方标识。')
+  const preset = PROVIDERS.find((provider) => provider.id === id)
+  const settings = readSettings()
+  const providers = settings.providers ?? {}
+  const baseUrl = String(input?.baseUrl ?? '').trim()
+  const model = String(input?.model ?? '').trim()
+  const key = typeof input?.key === 'string' ? input.key.trim() : ''
+
+  if (preset !== undefined) {
+    providers[id] = { ...(providers[id] ?? {}) }
+    if (baseUrl !== '' && baseUrl !== preset.baseUrl) providers[id].baseUrl = baseUrl
+    else delete providers[id].baseUrl
+    if (model !== '' && model !== preset.model) providers[id].model = model
+    else delete providers[id].model
+    settings.providers = providers
+    writeSettings(settings)
+    if (key !== '') writeSecret(preset.env, key)
+    return { ok: true }
+  }
+
+  const custom = Array.isArray(settings.custom) ? settings.custom : []
+  const index = custom.findIndex((row) => row.id === id)
+  if (index === -1) throw new Error('找不到这个自定义提供方。')
+  custom[index] = {
+    ...custom[index],
+    baseUrl: baseUrl === '' ? custom[index].baseUrl : baseUrl,
+    model: model === '' ? custom[index].model : model,
+    ...(key === '' ? {} : { key }),
+  }
+  settings.custom = custom
+  writeSettings(settings)
+  return { ok: true }
+}
+
+/** Add a custom OpenAI-compatible provider row. */
+export function addCustomProvider(input) {
+  const label = String(input?.label ?? '').trim()
+  const baseUrl = String(input?.baseUrl ?? '').trim()
+  if (label === '' || baseUrl === '') throw new Error('名称和地址都要填。')
+  const settings = readSettings()
+  const custom = Array.isArray(settings.custom) ? settings.custom : []
+  const id = `custom-${Date.now()}`
+  custom.push({
+    id, label, baseUrl,
+    model: String(input?.model ?? '').trim(),
+    key: typeof input?.key === 'string' ? input.key.trim() : '',
+  })
+  settings.custom = custom
+  writeSettings(settings)
+  return { ok: true, id }
 }
 
 /** Reject cross-site callers: the panel is same-origin, a web page is not. */
@@ -187,10 +316,32 @@ export function runGenerate({ prompt, size, out, timeoutMs = 180_000 }) {
     child.on('error', (error) => { clearTimeout(timer); resolve({ ok: false, message: error.message }) })
     child.on('close', (code) => {
       clearTimeout(timer)
-      if (code === 0) resolve({ ok: true, file: out })
-      else resolve({ ok: false, message: stderr.trim().split(/\r?\n/).slice(-3).join(' ') || `退出码 ${code}` })
+      if (code === 0) { resolve({ ok: true, file: out }); return }
+      resolve({ ok: false, message: explainFailure(stderr, code) })
     })
   })
+}
+
+/** Turn a python traceback into one readable sentence for the panel. */
+export function explainFailure(stderr, code) {
+  const text = String(stderr ?? '')
+  const http = /HTTP Error (\d{3})/.exec(text)
+  if (http !== null) {
+    const status = Number(http[1])
+    const known = {
+      401: '密钥无效或已过期（401）',
+      402: '账户余额不足（402）',
+      403: '没有权限，检查密钥是否开通了该模型（403）',
+      404: '模型或地址不对（404），检查「地址」和模型名',
+      429: '请求太频繁，稍等再试（429）',
+      500: '服务端错误（500），稍后再试',
+      503: '服务暂时不可用（503）',
+    }
+    return known[status] ?? `请求失败（${status}）`
+  }
+  if (/Connection refused|timed out|URLError|getaddrinfo/i.test(text)) return '连不上这个地址，检查网络或 Base URL。'
+  const last = text.trim().split(/\r?\n/).filter((line) => line.trim() !== '').pop()
+  return last === undefined ? `生成失败（退出码 ${code}）` : last.slice(0, 200)
 }
 
 /** The `/media` prefix handler: status, generate, and the generated file itself. */
@@ -208,6 +359,22 @@ export function createMediaHandler({ workspaceRoot } = {}) {
     if (route === '/status' && req.method === 'GET') {
       res.writeHead(200, { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' })
       res.end(JSON.stringify(mediaStatus()))
+      return
+    }
+
+    if ((route === '/keys' || route === '/keys/custom') && req.method === 'POST') {
+      let raw = ''
+      for await (const chunk of req) raw += String(chunk)
+      let payload = {}
+      try { payload = JSON.parse(raw || '{}') } catch { payload = {} }
+      try {
+        const result = route === '/keys/custom' ? addCustomProvider(payload) : saveProvider(payload)
+        res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+        res.end(JSON.stringify({ ...result, status: mediaStatus() }))
+      } catch (error) {
+        res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' })
+        res.end(JSON.stringify({ ok: false, message: error.message }))
+      }
       return
     }
 
