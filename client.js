@@ -154,7 +154,7 @@ window.__ModuleLoader__.load({
       const [prompt, setPrompt] = React.useState('')
       const [busy, setBusy] = React.useState(false)
       const [error, setError] = React.useState(null)
-      const [current, setCurrent] = React.useState(null)
+      const [current, setCurrent] = React.useState(() => loadWorks()[0] ?? null)
       const [works, setWorks] = React.useState(loadWorks)
 
       const refresh = React.useCallback(() => {
