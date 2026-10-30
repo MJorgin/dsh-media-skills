@@ -5,7 +5,7 @@ description: "图片生成。用户要求生成图片、插画、头像、封面
 
 # Media Tools（图片生成）
 
-通过用户自行配置的服务商生成图片素材。优先使用 SenseNova U1 Fast；未配置 SenseNova key 时，使用 SiliconFlow Kolors。
+通过用户自行配置的服务商生成图片素材。优先使用 SenseNova U1 Fast；未配置 SenseNova key 时，使用 SiliconFlow Kolors。面板里配置的自定义提供方（任意 OpenAI 兼容 `/images/generations`）也能用。
 
 ## 用法
 
@@ -26,6 +26,22 @@ python3 scripts/generate.py "简洁科技感产品发布会背景，深蓝渐变
 - 也可传精确尺寸；脚本会映射到最接近宽高比的 SenseNova 支持尺寸。
 - SiliconFlow 会把第三参数作为 `image_size` 传给 Kolors。
 - 缺省尺寸为 `1024x1024`。
+
+## 选择服务商
+
+脚本默认按 key 是否存在自动挑。要指定服务商，用环境变量：
+
+```bash
+MEDIA_PROVIDER=siliconflow python3 scripts/generate.py "..." out.png 16:9   # 指定内置服务商
+MEDIA_MODEL=other-model    python3 scripts/generate.py "..." out.png 16:9   # 换模型 ID
+
+# 任意 OpenAI 兼容端点（面板里的「自定义提供方」走的就是这条）
+MEDIA_API_URL=https://api.example.com/v1/images/generations \
+MEDIA_API_KEY=sk-... MEDIA_MODEL=my-model \
+python3 scripts/generate.py "..." out.png 1024x1024
+```
+
+自定义端点按 OpenAI 兼容格式发送 `{"model","prompt","size","n"}`，接受 `data[0].url`、`data[0].b64_json`、`images[0].url` 三种返回。
 
 ## 密钥来源
 

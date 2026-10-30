@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
-"""Generate images via SenseNova U1 Fast or SiliconFlow Kolors.
+"""Generate images via SenseNova U1 Fast, SiliconFlow Kolors, or any custom endpoint.
 
 Provider selection:
-1. If SENSENOVA_API_KEY is set, use SenseNova U1 Fast (https://token.sensenova.ai).
-2. Otherwise, if SILICONFLOW_API_KEY is set, use SiliconFlow Kolors.
+1. MEDIA_API_URL + MEDIA_API_KEY set  -> that OpenAI-compatible /images/generations endpoint.
+2. MEDIA_PROVIDER=sensenova|siliconflow -> that built-in, its own key.
+3. Neither set -> SENSENOVA_API_KEY wins, else SILICONFLOW_API_KEY.
+MEDIA_MODEL overrides the model id in every case.
 """
 import json, os, sys, urllib.request
 from pathlib import Path
@@ -69,8 +71,8 @@ def sensenova_size(size):
     except (ValueError, ZeroDivisionError):
         return "2048x2048"
 
-def generate_sensenova(prompt, out, size):
-    body = {"model": SENSENOVA_MODEL, "prompt": prompt, "size": sensenova_size(size), "n": 1}
+def generate_sensenova(prompt, out, size, model=None):
+    body = {"model": model or SENSENOVA_MODEL, "prompt": prompt, "size": sensenova_size(size), "n": 1}
     req = urllib.request.Request(SENSENOVA_URL,
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + load_key("SENSENOVA_API_KEY")}, method="POST")
@@ -80,8 +82,8 @@ def generate_sensenova(prompt, out, size):
     urllib.request.urlretrieve(url, out)
     print("done:", out)
 
-def generate_siliconflow(prompt, out, size):
-    body = {"model": SILICONFLOW_MODEL, "prompt": prompt, "image_size": size, "batch_size": 1}
+def generate_siliconflow(prompt, out, size, model=None):
+    body = {"model": model or SILICONFLOW_MODEL, "prompt": prompt, "image_size": size, "batch_size": 1}
     req = urllib.request.Request(SILICONFLOW_URL,
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + load_key("SILICONFLOW_API_KEY")}, method="POST")
@@ -91,15 +93,71 @@ def generate_siliconflow(prompt, out, size):
     urllib.request.urlretrieve(url, out)
     print("done:", out)
 
+def ratio_to_size(size):
+    """Turn `16:9` shorthand into a WxH string; pass WxH through untouched."""
+    size = (size or "1024x1024").strip().lower()
+    if ":" not in size:
+        return size
+    try:
+        wr, hr = map(int, size.split(":"))
+    except ValueError:
+        return "1024x1024"
+    long_side = 1024
+    if wr >= hr:
+        return f"{long_side}x{max(64, round(long_side * hr / wr))}"
+    return f"{max(64, round(long_side * wr / hr))}x{long_side}"
+
+def pick_image_url(payload):
+    """Accept the shapes OpenAI-compatible image endpoints return."""
+    for container in ("data", "images", "output"):
+        items = payload.get(container) if isinstance(payload, dict) else None
+        if isinstance(items, list) and items and isinstance(items[0], dict):
+            first = items[0]
+            if first.get("url"):
+                return first["url"]
+            if first.get("b64_json"):
+                return "data:image/png;base64," + first["b64_json"]
+    raise SystemExit("接口没有返回图片地址：" + json.dumps(payload, ensure_ascii=False)[:300])
+
+def generate_custom(prompt, out, size):
+    """Any OpenAI-compatible /images/generations endpoint the panel configured."""
+    url = os.environ.get("MEDIA_API_URL", "").strip()
+    key = os.environ.get("MEDIA_API_KEY", "").strip()
+    model = os.environ.get("MEDIA_MODEL", "").strip()
+    if not url or not key:
+        sys.exit("自定义提供方缺少地址或 Key，请在面板的「生图 Key」里补上。")
+    body = {"model": model, "prompt": prompt, "size": ratio_to_size(size), "n": 1}
+    req = urllib.request.Request(url,
+        data=json.dumps(body).encode(),
+        headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
+    with urllib.request.urlopen(req, timeout=300) as r:
+        data = json.load(r)
+    target = pick_image_url(data)
+    if target.startswith("data:"):
+        import base64
+        Path(out).write_bytes(base64.b64decode(target.split(",", 1)[1]))
+    else:
+        urllib.request.urlretrieve(target, out)
+    print("done:", out)
+
 def main():
     if len(sys.argv) < 3:
         sys.exit("用法: generate.py <prompt> <out.png> [size=1024x1024]")
     prompt, out = sys.argv[1], sys.argv[2]
     size = sys.argv[3] if len(sys.argv) > 3 else "1024x1024"
-    if get_key("SENSENOVA_API_KEY"):
-        generate_sensenova(prompt, out, size)
+    provider = os.environ.get("MEDIA_PROVIDER", "").strip()
+    model = os.environ.get("MEDIA_MODEL", "").strip() or None
+
+    if os.environ.get("MEDIA_API_URL"):
+        generate_custom(prompt, out, size)
+    elif provider == "siliconflow":
+        generate_siliconflow(prompt, out, size, model)
+    elif provider == "sensenova":
+        generate_sensenova(prompt, out, size, model)
+    elif get_key("SENSENOVA_API_KEY"):
+        generate_sensenova(prompt, out, size, model)
     elif get_key("SILICONFLOW_API_KEY"):
-        generate_siliconflow(prompt, out, size)
+        generate_siliconflow(prompt, out, size, model)
     else:
         sys.exit("缺少图片生成 Key：请配置 SENSENOVA_API_KEY 或 SILICONFLOW_API_KEY（环境变量或 ~/.dsh/secrets/media-tools.env）")
 

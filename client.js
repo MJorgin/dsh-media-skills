@@ -65,6 +65,43 @@ window.__ModuleLoader__.load({
 .dshm-row b { font-weight: 500; color: var(--dsw-alias-label-secondary, #61666b); }
 .dshm-dot { width: 3px; height: 3px; border-radius: 50%; background: var(--dsw-alias-label-caption, #adb2b8); }
 
+.dshm-pickers { display: flex; align-items: center; gap: 8px; margin-top: 12px; flex-wrap: wrap; }
+.dshm-pickwrap { position: relative; display: inline-block; }
+.dshm-pick {
+  height: 28px; padding: 0 11px; border-radius: 14px; cursor: pointer;
+  border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12));
+  background: var(--dsw-alias-bg-base, #fff); color: var(--dsw-alias-label-secondary, #61666b);
+  font: inherit; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px;
+}
+.dshm-pick:hover { border-color: var(--dsw-alias-label-caption, #adb2b8); }
+.dshm-pick .car { width: 6px; height: 6px; border-right: 1.3px solid currentColor; border-bottom: 1.3px solid currentColor; transform: rotate(45deg) translate(-1px, -1px); opacity: .7; }
+.dshm-menu {
+  position: absolute; left: 0; top: 34px; z-index: 30; min-width: 252px; display: grid; padding: 4px;
+  background: var(--dsw-alias-bg-elevated, #fff); border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12));
+  border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,.14);
+}
+.dshm-menu button {
+  border: 0; background: none; font: inherit; font-size: 13px; color: inherit; cursor: pointer;
+  padding: 7px 10px; border-radius: 7px; text-align: left; display: flex; justify-content: space-between; gap: 14px;
+  white-space: nowrap;
+}
+.dshm-menu button:hover { background: var(--dsw-alias-bg-layer-2, #f2f3f5); }
+.dshm-menu button[data-on="true"] { font-weight: 500; }
+.dshm-menu button:disabled { color: var(--dsw-alias-label-caption, #adb2b8); cursor: not-allowed; }
+.dshm-menu button:disabled:hover { background: none; }
+.dshm-menu .off { font-size: 11.5px; color: var(--dsw-alias-label-caption, #adb2b8); }
+.dshm-size { font-size: 12px; color: var(--dsw-alias-label-caption, #adb2b8); }
+
+.dshm-shield { display: flex; gap: 10px; align-items: flex-start; max-width: 680px; margin: 20px 0 0;
+  font-size: 12.5px; line-height: 1.65; color: var(--dsw-alias-label-tertiary, #81858c); }
+.dshm-shield svg { flex: none; margin-top: 2px; color: var(--dsw-alias-label-tertiary, #81858c); }
+.dshm-keywrap { position: relative; }
+.dshm-keywrap .dshm-input { padding-right: 38px; }
+.dshm-eye { position: absolute; right: 3px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center; border: 0; border-radius: 6px; padding: 0;
+  background: none; color: var(--dsw-alias-label-tertiary, #81858c); cursor: pointer; }
+.dshm-eye:hover { color: var(--dsw-alias-label-primary, #0f1115); background: var(--dsw-alias-bg-layer-2, #f2f3f5); }
+
 .dshm-cta {
   margin-top: 16px; height: 36px; border-radius: 18px; border: 0; cursor: pointer; width: 100%;
   background: var(--dsw-alias-button-primary-fill, #0f1115); color: var(--dsw-alias-label-primary-foreground, #fff);
@@ -176,13 +213,54 @@ window.__ModuleLoader__.load({
       return clean.length > 18 ? `${clean.slice(0, 18)}…` : clean
     }
 
+    const RATIOS = [['1:1', '1024x1024'], ['16:9', '1024x576'], ['9:16', '576x1024'], ['4:3', '1024x768'], ['3:4', '768x1024']]
+
+    function ShieldIcon() {
+      return h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
+        h('path', { d: 'M12 3l7 3v5.6c0 4.4-3 8.1-7 9.4-4-1.3-7-5-7-9.4V6l7-3z' }),
+        h('path', { d: 'M9.2 12.3l2 2 3.6-3.9' }))
+    }
+
+    function EyeIcon({ open }) {
+      const box = { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' }
+      return open
+        ? h('svg', box, h('path', { d: 'M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z' }), h('circle', { cx: 12, cy: 12, r: 2.6 }))
+        : h('svg', box, h('path', { d: 'M3 3l18 18' }), h('path', { d: 'M10.6 6.1A11 11 0 0 1 12 6c6.4 0 10 6 10 6a17.5 17.5 0 0 1-3.2 4' }), h('path', { d: 'M6.4 7.9A17.3 17.3 0 0 0 2 12s3.6 6 10 6a10.9 10.9 0 0 0 4.3-.9' }))
+    }
+
+    /** A small pill that opens a menu — the panel's only interactive control. */
+    function Picker({ value, options, onPick }) {
+      const [open, setOpen] = React.useState(false)
+      React.useEffect(() => {
+        if (!open) return undefined
+        const close = () => setOpen(false)
+        document.addEventListener('mousedown', close)
+        return () => document.removeEventListener('mousedown', close)
+      }, [open])
+      return h('div', { className: 'dshm-pickwrap', onMouseDown: (e) => e.stopPropagation() },
+        h('button', { className: 'dshm-pick', type: 'button', onClick: () => setOpen((v) => !v) },
+          h('span', null, value), h('i', { className: 'car' })),
+        open
+          ? h('div', { className: 'dshm-menu' }, options.map((option) =>
+              h('button', {
+                key: option.id, type: 'button', disabled: option.disabled === true,
+                'data-on': String(option.current === true),
+                onClick: () => { setOpen(false); onPick(option) },
+              },
+                h('span', null, option.label),
+                option.hint ? h('span', { className: 'off' }, option.hint) : null)))
+          : null)
+    }
+
     function KeysTab({ status, onSaved }) {
       const providers = status?.providers ?? []
       const [drafts, setDrafts] = React.useState({})
       const [saving, setSaving] = React.useState(null)
       const [error, setError] = React.useState(null)
       const [adding, setAdding] = React.useState(false)
+      const [reveal, setReveal] = React.useState({})
       const [form, setForm] = React.useState({ label: '', baseUrl: '', model: '', key: '' })
+      const toggleReveal = (id) => setReveal((all) => ({ ...all, [id]: all[id] !== true }))
 
       const draftOf = (provider) => ({
         baseUrl: provider.baseUrl ?? '',
@@ -213,6 +291,8 @@ window.__ModuleLoader__.load({
       }
 
       return h('div', null,
+        h('div', { className: 'dshm-shield' }, h(ShieldIcon),
+          h('span', null, 'Key 只写进本机 ~/.dsh/secrets/media-tools.env（权限 600），不会上传，也不会用于生成以外的用途。')),
         h('div', { className: 'dshm-keys' },
           providers.map((provider) => {
             const draft = draftOf(provider)
@@ -226,7 +306,10 @@ window.__ModuleLoader__.load({
                 h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
                   h('input', { className: 'dshm-input', value: draft.model, onChange: (e) => edit(provider.id, { model: e.target.value }) }))),
               h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? 'API Key（留空表示不改）' : 'API Key'),
-                h('input', { className: 'dshm-input', type: 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) })),
+                h('div', { className: 'dshm-keywrap' },
+                  h('input', { className: 'dshm-input', type: reveal[provider.id] === true ? 'text' : 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) }),
+                  h('button', { className: 'dshm-eye', type: 'button', title: reveal[provider.id] === true ? '隐藏' : '显示', onClick: () => toggleReveal(provider.id) },
+                    h(EyeIcon, { open: reveal[provider.id] === true })))),
               h('div', { className: 'dshm-kfoot' },
                 provider.docs
                   ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, '获取 Key ↗')
@@ -245,14 +328,16 @@ window.__ModuleLoader__.load({
                 h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
                   h('input', { className: 'dshm-input', placeholder: 'https://api.example.com/v1', value: form.baseUrl, onChange: (e) => setForm({ ...form, baseUrl: e.target.value }) })),
                 h('div', null, h('label', { className: 'dshm-lab' }, 'API Key'),
-                  h('input', { className: 'dshm-input', type: 'password', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) })),
+                  h('div', { className: 'dshm-keywrap' },
+                    h('input', { className: 'dshm-input', type: reveal.custom === true ? 'text' : 'password', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) }),
+                    h('button', { className: 'dshm-eye', type: 'button', title: reveal.custom === true ? '隐藏' : '显示', onClick: () => toggleReveal('custom') },
+                      h(EyeIcon, { open: reveal.custom === true })))),
                 h('div', { className: 'dshm-kfoot' },
                   h('a', { href: '#', onClick: (e) => { e.preventDefault(); setAdding(false) } }, '取消'),
                   h('button', { className: 'dshm-save', disabled: saving === 'custom', onClick: addCustom },
                     saving === 'custom' ? '保存中…' : '添加')))
             : h('button', { className: 'dshm-addrow', onClick: () => setAdding(true) }, '＋ 添加自定义提供方')),
-        error !== null ? h('div', { className: 'dshm-err' }, error) : null,
-        h('div', { className: 'dshm-hint' }, 'Key 写进本机 ~/.dsh/secrets/media-tools.env（权限 600），技能和面板共用同一份。'))
+        error !== null ? h('div', { className: 'dshm-err' }, error) : null)
     }
 
     function MediaPage() {
@@ -264,6 +349,8 @@ window.__ModuleLoader__.load({
       const [error, setError] = React.useState(null)
       const [works, setWorks] = React.useState(loadWorks)
       const [current, setCurrent] = React.useState(() => loadWorks()[0] ?? null)
+      const [providerId, setProviderId] = React.useState('')
+      const [ratio, setRatio] = React.useState('16:9')
 
       const refresh = React.useCallback(() => {
         setStatusError(null)
@@ -277,17 +364,21 @@ window.__ModuleLoader__.load({
       const usedToday = works.filter((work) => new Date(work.at).toDateString() === today).length
       const left = Math.max(0, limit - usedToday)
       const empty = prompt.trim() === ''
-      const model = status?.providers?.find((p) => p.configured)?.label ?? '未配置密钥'
+      const imageProviders = (status?.providers ?? []).filter((provider) => String(provider.role ?? '').startsWith('生图'))
+      const active = imageProviders.find((provider) => provider.id === providerId && provider.configured)
+        ?? imageProviders.find((provider) => provider.configured)
+        ?? null
+      const size = (RATIOS.find(([id]) => id === ratio) ?? RATIOS[1])[1]
+      const sizeLabel = size.replace('x', '×')
 
       const generate = React.useCallback(async () => {
         if (busy || empty || left === 0) return
         setBusy(true); setError(null)
         try {
-          const size = '16:9'
-          const result = await api('/generate', { method: 'POST', body: JSON.stringify({ prompt, size }) })
+          const result = await api('/generate', { method: 'POST', body: JSON.stringify({ prompt, size, provider: active?.id ?? '' }) })
           const work = {
             id: String(Date.now()), title: titleOf(prompt), prompt, size,
-            model, at: Date.now(),
+            model: result.model ?? active?.label ?? '未知模型', at: Date.now(),
             src: `/media/file?p=${encodeURIComponent(result.file)}`,
           }
           const next = [work, ...works]
@@ -297,7 +388,7 @@ window.__ModuleLoader__.load({
         } finally {
           setBusy(false)
         }
-      }, [busy, empty, left, prompt, works, model])
+      }, [busy, empty, left, prompt, works, active, size])
 
       const head = h('div', { className: 'dshm-head' },
         h('div', null,
@@ -334,9 +425,26 @@ window.__ModuleLoader__.load({
               onChange: (e) => setPrompt(e.target.value),
               onKeyDown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate() },
             }),
-            h('div', { className: 'dshm-row' },
-              h('b', null, model), h('span', { className: 'dshm-dot' }), h('span', null, '16:9'),
-              h('span', { className: 'dshm-dot' }), h('span', null, '1024×576')),
+            h('div', { className: 'dshm-pickers' },
+              h(Picker, {
+                value: active !== null ? active.label : '未配置模型',
+                options: imageProviders.length === 0
+                  ? [{ id: 'none', label: '先去「生图 Key」配一个', disabled: true }]
+                  : imageProviders.map((provider) => ({
+                      id: provider.id,
+                      label: provider.label,
+                      current: active !== null && active.id === provider.id,
+                      hint: provider.configured ? provider.model : '未配置',
+                      disabled: !provider.configured,
+                    })),
+                onPick: (option) => setProviderId(option.id),
+              }),
+              h(Picker, {
+                value: ratio,
+                options: RATIOS.map(([id, px]) => ({ id, label: id, current: id === ratio, hint: px.replace('x', '×') })),
+                onPick: (option) => setRatio(option.id),
+              }),
+              h('span', { className: 'dshm-size' }, sizeLabel)),
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },
               busy ? '生成中…' : left === 0 ? '本次配额已用完' : '生成'),
             h('div', { className: 'dshm-hint' }, '⌘⏎ 直接生成。结果只写进本机工作区，不会上传。')),

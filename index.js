@@ -121,7 +121,7 @@ const MEDIA_PREFIX = '/media'
 const PROVIDERS = [
   {
     id: 'sensenova', label: 'SenseNova U1 Fast', env: 'SENSENOVA_API_KEY', role: '生图 · 主用',
-    baseUrl: 'https://api.sensenova.cn/v1', model: 'sense-nova-u1-fast',
+    baseUrl: 'https://token.sensenova.ai/v1', model: 'sensenova-u1-fast',
     docs: 'https://platform.sensenova.cn',
   },
   {
@@ -305,12 +305,45 @@ export function originAllowed(req) {
   }
 }
 
+/** Resolve one provider id into the env generate.py needs; throws a readable reason. */
+export function resolveProvider(id) {
+  const settings = readSettings()
+  const status = mediaStatus()
+  const candidates = status.providers.filter((provider) => provider.role.startsWith('生图'))
+  const wanted = candidates.find((provider) => provider.id === id)
+  const target = wanted ?? candidates.find((provider) => provider.configured)
+  if (target === undefined) throw new Error('还没有可用的生图 Key，先去「生图 Key」配置一个。')
+  if (!target.configured) throw new Error(`${target.label} 还没配置 Key。`)
+  if (target.custom) {
+    const row = (Array.isArray(settings.custom) ? settings.custom : []).find((item) => item.id === target.id)
+    if (row === undefined || row.key === undefined || row.key === '') throw new Error(`${target.label} 还没配置 Key。`)
+    return {
+      label: target.label,
+      model: target.model,
+      env: {
+        MEDIA_API_URL: joinEndpoint(row.baseUrl),
+        MEDIA_API_KEY: row.key,
+        MEDIA_MODEL: target.model,
+      },
+    }
+  }
+  return { label: target.label, model: target.model, env: { MEDIA_PROVIDER: target.id, MEDIA_MODEL: target.model } }
+}
+
+/** Append the images path unless the user already pasted a full endpoint. */
+export function joinEndpoint(baseUrl) {
+  const trimmed = String(baseUrl ?? '').trim().replace(/\/+$/, '')
+  if (trimmed === '') return ''
+  if (/\/images\/generations$/.test(trimmed)) return trimmed
+  return `${trimmed}/images/generations`
+}
+
 /** Run the same `generate.py` the media-tools skill runs — one implementation. */
-export function runGenerate({ prompt, size, out, timeoutMs = 180_000 }) {
+export function runGenerate({ prompt, size, out, env = {}, timeoutMs = 180_000 }) {
   const script = fileURLToPath(new URL('./skills/media-tools/scripts/generate.py', import.meta.url))
   return new Promise((resolve) => {
     let stderr = ''
-    const child = spawn('python3', [script, prompt, out, size], { cwd: dirname(script) })
+    const child = spawn('python3', [script, prompt, out, size], { cwd: dirname(script), env: { ...process.env, ...env } })
     const timer = setTimeout(() => child.kill('SIGTERM'), timeoutMs)
     child.stderr.on('data', (chunk) => { stderr += String(chunk) })
     child.on('error', (error) => { clearTimeout(timer); resolve({ ok: false, message: error.message }) })
@@ -390,10 +423,19 @@ export function createMediaHandler({ workspaceRoot } = {}) {
         return
       }
       const size = String(parsed.size ?? '1024x1024')
+      let provider
+      try {
+        provider = resolveProvider(String(parsed.provider ?? ''))
+      } catch (error) {
+        res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' })
+        res.end(JSON.stringify({ ok: false, message: error.message }))
+        return
+      }
       const dir = join(root(), 'uploads', 'media')
       mkdirSync(dir, { recursive: true })
       const out = join(dir, `${Date.now()}.png`)
-      const result = await runGenerate({ prompt, size, out })
+      const result = await runGenerate({ prompt, size, out, env: provider.env })
+      if (result.ok) result.model = provider.label
       res.writeHead(result.ok ? 200 : 502, { 'content-type': 'application/json; charset=utf-8' })
       res.end(JSON.stringify(result))
       return
