@@ -43,6 +43,8 @@ python3 scripts/generate.py "..." out.png 1024x1024
 
 自定义端点按 OpenAI 兼容格式发送 `{"model","prompt","size","n"}`，接受 `data[0].url`、`data[0].b64_json`、`images[0].url` 三种返回。
 
+Cloudflare Workers AI 的地址（`.../ai/run/@cf/...`）自动换成它自己的请求体 `{"prompt","steps"}`，并解析 `result.image` 的 base64 返回。
+
 ## 密钥来源
 
 按顺序读取：

@@ -109,6 +109,10 @@ def ratio_to_size(size):
 
 def pick_image_url(payload):
     """Accept the shapes OpenAI-compatible image endpoints return."""
+    # Cloudflare Workers AI answers {"result": {"image": "<base64>"}}.
+    result = payload.get("result") if isinstance(payload, dict) else None
+    if isinstance(result, dict) and isinstance(result.get("image"), str):
+        return "data:image/jpeg;base64," + result["image"]
     for container in ("data", "images", "output"):
         items = payload.get(container) if isinstance(payload, dict) else None
         if isinstance(items, list) and items and isinstance(items[0], dict):
@@ -126,7 +130,11 @@ def generate_custom(prompt, out, size):
     model = os.environ.get("MEDIA_MODEL", "").strip()
     if not url or not key:
         sys.exit("自定义提供方缺少地址或 Key，请在面板的「生图 Key」里补上。")
-    body = {"model": model, "prompt": prompt, "size": ratio_to_size(size), "n": 1}
+    if "api.cloudflare.com" in url or "/ai/run/" in url:
+        # Workers AI takes its own shape: no model field (it is in the URL), no size.
+        body = {"prompt": prompt, "steps": 4}
+    else:
+        body = {"model": model, "prompt": prompt, "size": ratio_to_size(size), "n": 1}
     req = urllib.request.Request(url,
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + key}, method="POST")
