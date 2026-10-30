@@ -1,11 +1,12 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.4.2",
+  "version": "0.5.0",
   "description": "Free image reading and generation skills for DeepSeek Harness v0.1.6+ (runtime-verified on desktop 0.2.0-rc.2; source-checked against dsh-v0.2.1-alpha.2): visual QA, illustration generation, provider fallback, and no bundled keys.",
   "type": "module",
   "main": "index.js",
   "exports": {
-    ".": "./index.js"
+    ".": "./index.js",
+    "./client": "./client.js"
   },
   "scripts": {
     "check:node": "node scripts/check-dsh-manifest.mjs && node scripts/check-dsh-bundle.mjs && node scripts/check-docs-links.mjs && node --check index.js",
@@ -14,6 +15,7 @@
   },
   "files": [
     "index.js",
+    "client.js",
     "cordis.patch.yml",
     "skills",
     "scripts",
@@ -49,6 +51,9 @@
   "dsh": {
     "bundle": {
       "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web"
     }
   }
 }
