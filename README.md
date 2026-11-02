@@ -102,7 +102,7 @@ Same thing from a terminal, if you prefer:
 dsh plugin --profile desktop add dsh-media-skills
 ```
 
-`latest` is the current release; pin a version (`dsh-media-skills@0.6.3`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
+`latest` is the current release; pin a version (`dsh-media-skills@0.6.4`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
 
 **2. Restart the app** (⌘Q, then open it again). Plugins load at boot — a newly installed page will not appear until you restart. The sidebar then shows a new row: **创作**.
 
@@ -163,7 +163,11 @@ Because rows are models, not providers: if only one provider has a key, only its
 
 Six AI-generated images with their prompts, plus a vision test card for checking reading accuracy:
 
-<img src="examples/generated/fox-forest.jpg" width="30%"> <img src="examples/generated/cat-astronaut.jpg" width="30%"> <img src="examples/vision-test-card.png" width="30%">
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/fox-forest.jpg" width="30%"> <img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/cat-astronaut.jpg" width="30%">
+
+The vision test card — title, two buttons, four bar values and a footer note:
+
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/vision-test-card.png" width="58%">
 
 → [examples/README.md](examples/README.md)
 

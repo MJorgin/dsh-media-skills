@@ -176,7 +176,11 @@ GEMINI_API_KEY=...   # 可选
 
 开箱即用的示例素材——6 张 AI 生成图（附提示词）+ 一张专门构造的读图测试卡（标题、按钮、柱状图数值，用于检验读图准确度）：
 
-<img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/fox-forest.jpg" width="30%"> <img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/cat-astronaut.jpg" width="30%">
+
+读图测试卡——标题、两个按钮、四个柱状图数值和底部注文：
+
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/vision-test-card.png" width="58%">
 
 → [examples/README.md](../../examples/README.md)
 

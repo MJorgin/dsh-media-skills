@@ -160,7 +160,11 @@ GEMINI_API_KEY=...   # 選用
 
 可立即試用的範例素材——6 張 AI 生成圖片及其提示詞，加上一張專為檢查讀取準確度設計的視覺測試卡（標題、按鈕、長條圖數值）：
 
-<img src="../../examples/generated/fox-forest.jpg" width="30%"> <img src="../../examples/generated/cat-astronaut.jpg" width="30%"> <img src="../../examples/vision-test-card.png" width="30%">
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/fox-forest.jpg" width="30%"> <img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/generated/cat-astronaut.jpg" width="30%">
+
+讀圖測試卡——標題、兩個按鈕、四個柱狀圖數值與底部註文：
+
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/examples/vision-test-card.png" width="58%">
 
 → [../../examples/README.md](../../examples/README.md)
 
