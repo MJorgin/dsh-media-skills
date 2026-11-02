@@ -1,6 +1,6 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "description": "Free image reading and generation for DeepSeek Harness: vision QA, illustration generation, provider fallback, no bundled keys, and a 创作 page in the sidebar (desktop 0.2.1+) with model, ratio and 1K–4K pickers.",
   "type": "module",
   "main": "index.js",
@@ -9,7 +9,7 @@
     "./client": "./client.js"
   },
   "scripts": {
-    "check:node": "node scripts/check-dsh-manifest.mjs && node scripts/check-dsh-bundle.mjs && node scripts/check-docs-links.mjs && node --check index.js && node --test scripts/check-panel.mjs",
+    "check:node": "node scripts/check-dsh-manifest.mjs && node scripts/check-dsh-bundle.mjs && node scripts/check-docs-links.mjs && node --check index.js && node --check client.js && node --test scripts/check-panel.mjs scripts/check-routes.mjs",
     "check:python": "node scripts/check-python.mjs",
     "test": "npm run check:node && npm run check:python"
   },

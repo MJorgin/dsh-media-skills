@@ -130,9 +130,6 @@ window.__ModuleLoader__.load({
 .dshm-shot { border-radius: 12px; overflow: hidden; background: var(--dsw-alias-bg-layer-2, #f2f3f5); aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
 .dshm-shot a { display: block; width: 100%; height: 100%; }
 .dshm-shot img { width: 100%; height: 100%; object-fit: contain; display: block; }
-.dshm-caption { margin-top: 12px; }
-.dshm-caption h4 { margin: 0 0 4px; font-size: 14px; font-weight: 500; }
-.dshm-caption p { margin: 0; font-size: 12.5px; line-height: 1.65; color: var(--dsw-alias-label-tertiary, #81858c); }
 
 .dshm-note {
   border: 1px dashed var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 12px;
@@ -141,17 +138,42 @@ window.__ModuleLoader__.load({
 }
 .dshm-note b { display: block; font-size: 14px; font-weight: 500; color: var(--dsw-alias-label-secondary, #61666b); margin-bottom: 6px; }
 
-.dshm-strip { display: flex; gap: 10px; margin-top: 18px; }
-.dshm-thumb { flex: 1; height: 54px; border-radius: 8px; overflow: hidden; background: var(--dsw-alias-bg-layer-2, #f2f3f5); opacity: .5; border: 0; padding: 0; cursor: pointer; }
-.dshm-thumb[data-on="true"] { opacity: 1; box-shadow: 0 0 0 2px var(--dsw-alias-label-primary, #0f1115); }
-.dshm-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dshm-skel { background: linear-gradient(100deg, rgba(0,0,0,.035) 30%, rgba(0,0,0,.075) 50%, rgba(0,0,0,.035) 70%); background-size: 300% 100%; animation: dshm-shimmer 1.5s linear infinite; }
+@keyframes dshm-shimmer { from { background-position: 100% 0; } to { background-position: -100% 0; } }
+@media (prefers-reduced-motion: reduce) { .dshm-skel { animation: none; } }
 
-.dshm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-top: 24px; }
+/* The label block under a picture: frame number, spec line, actions. */
+.dshm-shotbtn { display: block; width: 100%; height: 100%; padding: 0; border: 0; background: none; cursor: zoom-in; }
+.dshm-zoom { position: fixed; inset: 0; z-index: 60; background: rgba(8,9,11,.88); display: flex; align-items: center; justify-content: center; padding: 44px 44px 70px; cursor: zoom-out; }
+.dshm-zoom img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 6px; box-shadow: 0 24px 64px rgba(0,0,0,.45); }
+.dshm-zoombar { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); display: flex; align-items: center; gap: 12px; max-width: calc(100% - 88px); color: #f2f3f5; font-size: 12.5px; cursor: default; }
+.dshm-zoombar span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .82; }
+.dshm-zoombar a, .dshm-zoombar button { flex: none; color: inherit; background: none; border: 1px solid rgba(255,255,255,.3); border-radius: 14px; height: 28px; padding: 0 12px; font: inherit; font-size: 12.5px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; }
+.dshm-zoombar a:hover, .dshm-zoombar button:hover { border-color: rgba(255,255,255,.62); }
+.dshm-label { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.dshm-label .top { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.dshm-no { font-size: 11.5px; letter-spacing: .06em; color: var(--dsw-alias-label-caption, #adb2b8); font-variant-numeric: tabular-nums; }
+.dshm-spec { font-size: 12.5px; color: var(--dsw-alias-label-tertiary, #81858c); font-variant-numeric: tabular-nums; }
+.dshm-acts { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 2px; }
+.dshm-act { height: 30px; padding: 0 13px; border-radius: 15px; border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); background: none; cursor: pointer; font: inherit; font-size: 12.5px; color: var(--dsw-alias-label-secondary, #61666b); text-decoration: none; display: inline-flex; align-items: center; }
+.dshm-act:hover { border-color: var(--dsw-alias-label-caption, #adb2b8); color: var(--dsw-alias-label-primary, #0f1115); }
+.dshm-act[data-danger="true"]:hover { color: #c0392b; border-color: rgba(192,57,43,.42); }
+
+/* Works: contact sheet on the left, the proof card of the selected frame on the right. */
+.dshm-works { display: grid; grid-template-columns: 1fr minmax(280px, 360px); gap: 36px; margin-top: 24px; align-items: start; }
+@media (max-width: 900px) { .dshm-works { grid-template-columns: 1fr; gap: 22px; } }
+.dshm-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 18px 16px; }
 .dshm-work { text-align: left; background: none; border: 0; padding: 0; cursor: pointer; font: inherit; color: inherit; }
-.dshm-work .im { border-radius: 10px; overflow: hidden; background: var(--dsw-alias-bg-layer-2, #f2f3f5); aspect-ratio: 16 / 10; }
+.dshm-work .im { border-radius: 10px; overflow: hidden; background: var(--dsw-alias-bg-layer-2, #f2f3f5); aspect-ratio: 4 / 3; transition: box-shadow .12s ease; }
+/* The ring sits outside the picture: an inset one disappears into dark images. */
+.dshm-work:hover .im { box-shadow: 0 0 0 2px var(--dsw-alias-border-l3, rgba(0,0,0,.26)); }
+.dshm-work[data-on="true"] .im, .dshm-work[data-on="true"]:hover .im { box-shadow: 0 0 0 2px var(--dsw-alias-label-primary, #0f1115); }
 .dshm-work img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.dshm-work .t { margin-top: 8px; font-size: 13px; color: var(--dsw-alias-label-secondary, #61666b); }
-.dshm-work .m { margin-top: 2px; font-size: 12px; color: var(--dsw-alias-label-caption, #adb2b8); }
+/* One line per title keeps every row of the sheet on the same baseline. */
+.dshm-work .t { margin-top: 8px; font-size: 12.5px; color: var(--dsw-alias-label-secondary, #61666b); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.dshm-work .m { margin-top: 3px; font-size: 11.5px; color: var(--dsw-alias-label-caption, #adb2b8); font-variant-numeric: tabular-nums; }
+.dshm-detail { position: sticky; top: 8px; border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 14px; padding: 14px; }
+.dshm-label .prompt { margin: 2px 0 0; font-size: 13px; line-height: 1.7; color: var(--dsw-alias-label-secondary, #61666b); white-space: pre-wrap; word-break: break-word; max-height: 150px; overflow: auto; }
 
 .dshm-keys { margin-top: 24px; display: grid; gap: 14px; max-width: 680px; }
 .dshm-krow { border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); border-radius: 12px; padding: 16px; display: grid; gap: 10px; }
@@ -345,6 +367,91 @@ window.__ModuleLoader__.load({
           : null)
     }
 
+    /** Contact-sheet frame number: the oldest work is No. 001. */
+    function frameNo(index, total) {
+      const n = index >= 0 ? total - index : total
+      return String(Math.max(1, n)).padStart(3, '0')
+    }
+
+    /** Clipboard, with a fallback for pages that are not a secure context. */
+    function copyText(text) {
+      if (navigator.clipboard !== undefined && typeof navigator.clipboard.writeText === 'function') {
+        return navigator.clipboard.writeText(text).then(() => true).catch(() => fallbackCopy(text))
+      }
+      return Promise.resolve(fallbackCopy(text))
+    }
+
+    function fallbackCopy(text) {
+      try {
+        const area = document.createElement('textarea')
+        area.value = text
+        area.style.position = 'fixed'
+        area.style.top = '-1000px'
+        document.body.appendChild(area)
+        area.select()
+        const ok = document.execCommand('copy')
+        area.remove()
+        return ok === true
+      } catch {
+        return false
+      }
+    }
+
+    /** One work: the picture, its frame number and spec line, and what you can do with it. */
+    function Proof({ work, mode, index, total, onReuse, onDelete, onOpen, onZoom }) {
+      const [copied, setCopied] = React.useState(false)
+      const [confirming, setConfirming] = React.useState(false)
+      const id = work === null || work === undefined ? '' : work.id
+      React.useEffect(() => { setCopied(false); setConfirming(false) }, [id])
+      if (work === null || work === undefined) {
+        return h('div', { className: 'dshm-note' }, h('b', null, '选一张看细节。'), '点左边的任意一张。')
+      }
+      const at = new Date(work.at)
+      const when = `${at.getFullYear()}/${at.getMonth() + 1}/${at.getDate()} ${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`
+      const copy = () => {
+        copyText(String(work.prompt ?? '')).then((ok) => {
+          if (!ok) return
+          setCopied(true)
+          window.setTimeout(() => setCopied(false), 1600)
+        })
+      }
+      // Two-step delete: the second press within three seconds is the real one.
+      const remove = () => {
+        if (!confirming) {
+          setConfirming(true)
+          window.setTimeout(() => setConfirming(false), 3200)
+          return
+        }
+        setConfirming(false)
+        onDelete(work)
+      }
+      const actions = [
+        mode === 'detail' && onReuse !== undefined
+          ? h('button', { key: 'reuse', className: 'dshm-act', onClick: () => onReuse(work) }, '复用参数')
+          : null,
+        h('button', { key: 'copy', className: 'dshm-act', onClick: copy }, copied ? '已复制' : '复制提示词'),
+        h('a', { key: 'open', className: 'dshm-act', href: work.src, target: '_blank', rel: 'noreferrer' }, '打开原图'),
+        mode === 'detail' && onDelete !== undefined
+          ? h('button', { key: 'del', className: 'dshm-act', 'data-danger': 'true', onClick: remove }, confirming ? '确认删除' : '删除')
+          : onOpen !== undefined ? h('button', { key: 'more', className: 'dshm-act', onClick: onOpen }, '在作品里看') : null,
+      ].filter((node) => node !== null)
+      return h('div', { className: mode === 'detail' ? 'dshm-detail' : 'dshm-proof' },
+        h('div', { className: 'dshm-shot', style: { aspectRatio: String(ratioOfSize(work.size)) } },
+          onZoom === undefined
+            ? h('a', { href: work.src, target: '_blank', rel: 'noreferrer', title: '在新标签页打开原图' },
+                h('img', { src: work.src, alt: work.title }))
+            : h('button', { className: 'dshm-shotbtn', type: 'button', title: '放大看', onClick: () => onZoom(work) },
+                h('img', { src: work.src, alt: work.title }))),
+        h('div', { className: 'dshm-label' },
+          h('div', { className: 'top' },
+            h('span', { className: 'dshm-no' }, `No. ${frameNo(index, total)}`),
+            h('span', { className: 'dshm-no' }, when)),
+          h('div', { className: 'dshm-spec' },
+            `${work.model} · ${work.size === '' || work.size === undefined ? '服务商默认' : String(work.size).replace('x', '×')}`),
+          h('p', { className: 'prompt' }, work.prompt),
+          h('div', { className: 'dshm-acts' }, actions)))
+    }
+
     function KeysTab({ status, onSaved }) {
       const providers = status?.providers ?? []
       const [drafts, setDrafts] = React.useState({})
@@ -446,6 +553,14 @@ window.__ModuleLoader__.load({
       const [error, setError] = React.useState(null)
       const [works, setWorks] = React.useState(loadWorks)
       const [current, setCurrent] = React.useState(() => loadWorks()[0] ?? null)
+      const [selected, setSelected] = React.useState(() => loadWorks()[0]?.id ?? '')
+      const [zoom, setZoom] = React.useState(null)
+      React.useEffect(() => {
+        if (zoom === null) return undefined
+        const close = (event) => { if (event.key === 'Escape') setZoom(null) }
+        document.addEventListener('keydown', close)
+        return () => document.removeEventListener('keydown', close)
+      }, [zoom])
       const [providerId, setProviderId] = React.useState(() => readPick().providerId ?? '')
       const [modelId, setModelId] = React.useState(() => readPick().modelId ?? '')
       const [ratio, setRatio] = React.useState(() => RATIOS.find((item) => item.id === readPick().ratio) ?? RATIOS[3])
@@ -496,15 +611,42 @@ window.__ModuleLoader__.load({
             id: String(Date.now()), title: titleOf(prompt), prompt, size,
             model: result.model ?? active?.label ?? '未知模型', at: Date.now(),
             src: `/media/file?p=${encodeURIComponent(result.file)}`,
+            file: result.file,
+            providerId: active?.id ?? '', modelId: activeModel?.id ?? '',
+            ratioId: ratio.id, tier,
           }
           const next = [work, ...works]
-          setWorks(next); saveWorks(next); setCurrent(work)
+          setWorks(next); saveWorks(next); setCurrent(work); setSelected(work.id)
         } catch (e) {
           setError(e.message)
         } finally {
           setBusy(false)
         }
-      }, [busy, empty, left, prompt, works, active, activeModel, size])
+      }, [busy, empty, left, prompt, works, active, activeModel, size, ratio.id, tier])
+
+      /** Put a finished work's settings back into the composer. */
+      const reuse = (work) => {
+        setPrompt(String(work.prompt ?? ''))
+        if (work.providerId !== undefined && work.providerId !== '') setProviderId(work.providerId)
+        if (work.modelId !== undefined && work.modelId !== '') setModelId(work.modelId)
+        const shape = RATIOS.find((item) => item.id === work.ratioId)
+        if (shape !== undefined) setRatio(shape)
+        if (typeof work.tier === 'string' && work.tier !== '') setTier(work.tier)
+        setTab('generate')
+      }
+
+      /** Drop the list entry, then the file it points at. */
+      const removeWork = async (work) => {
+        if (typeof work.file === 'string' && work.file !== '') {
+          try {
+            await api('/delete', { method: 'POST', body: JSON.stringify({ file: work.file }) })
+          } catch { /* the entry still leaves the list; the file is only left behind */ }
+        }
+        const next = works.filter((item) => item.id !== work.id)
+        setWorks(next); saveWorks(next)
+        if (selected === work.id) setSelected(next[0]?.id ?? '')
+        if (current !== null && current.id === work.id) setCurrent(next[0] ?? null)
+      }
 
       const head = h('div', { className: 'dshm-head' },
         h('div', null,
@@ -518,21 +660,29 @@ window.__ModuleLoader__.load({
 
       let body
       if (tab === 'generate') {
+        // One result, framed at the ratio that was asked for while it is still running.
+        const shape = ratio.w === 0 ? 1 : ratio.w / ratio.h
         const right = error !== null
           ? h('div', { className: 'dshm-note' }, h('b', null, '生成失败。'), error,
               h('div', { style: { marginTop: 14 } },
                 h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: generate }, '重试')))
-          : current !== null
+          : busy
             ? h('div', null,
-                h('div', { className: 'dshm-shot', style: { aspectRatio: String(ratioOfSize(current.size)) } },
-                  h('a', { href: current.src, target: '_blank', rel: 'noreferrer', title: '在新标签页打开原图' },
-                    h('img', { src: current.src, alt: current.title }))),
-                h('div', { className: 'dshm-caption' },
-                  h('h4', null, current.title),
-                  h('p', null, `${current.model} · ${current.size} · ${new Date(current.at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`)))
-            : h('div', { className: 'dshm-note' },
-                h('b', null, '暂无作品。'),
-                '生成的第一张会出现在这里，可以随时回来复用它的参数。')
+                h('div', { className: 'dshm-shot dshm-skel', style: { aspectRatio: String(shape) } }),
+                h('div', { className: 'dshm-label' },
+                  h('div', { className: 'top' },
+                    h('span', { className: 'dshm-no' }, '生成中'),
+                    h('span', { className: 'dshm-no' }, sizeLabel)),
+                  h('div', { className: 'dshm-spec' }, '一般十几秒，慢的时候会久一点。')))
+            : current !== null
+              ? h(Proof, {
+                  work: current, mode: 'result', index: 0, total: works.length,
+                  onOpen: () => { setSelected(current.id); setTab('works') },
+                  onZoom: setZoom,
+                })
+              : h('div', { className: 'dshm-note' },
+                  h('b', null, '暂无作品。'),
+                  '生成的第一张会出现在这里，可以随时回来复用它的参数。')
 
         body = h('div', { className: 'dshm-split' },
           h('div', null,
@@ -576,26 +726,42 @@ window.__ModuleLoader__.load({
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },
               busy ? '生成中…' : left === 0 ? '今日配额已用完' : '生成'),
             h('div', { className: 'dshm-hint' }, '⌘⏎ 直接生成。结果只写进本机工作区，不会上传。')),
-          h('div', null, right,
-            works.length > 0
-              ? h('div', { className: 'dshm-strip' }, works.slice(0, 5).map((work) =>
-                  h('button', { key: work.id, className: 'dshm-thumb', 'data-on': String(current?.id === work.id), onClick: () => setCurrent(work), title: work.title },
-                    h('img', { src: work.src, alt: work.title }))))
-              : null))
+          h('div', null, right))
       } else if (tab === 'works') {
+        const picked = works.find((work) => work.id === selected) ?? works[0] ?? null
+        const pickedIndex = picked === null ? -1 : works.findIndex((work) => work.id === picked.id)
         body = works.length === 0
-          ? h('div', { className: 'dshm-note', style: { marginTop: 24 } }, h('b', null, '暂无作品。'), '生成过的图片会按时间排列在这里。')
-          : h('div', { className: 'dshm-grid' }, works.map((work) =>
-              h('button', { key: work.id, className: 'dshm-work', onClick: () => { setCurrent(work); setTab('generate') } },
-                h('div', { className: 'im' }, h('img', { src: work.src, alt: work.title })),
-                h('div', { className: 't' }, work.title),
-                h('div', { className: 'm' }, `${new Date(work.at).toLocaleDateString('zh-CN')} · ${work.size}`))))
+          ? h('div', { className: 'dshm-note', style: { marginTop: 24 } }, h('b', null, '暂无作品。'), '生成过的图片会按时间排列在这里。',
+              h('div', { style: { marginTop: 14 } },
+                h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: () => setTab('generate') }, '去生成')))
+          : h('div', { className: 'dshm-works' },
+              h('div', { className: 'dshm-grid' }, works.map((work, index) =>
+                h('button', {
+                  key: work.id, className: 'dshm-work', title: work.prompt,
+                  'data-on': String(picked !== null && picked.id === work.id),
+                  onClick: () => setSelected(work.id),
+                },
+                  h('div', { className: 'im' }, h('img', { src: work.src, alt: work.title })),
+                  h('div', { className: 't' }, work.title),
+                  h('div', { className: 'm' }, `No. ${frameNo(index, works.length)} · ${work.size === '' ? '默认' : String(work.size).replace('x', '×')}`)))),
+              h(Proof, {
+                work: picked, mode: 'detail', index: pickedIndex, total: works.length,
+                onReuse: reuse, onDelete: removeWork, onZoom: setZoom,
+              }))
       } else {
         body = h(KeysTab, { status, onSaved: refresh })
       }
 
       return h('div', { className: 'dshm-page' },
-        h('div', { className: 'dshm-inner' }, head, tabs, body))
+        h('div', { className: 'dshm-inner' }, head, tabs, body),
+        zoom === null
+          ? null
+          : h('div', { className: 'dshm-zoom', onClick: () => setZoom(null) },
+              h('img', { src: zoom.src, alt: zoom.title }),
+              h('div', { className: 'dshm-zoombar', onClick: (event) => event.stopPropagation() },
+                h('span', null, zoom.title),
+                h('a', { href: zoom.src, target: '_blank', rel: 'noreferrer' }, '在新标签页打开'),
+                h('button', { type: 'button', onClick: () => setZoom(null) }, '关闭'))))
     }
 
     function apply(ctx) {

@@ -18,10 +18,10 @@
  * @module dsh-media-skills
  */
 
-import { createReadStream, mkdirSync, readFileSync, statSync, writeFileSync, chmodSync } from 'node:fs'
+import { createReadStream, mkdirSync, readFileSync, rmSync, statSync, writeFileSync, chmodSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { homedir } from 'node:os'
-import { dirname, join } from 'node:path'
+import { dirname, join, resolve, sep } from 'node:path'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 
@@ -495,12 +495,40 @@ export function createMediaHandler({ workspaceRoot } = {}) {
       return
     }
 
+    if (route === '/delete' && req.method === 'POST') {
+      let body = ''
+      for await (const chunk of req) body += String(chunk)
+      let parsed = {}
+      try { parsed = JSON.parse(body || '{}') } catch { parsed = {} }
+      const base = resolve(join(root(), 'uploads', 'media'))
+      const target = resolve(String(parsed.file ?? ''))
+      // Same rule as /file: only files this plugin wrote may be removed, so a
+      // crafted body cannot delete anything else on disk. Resolve first — a
+      // string prefix test lets `media/../../elsewhere` walk out.
+      if (target === '' || !target.startsWith(base + sep)) {
+        res.writeHead(403, { 'content-type': 'application/json; charset=utf-8' })
+        res.end(JSON.stringify({ ok: false, message: 'path outside the media directory' }))
+        return
+      }
+      try {
+        rmSync(target, { force: true })
+      } catch (error) {
+        res.writeHead(500, { 'content-type': 'application/json; charset=utf-8' })
+        res.end(JSON.stringify({ ok: false, message: error.message }))
+        return
+      }
+      res.writeHead(200, { 'content-type': 'application/json; charset=utf-8' })
+      res.end(JSON.stringify({ ok: true }))
+      return
+    }
+
     if (route === '/file' && req.method === 'GET') {
-      const target = url.searchParams.get('p')
-      const base = join(root(), 'uploads', 'media')
+      const raw = url.searchParams.get('p')
+      const base = resolve(join(root(), 'uploads', 'media'))
+      const target = raw === null ? '' : resolve(raw)
       // Only ever serve files this plugin wrote: resolved path must sit inside
       // the media directory, so a crafted `?p=` cannot read arbitrary files.
-      if (target === null || !target.startsWith(base + '/')) {
+      if (target === '' || !target.startsWith(base + sep)) {
         res.writeHead(403, { 'content-type': 'application/json; charset=utf-8' })
         res.end(JSON.stringify({ ok: false, message: 'path outside the media directory' }))
         return
