@@ -96,6 +96,25 @@ dsh plugin --profile <name> add dsh-media-skills
 
 完整步骤与排错：**[../SETUP_VISION.md](../SETUP_VISION.md)**
 
+## 🖼️ 创作面板（桌面端 0.2.1+）
+
+<img src="../screenshots/panel-generate.png" alt="创作面板：左边提示词与模型/比例/尺寸，右边一张结果卡" width="100%">
+
+桌面端 0.2.1 起插件可以注册自己的页面，本 bundle 自带一个——侧边栏里的 **创作**：
+
+- **生成**：输入提示词（⌘⏎ 可直接生成），选模型、比例和 1K–4K 画布。模型按「每个提供方 × 每个模型」一行排列，比例共 10 个（智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9），超过模型上限的尺寸档会置灰而不是被悄悄忽略。结果是一张结果卡：编号、模型、尺寸、完整提示词和操作按钮。
+- **作品**：这个工作区生成过的所有图做成联系表；点缩略图看详情卡，可以复用参数、复制提示词、打开原图或删除（文件一起删）。点图片本身可以放大看，`Esc` 关闭。
+- **生图 Key**：每个提供方一行。粘进去的 Key 由插件写进 `~/.dsh/secrets/media-tools.env`（权限 600），**不会上传**，也不会用于生成以外的任何用途；已有的 Key 显示成 `••••abcd`，点小眼睛可临时查看。
+- **一个 Key 都没有？** 选 **Flux（免 Key）** 就能直接用——Pollinations 不用注册、不用 Key（同一 IP 每 45 秒一张，最大 768×768，角落有小 logo）。
+
+装到 desktop profile，然后重启一次应用（插件在启动时加载）：
+
+```sh
+dsh plugin --profile desktop add dsh-media-skills
+```
+
+<img src="../screenshots/panel-works.png" alt="作品页：左边联系表，右边详情卡" width="100%">
+
 ## 📸 效果预览
 
 *给支持图片的 DSH 路由发送附件，或把文件路径交给 `vision-review` 做脚本化 QA；同一个 bundle 还能按需生成新图。*

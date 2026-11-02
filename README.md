@@ -1,34 +1,30 @@
 <div align="center">
 
-<img src="docs/social-preview.png" alt="dsh-media-skills — free image reading & generation for DeepSeek Harness" width="100%">
+<img src="docs/social-preview.png" alt="dsh-media-skills — a 创作 page and free image generation for DeepSeek Harness" width="100%">
 
 <br>
 
 # 🎨 dsh-media-skills
 
-### *Give DeepSeek Harness reusable image-review and image-generation skills — verified with desktop 0.2.0-rc.2.*
+### *A 创作 page in the DSH sidebar — generate images, keep the gallery, and never let a key leave your machine.*
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![npm](https://img.shields.io/npm/v/dsh-media-skills?label=npm&color=cb3837)](https://www.npmjs.com/package/dsh-media-skills)
 [![Python 3.9+](https://img.shields.io/badge/Python-3.9%2B-blue.svg)](https://python.org)
-[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-Skill-4D6BFE)](https://github.com/topics/dsh-plugin)
-[![Free vision](https://img.shields.io/badge/vision-GLM%2BDeepSeek%2BGemini-2EA44F)](docs/SETUP_VISION_EN.md)
-[![Free generation](https://img.shields.io/badge/generation-SenseNova%2BKolors-2EA44F)](docs/FREE_VISION_PROVIDERS_EN.md)
-[![No hardcoded keys](https://img.shields.io/badge/keys-never%20in%20repo-8B5CF6)](README.md#-keys--privacy)
+[![DeepSeek Harness](https://img.shields.io/badge/DeepSeek%20Harness-0.2.1-4D6BFE)](https://github.com/topics/dsh-plugin)
+[![Free generation](https://img.shields.io/badge/generation-4%20ways%20%C2%B7%201%20keyless-2EA44F)](README.md#-the-创作-page)
+[![No upload](https://img.shields.io/badge/keys-never%20leave%20the%20machine-8B5CF6)](README.md#-keys--privacy)
 [![Docs](https://img.shields.io/badge/docs-9%20languages-4D6BFE)](docs/lang/README_ZH.md)
-[![Harness](https://img.shields.io/badge/Harness-0.2.0%20verified%20%7C%200.2.1--alpha%20source%20checked-4D6BFE)](docs/DESKTOP_0.2.md)
 
 <br>
 
-DeepSeek Harness is brilliant at reasoning, but image input depends on the active model's modalities. This bundle contributes **two runtime skills** plus a **bring-your-own-key vision failover chain**, runtime-verified against desktop **0.2.0-rc.2**, with the latest tag **dsh-v0.2.1-alpha.2** source-checked for the same skill contract:
+On desktop **0.2.1+** a plugin can own a page of its own, so this bundle ships one: **创作**, a sidebar page next to your conversations. Type a prompt, pick a model, a ratio and a canvas size, and the picture comes back with its own frame number, spec line and actions. Everything you make stays in a contact sheet you can click through.
 
-- 📎 **Native image attachments** — on desktop 0.2 / v0.1.6+, paste, drag, or pick an image when the **current model supports images** (the default `deepseek-flash` does). Text-only routes reject image admission instead of using the old auto-transcription hook.
-- 👁️ **`vision-review`** — analyze images and screenshots, catch UI visual bugs, detect watermarks, turn images into text.
-- 🎨 **`media-tools`** — generate illustrations, avatars, backgrounds and banners with a free, watermark-free model.
-- 🔀 **Engine failover** — GLM-4V-Flash (free) → **DeepSeek-V4-Flash-Vision-Exp** (same key as your agent, higher quality) → SiliconFlow Qwen3-VL → SenseNova → Google Gemini ([AI Studio](https://aistudio.google.com)) → any OpenAI-compatible endpoint, with ModLens-style structured evidence output.
+Under that page sits the same `scripts/generate.py` the agent uses, so **the panel and the `media-tools` skill are one engine, not two**. The bundle also still carries `vision-review` for reading images and screenshots.
 
-No hardcoded keys, no core patches, and no hidden settings writes on desktop 0.2; generated files are saved only where the skill is asked to write them.
+No bundled keys, no relay server, no account, no telemetry. Your prompts go from a local Python process straight to the provider you picked.
 
-[Why](#-why) · [Quick start](#-quick-start) · [See it in action](#-see-it-in-action) · [Usage](#-usage) · [Keys & privacy](#-keys--privacy) · [FAQ](#-faq) · [Examples](#-examples)
+[Why](#-why) · [The page](#-the-创作-page) · [Quick start](#-quick-start) · [Keys & privacy](#-keys--privacy) · [Skills](#-using-the-skills) · [FAQ](#-faq)
 
 [**English**](README.md) · [**简体中文**](docs/lang/README_ZH.md) · [**繁體中文**](docs/lang/README_ZH_TW.md) · [**日本語**](docs/lang/README_JA.md) · [**한국어**](docs/lang/README_KO.md) · [**Español**](docs/lang/README_ES.md) · [**Deutsch**](docs/lang/README_DE.md) · [**Português**](docs/lang/README_PT.md) · [**Русский**](docs/lang/README_RU.md)
 
@@ -38,136 +34,123 @@ No hardcoded keys, no core patches, and no hidden settings writes on desktop 0.2
 
 ## 🤔 Why
 
-Most DSH vision plugins only **read** images — and many push you through a shared third-party endpoint. `dsh-media-skills` takes a different stance:
+Most image plugins either read images or generate them, and many route you through a shared endpoint that sees your pictures and your prompts. This one is built around two rules: **your keys stay on your machine**, and **your prompts go to the provider you chose, from your machine, with nobody in between**.
 
-| | This bundle | Typical vision-only plugin |
+| | This bundle | Typical image plugin |
 |---|---|---|
-| Read images | ✅ Desktop 0.2 uses the selected image-capable route; `vision-review` adds GLM-4V-Flash and optional provider failover for scripted QA | ✅ |
-| **Generate** images for free | ✅ SenseNova U1 Fast → SiliconFlow Kolors | ❌ usually absent |
-| Model-route management | ✅ Never writes settings on desktop 0.2 / v0.1.6+ — choose routes in **Settings → Models**; old auto-seeding only exists in historical builds | sometimes |
-| Keys committed to the repo | ❌ never — keys stay local | ⚠️ often required |
-| Docs in multiple languages | ✅ 9 languages | ❌ usually English only |
-| Privacy | ✅ you choose the provider; images only go to your provider | shared free endpoints can see your images |
-
-**Why bring your own free key instead of a built-in anonymous endpoint?** Privacy and reliability. Your images go only to the provider you choose, under your account and your rate limits — no shared third-party service in the middle.
-
-**New-version adaptation**:
-
-| DSH build | Status |
-|---|---|
-| Desktop **0.2.0-rc.2** | **Runtime verified.** Standard runtime plugin; both skills register through `ctx.skills.registerProvider()`. Native attachments are admitted only when the active model advertises `inputModalities: ["text", "image"]`; the default `deepseek-flash` route does. No core patches or settings writes. |
-| Tag **dsh-v0.2.1-alpha.2** | **Source checked.** `@deepseek-ai/dsh-skill@0.2.1-alpha.2` keeps the same provider factory, array/`{candidates, complete}` observation, candidate fields, and image-admission behavior. No alpha desktop build was available locally for a full boot test. |
-| **v0.1.6** | Same supported provider lifecycle. Configure optional GLM/SiliconFlow/SenseNova/Gemini routes yourself in **Settings → Models**. |
-| v0.1.1 and older preview builds | Historical behavior/docs only. Do not apply the old core patches to signed desktop 0.2 builds. |
-
-See [Desktop 0.2 compatibility notes](docs/DESKTOP_0.2.md) for the exact verification checklist and the `MODEL_DOES_NOT_SUPPORT_IMAGES` behavior.
+| Generate images | ✅ SenseNova, SiliconFlow, keyless Pollinations, plus any OpenAI-compatible endpoint | ⚠️ usually one, usually paid |
+| A real page for it | ✅ Sidebar page with a gallery, detail card, zoom and delete | ❌ chat commands only |
+| Keys | ✅ Written to `~/.dsh/secrets/…` (mode 600), never uploaded, never in the repo | ⚠️ often a shared endpoint or a key in the repo |
+| Relay / account | ❌ none — direct HTTPS to the provider | ⚠️ often a hosted middleman |
+| Telemetry | ❌ none | sometimes |
+| Reading images | ✅ Native attachments plus the `vision-review` skill | ✅ |
+| Docs | ✅ 9 languages | ❌ usually English only |
 
 ## ✨ What you get
 
-| Capability | What it does on desktop 0.2 | Model / engine | Cost |
-|---|---|---|---|
-| 🖼️ Native image attachment | Paste, drag, or use the attachment button while an image-capable route is selected. DSH checks the active model's `inputModalities`; text-only routes return `MODEL_DOES_NOT_SUPPORT_IMAGES` instead of invoking the old auto-transcription pipeline. | Default `deepseek-flash`, or a vision route you configure | Subject to the selected provider |
-| 👁️ `vision-review` | Analyze / recognize / describe local image files and screenshots, catch UI visual bugs (overlap, overflow, misalignment), detect watermarks/logos, OCR, or emit structured JSON evidence. Optional failover chain: GLM-4V-Flash → DeepSeek vision → SiliconFlow Qwen3-VL → SenseNova → Google Gemini → custom OpenAI-compatible endpoints. | GLM-4V-Flash + optional DeepSeek/Qwen/SenseNova/Gemini | GLM/SiliconFlow free tiers; other providers optional |
-| 🎨 `media-tools` | Generate images, illustrations, avatars, backgrounds, and banners to an explicit output path. | SenseNova U1 Fast → SiliconFlow Kolors | Provider free tier/terms; no bundled key |
-| 🖼️ **创作 panel** | A sidebar page next to your conversations: prompt box, model and ratio pickers, 1K–4K canvas, gallery, and a key page that writes the secrets file for you. Desktop 0.2.1+. | Every configured image provider, one row per model | Provider free tier/terms |
+| Piece | What it does | Needs |
+|---|---|---|
+| 🖼️ **创作 page** | Generate, browse a contact sheet, open a detail card, reuse settings, copy the prompt, zoom, delete. Desktop 0.2.1+. | Nothing (Pollinations works without a key) |
+| 🎨 `media-tools` skill | "Generate an image of …" from chat; writes to whatever path you ask for. | Any configured provider |
+| 👁️ `vision-review` skill | Read images, catch UI visual bugs, detect watermarks, OCR, emit structured evidence. | Native attachments, or a vision key |
+| 🔀 Vision failover | GLM-4V-Flash → DeepSeek-V4-Flash-Vision-Exp → Qwen3-VL → SenseNova → Gemini → any OpenAI-compatible endpoint | Optional keys |
 
-## 🖼️ The 创作 panel
+## 🖼️ The 创作 page
 
-Desktop 0.2.1+ lets plugins register their own pages, so this bundle ships one — click **创作** in the sidebar:
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/docs/screenshots/panel-generate.png" alt="The 创作 page: prompt, model, ratio and size pickers on the left, one proof card on the right" width="100%">
 
-- **生成** — type a prompt, then pick the model (`Kolors`, `Qwen-Image`, `Z-Image Turbo`, `SenseNova U1 Fast`, or whatever your own endpoint exposes), the canvas ratio (智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9) and a 1K–4K long edge. Tiers above a model's own ceiling are greyed out instead of being silently ignored. The result lands on the right as one proof card — frame number, model and size, and what you can do with it.
-- **作品** — everything generated in this workspace as a contact sheet: frame numbers, the spec line, and a detail card for the selected picture with its full prompt. From there you can reuse the settings, copy the prompt, open the original, or delete it (the file goes too).
-- **生图 Key** — paste a key per provider. It is written to `~/.dsh/secrets/media-tools.env` (mode 600), never leaves the machine, and is not used for anything but generation. Any OpenAI-compatible endpoint can be added as a custom provider, key optional.
-- **No key at all?** Pick **Pollinations** — it needs no signup and no key (one image per IP every 45 seconds, up to 768×768, small logo in the corner). Cloudflare Workers AI is the better free option: 10,000 neurons a day is roughly 170 flux-1-schnell images.
+**生成** — type a prompt (⌘⏎ also works), then pick:
 
-The panel and the `media-tools` skill call the same `scripts/generate.py`, so the model you pick in the panel is exactly the one the skill uses.
+- **Model** — one row per model, not per provider: `Kolors`, `Qwen-Image`, `Z-Image`, `Z-Image Turbo`, `SenseNova U1 Fast`, `Flux (keyless)`, plus anything your own endpoint exposes. Rows carry a short description and a checkmark; the panel remembers what you picked last time.
+- **Ratio** — 智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9, drawn as a grid of little canvases.
+- **Canvas** — 1K / 2K / 4K long edge. A tier above a model's own ceiling is greyed out with the ceiling written on it, instead of being silently ignored.
+
+The result lands on the right as **one proof card**: the picture, a frame number (`No. 006`), the date, `model · pixels`, the full prompt, and what you can do with it. While it renders you get a skeleton in the shape you asked for.
+
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/docs/screenshots/panel-works.png" alt="The 作品 tab: a contact sheet on the left, a detail card for the selected picture on the right" width="100%">
+
+**作品** — everything generated in this workspace, as a contact sheet with frame numbers and the spec line. Click a tile and the card on the right shows the prompt and four actions: **复用参数** (put the prompt, model, ratio and tier back into the input), **复制提示词**, **打开原图**, **删除** (two-step, and it deletes the file too). Click the picture itself to zoom; `Esc` closes.
+
+**生图 Key** — one row per provider, plus any OpenAI-compatible endpoint you want to add. What you type is written to `~/.dsh/secrets/media-tools.env` with mode 600 by the plugin, and never appears anywhere else. Existing keys show as `••••abcd` with an eye to reveal them.
+
+### No key at all
+
+| Provider | What you get | Catch |
+|---|---|---|
+| **Pollinations** | Flux, right now, zero setup — it is already in the model list | One image per IP every 45 seconds, ≤768×768, a small logo in the corner |
+| **Cloudflare Workers AI** | Roughly **170 flux-1-schnell images a day** on the free plan (10,000 neurons/day) | Needs a Cloudflare account and a Workers AI token; endpoint is per-account (see the FAQ) |
+| **ModelScope** | Qwen-Image / Z-Image series | Needs a ModelScope token and a bound Alibaba Cloud account |
+
+The other built-in rows (SenseNova, SiliconFlow) are free-tier-or-cheap third-party APIs: they work the moment you paste a key, and fail with a plain-language message when the account has no credit left.
 
 ## ⚡ Quick start
 
-Install from the DSH **Plugin Manager** (`dsh-media-skills`) or the CLI:
+**1. Install.** In the desktop app: sidebar **插件** → **添加插件** → type `dsh-media-skills`. Or from a terminal:
 
 ```sh
-dsh plugin --profile <name> add dsh-media-skills
+dsh plugin --profile desktop add dsh-media-skills
 ```
 
-Or straight from GitHub: `dsh plugin --profile <name> add github:MJorgin/dsh-media-skills`.
+`latest` is the current release; pin a version (`dsh-media-skills@0.6.1`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
 
-1. **Keys**:
-   - **Desktop 0.2 / v0.1.6+**: no keys are needed to install — the two skills register at runtime. The default `deepseek-flash` route supports native image chat. Skill keys (`GLM_API_KEY`, `SILICONFLOW_API_KEY`, optional `GEMINI_API_KEY`) go in `~/.dsh/secrets/media-tools.env`; extra model routes are configured in **Settings → Models**.
-   - **v0.1.1-rc.1+**: zero extra keys — paste reading and the vision route run on your agent's existing `DEEPSEEK_API_KEY` (DeepSeek-V4-Flash-Vision-Exp).
-   - **rc.7 / rc.8** (or to add the free engines): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → **API Keys** (`glm-4v-flash` is free); SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → **API Keys** (Kolors is free); *(optional)* Google Gemini — [aistudio.google.com](https://aistudio.google.com) → **Get API key**; joins the vision failover chain automatically
-2. **Add them** in the Web GUI (**Settings → Models**), or use the credentials file:
+**2. Restart the app** (⌘Q, then open it again). Plugins load at boot — a newly installed page will not appear until you restart.
 
-   ```sh
-   # ~/.dsh/.credentials.yaml (chmod 600)
-   GLM_API_KEY: <your key>
-   ```
+**3. Open 创作** in the sidebar and generate something. With no key configured, pick **Flux（免 Key）** and it will just work.
 
-3. **Restart** DSH (or the desktop app), then hard-refresh an open browser tab (`Cmd+Shift+R`).
+**4. Add a key later** if you want better models: **生图 Key** tab → paste → 保存. `已配置` on the row means the plugin can see a key; `未配置` means it cannot.
 
-Verify: the skills **`vision-review`** and **`media-tools`** show up in the skill list. On desktop 0.2, also select an image-capable route such as the default **`deepseek-flash`** before sending a native attachment; a text-only route returns `MODEL_DOES_NOT_SUPPORT_IMAGES`.
-
-Full walkthrough and troubleshooting: [docs/SETUP_VISION_EN.md](docs/SETUP_VISION_EN.md).
-
-## 📸 See it in action
-
-*Send an image to an image-capable DSH route, or pass a file path to `vision-review` for scripted QA. The same bundle also generates new images on demand.*
-
-<img src="docs/screenshots/demo-paste.png" alt="Historical image-review demo; desktop 0.2 requires an image-capable route or a file-path skill invocation" width="100%">
-
-*How it works in one picture:*
-
-<img src="docs/screenshots/how-it-works.png" alt="Historical diagram of image transcription in older DSH preview builds" width="100%">
-
-
-## 🚀 Usage
-
-Three ways to read images:
-
-| Way | How | When |
-|---|---|---|
-| **A. Native attachment (recommended)** | Select an image-capable route (default `deepseek-flash`), then click the attachment button / drag / paste an image and send | Everyday multi-modal image questions |
-| **B. Image-capable model session** | New conversation, pick `deepseek-flash` or a configured GLM/Qwen/SenseNova vision route, then paste images and chat | Multi-turn native image conversations |
-| **C. Files + skill** | Put the image in the workspace and say “read this image with vision-review”, or call `scripts/vision.py` with a path | Batch review, structured OCR/QA, and text-only routes |
-
-Native attachments are sent directly to the selected image-capable model. For `vision-review`, set the desired language or output format in the prompt (or use `--structured`).
-
-Also just say:
-
-- “Look at this image / check this screenshot for visual bugs” → `vision-review`
-- “Generate an image of …” → `media-tools`
+The agent side needs nothing extra: once the bundle is installed, `media-tools` and `vision-review` show up in the skill list.
 
 ## 🔑 Keys & privacy
 
-Keys are **never stored in this repo**. Skill scripts read, in order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback). The vision model route reads `GLM_API_KEY` from DSH's credential store (≤ v0.1.1; on v0.1.6 routes are yours to configure in **Settings → Models**).
+**Short version: a key you paste never leaves your machine except as the `Authorization` header of the request you asked for.**
 
-Where to get the keys (all free): Zhipu — [open.bigmodel.cn](https://open.bigmodel.cn) → API Keys (glm-4v-flash). SiliconFlow — [siliconflow.cn](https://siliconflow.cn) → API Keys (Kolors). Google (optional, joins the vision failover chain automatically) — [aistudio.google.com](https://aistudio.google.com) → Get API key.
+| Question | Answer |
+|---|---|
+| Where is the key stored? | `~/.dsh/secrets/media-tools.env`, written by the plugin with mode `600`. The panel never sends it anywhere else, and it is never written into this repo or into a prompt. |
+| Does it get uploaded to the author / a relay? | **No.** There is no relay and no account. The generation request is made by a local Python process (`scripts/generate.py`) straight to the provider's HTTPS endpoint. |
+| Can a website call these routes? | No. The panel's routes live inside your local DSH server and are same-origin checked: a request must carry a `Host` header, and its `Origin`/`Referer` host must match it. |
+| Can the file routes read anything on disk? | No. They resolve the path first and refuse anything that is not inside `uploads/media` — `../../package.json` gets a 403. |
+| Is there telemetry? | No. No analytics, no ping, no update check. |
+| What actually leaves the machine? | The prompt, the model name and the size — to the provider you selected. Nothing else. Generated files stay in your workspace. |
+| Does 删除 really delete? | Yes — the file is removed from disk, not just hidden from the list. |
 
-```sh
-# ~/.dsh/secrets/media-tools.env (chmod 600, one KEY=value per line)
-GLM_API_KEY=...
-SILICONFLOW_API_KEY=...
-GEMINI_API_KEY=...   # optional
-```
+Keys are read in this order: environment variables → `~/.dsh/secrets/media-tools.env` → `~/.codex/secrets/media-tools.env` (legacy fallback).
 
-Your images are sent only to the provider you configure — never to this repo, never to a shared anonymous endpoint.
+> **One honest caveat:** a provider's free tier comes with that provider's data-use terms. Google's free Gemini tier may use requests to improve its products; Pollinations is a free public service; Cloudflare's free plan has its own terms. For sensitive images (IDs, internal docs, customer data), read the terms of whichever provider you picked, or keep it local.
 
-> Privacy note on Gemini: Google's free-tier key comes with data-use terms — requests may be used to improve Google products. For sensitive images (IDs, internal docs, customer data), prefer the direct domestic engines (Zhipu / SiliconFlow).
+## 🚀 Using the skills
+
+The page is the comfortable path; the skills are for the agent and for scripts.
+
+| Way | How | When |
+|---|---|---|
+| **A. The page** | Sidebar → 创作 | Everyday generation, browsing what you made |
+| **B. Chat** | "Generate an image of a rainy street at night" → `media-tools` | Quick one-offs inside a conversation |
+| **C. Direct** | `python3 skills/media-tools/scripts/generate.py "prompt" out.png 1024x576` | Automation, loops, your own pipeline |
+
+The script takes a size as `16:9`, `1024x576` or nothing at all, and honours `MEDIA_PROVIDER` / `MEDIA_MODEL` / `MEDIA_API_URL` / `MEDIA_API_KEY` when you want to point it somewhere specific. See [skills/media-tools/SKILL.md](skills/media-tools/SKILL.md).
 
 ## ❓ FAQ
 
-**Does desktop 0.2 need a core patch?**
-No. Desktop **0.2.0-rc.2** loads this bundle through the standard runtime plugin/provider lifecycle, and image admission is based on the active model's `inputModalities`. Do not patch the signed `app.asar`; old alpha/rc patches are historical only. If a text-only route is selected, DSH returns `MODEL_DOES_NOT_SUPPORT_IMAGES`; choose an image-capable route or invoke `vision-review` with a file path.
+**Do I need a key to try it?**
+No. Install, restart, open 创作, pick **Flux（免 Key）** (Pollinations). It is rate-limited and has a logo, but it is zero setup.
 
-**Why not just use a built-in free endpoint with no key at all?**
-We prefer to let you own the route: your images go to the provider you pick, under your rate limits, with no shared middleman. The keys are free and take about two minutes to create.
+**I pasted a free Cloudflare / SiliconFlow key and generation fails.**
+The panel maps provider errors to plain language: `402` means the account has no credit, `401` means the key is wrong, `404` means the address or model name is off, `429` means too many requests. A SiliconFlow account with a zero balance returns 402 even on models that are advertised as free.
 
-**Is `media-tools` really free?**
-Yes — SiliconFlow Kolors is free and watermark-free. If a model is temporarily disabled, the skill lists available models and you can switch.
+**How do I use Cloudflare Workers AI?**
+Create an API token with the **Workers AI** template, find your Account ID, then add a custom provider with the address `https://api.cloudflare.com/client/v4/accounts/<ACCOUNT_ID>/ai/run/@cf/black-forest-labs/flux-1-schnell`, model left empty, and the token as the key. It ignores the ratio picker and returns roughly 1024×1024.
+
+**Does the panel work on older DSH builds?**
+The page needs desktop **0.2.1+** (that is when plugins could register sidebar pages). On older builds the two skills still install and work; you just don't get the page.
+
+**Why does the model list only show one row?**
+Because rows are models, not providers: if only one provider has a key, only its models are usable (the rest are greyed out). Pollinations is always usable.
 
 ## 🎁 Examples
 
-Sample material to try instantly — 6 AI-generated images with their prompts, plus a purpose-built vision test card (title, buttons, bar-chart values) for checking reading accuracy:
+Six AI-generated images with their prompts, plus a vision test card for checking reading accuracy:
 
 <img src="examples/generated/fox-forest.jpg" width="30%"> <img src="examples/generated/cat-astronaut.jpg" width="30%"> <img src="examples/vision-test-card.png" width="30%">
 
@@ -177,32 +160,32 @@ Sample material to try instantly — 6 AI-generated images with their prompts, p
 
 ```
 dsh-media-skills/
-├── package.json           # dsh.bundle manifest
-├── cordis.patch.yml       # plugin layer
-├── index.js               # registers the two skills via the DSH v0.1.6 provider lifecycle
+├── package.json            # dsh.bundle + dsh.client manifest
+├── cordis.patch.yml        # plugin layer
+├── index.js                # skills + the /media/* routes the page talks to
+├── client.js               # the 创作 page (sidebar entry + panel UI, no build step)
 ├── skills/
-│   ├── vision-review/     # image reading
-│   └── media-tools/       # image generation
-├── examples/              # sample images + vision test card
-├── docs/
-│   ├── screenshots/       # demo mockup & how-it-works diagram
-│   ├── SETUP_VISION_EN.md # detailed setup guide (English)
-│   ├── SETUP_VISION.md    # 详细配置指南（中文）
-│   ├── HARNESS_PATCH_EN.md# core patch notes (English)
-│   ├── HARNESS_PATCH.md   # 本体补丁说明（中文）
-│   ├── COMPARE_MODLENS.md # 与 ModLens 的对比/共存（中文）
-│   └── lang/              # READMEs in 9 languages
-├── scripts/make-banner.py # regenerates docs/social-preview.png
-└── docs/social-preview.png
+│   ├── media-tools/        # image generation (generate.py)
+│   └── vision-review/      # image reading
+├── scripts/
+│   ├── check-panel.mjs     # provider/model resolution tests
+│   ├── check-routes.mjs    # route, same-origin and path-traversal tests
+│   └── generate.py         # the one engine both the page and the skill use
+├── examples/               # sample images + vision test card
+└── docs/
+    ├── screenshots/        # panel and demo images
+    ├── SETUP_VISION_EN.md  # detailed setup guide (English)
+    ├── SETUP_VISION.md     # 详细配置指南（中文）
+    └── lang/               # READMEs in 9 languages
 ```
 
 ## 🧩 Using ModLens alongside?
 
-This bundle and [ModLens](https://github.com/liustack/modlens) can be installed together, but desktop 0.2 does **not** provide the old api-proxy auto-transcription fallback. Choose one paste behavior deliberately: keep ModLens paste-to-path interception for file-path tool workflows, or set `pasteToPath: false` so DSH uses native image attachments with an image-capable route. See [docs/COMPARE_MODLENS.md](docs/COMPARE_MODLENS.md) (中文) for the historical comparison and configuration.
+This bundle and [ModLens](https://github.com/liustack/modlens) can be installed together, but desktop 0.2 does **not** provide the old api-proxy auto-transcription fallback. Choose one paste behavior deliberately: keep ModLens paste-to-path interception for file-path tool workflows, or set `pasteToPath: false` so DSH uses native image attachments with an image-capable route. See [docs/COMPARE_MODLENS.md](docs/COMPARE_MODLENS.md) (中文).
 
 ## 🤝 Join the DSH plugin ecosystem
 
-DeepSeek Harness developer preview is still in its testing phase for Harness developers; core plugins and base APIs will keep iterating. We look forward to exploring the upper limits of intelligence together with developers worldwide, on top of open-source, open, reusable, and composable infrastructure.
+DeepSeek Harness developer preview is still evolving; core plugins and base APIs will keep iterating.
 
 - [dsh-plugin topic](https://github.com/topics/dsh-plugin)
 - [Quickstart](https://deepseek-harness.github.io/deepseek-harness/guide/quickstart)

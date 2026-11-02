@@ -20,6 +20,18 @@ python3 scripts/generate.py "云海中的中国宫殿，写实电影感，气势
 python3 scripts/generate.py "简洁科技感产品发布会背景，深蓝渐变" banner.png 2752x1536
 ```
 
+## 没有 Key 也能用
+
+Pollinations 不需要注册也不需要 Key（同一 IP 每 45 秒一张，最大 768×768，角落有小 logo）：
+
+```bash
+MEDIA_API_URL=https://image.pollinations.ai/prompt python3 scripts/generate.py "..." out.png 1:1
+```
+
+## 密钥边界
+
+Key 只从环境变量、`~/.dsh/secrets/media-tools.env`（权限 600）或旧的 `~/.codex/secrets/media-tools.env` 读取；脚本只把它放进请求头发给用户自己选的服务商，不写日志、不上传、不内置在仓库里。
+
 ## 尺寸
 
 - SenseNova 支持常见横版、竖版和方形比例，可传 `16:9`、`9:16`、`1:1`、`3:4`、`4:3` 等比例。

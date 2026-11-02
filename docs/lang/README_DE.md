@@ -71,6 +71,25 @@ GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
 ```
 
+## 🖼️ Die Seite 创作 (Desktop 0.2.1+)
+
+<img src="../screenshots/panel-generate.png" alt="Die Seite 创作: links Eingabe und Auswahl, rechts die Ergebniskarte" width="100%">
+
+Ab Desktop 0.2.1 darf ein Plugin eine eigene Seite registrieren — dieses Bundle bringt **创作** in der Seitenleiste mit:
+
+- **生成**: Prompt eingeben (⌘⏎ erzeugt ebenfalls), Modell, Seitenverhältnis und 1K–4K-Größe wählen. Modelle stehen in einer Zeile pro Modell (nicht pro Anbieter), es gibt 10 Verhältnisse (intelligent / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9). Größen über der Grenze eines Modells werden ausgegraut statt still ignoriert. Das Ergebnis ist eine Karte mit Nummer, Modell, Größe, Prompt und Aktionen.
+- **作品**: alle Bilder dieses Arbeitsbereichs als Kontaktbogen; ein Klick öffnet die Detailkarte mit Einstellungen wiederverwenden, Prompt kopieren, Original öffnen oder löschen (die Datei verschwindet mit). Ein Klick aufs Bild vergrößert es, `Esc` schließt.
+- **生图 Key**: pro Anbieter einen Schlüssel einfügen. Er wird nach `~/.dsh/secrets/media-tools.env` geschrieben (Modus 600), **nie hochgeladen** und nur zum Generieren verwendet. Gespeicherte Schlüssel erscheinen als `••••abcd`, das Auge zeigt sie kurz.
+- **Gar kein Schlüssel?** Nimm **Flux (免 Key)** — Pollinations braucht weder Anmeldung noch Schlüssel (ein Bild pro IP alle 45 Sekunden, bis 768×768, kleines Logo).
+
+Ins desktop-Profil installieren und die App einmal neu starten (Plugins laden beim Start):
+
+```sh
+dsh plugin --profile desktop add dsh-media-skills
+```
+
+<img src="../screenshots/panel-works.png" alt="作品: links Kontaktbogen, rechts Detailkarte" width="100%">
+
 ## 🚀 Nutzung
 
 Drei Wege, Bilder zu lesen:

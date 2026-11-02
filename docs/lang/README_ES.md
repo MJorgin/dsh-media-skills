@@ -71,6 +71,25 @@ GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
 ```
 
+## 🖼️ El panel 创作 (desktop 0.2.1+)
+
+<img src="../screenshots/panel-generate.png" alt="El panel 创作: entrada y selectores a la izquierda, tarjeta de resultado a la derecha" width="100%">
+
+Desde el escritorio 0.2.1 un plugin puede registrar su propia página; este paquete trae **创作** en la barra lateral:
+
+- **生成**: escribe un prompt (⌘⏎ también genera), elige modelo, proporción y tamaño de 1K a 4K. Los modelos van una fila por modelo, no por proveedor, y hay 10 proporciones (inteligente / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9). Los tamaños que superan el límite de un modelo se muestran en gris en lugar de ignorarse. El resultado llega como una tarjeta con número, modelo, tamaño, prompt y acciones.
+- **作品**: todas las imágenes de este espacio de trabajo en una hoja de contactos; haz clic en una para abrir la ficha y reutilizar los ajustes, copiar el prompt, abrir el original o borrarla (también el archivo). Haz clic en la imagen para ampliarla; `Esc` cierra.
+- **生图 Key**: pega una clave por proveedor. Se guarda en `~/.dsh/secrets/media-tools.env` (permisos 600), **nunca se sube** y solo se usa para generar. Las claves guardadas se muestran como `••••abcd`, con un ojo para verlas un momento.
+- **¿Sin ninguna clave?** Elige **Flux (免 Key)**: Pollinations no pide registro ni clave (una imagen por IP cada 45 segundos, hasta 768×768, con un pequeño logo).
+
+Instálalo en el perfil desktop y reinicia la aplicación una vez (los plugins se cargan al arrancar):
+
+```sh
+dsh plugin --profile desktop add dsh-media-skills
+```
+
+<img src="../screenshots/panel-works.png" alt="作品: hoja de contactos a la izquierda, ficha a la derecha" width="100%">
+
 ## 🚀 Uso
 
 Tres formas de leer imágenes:
