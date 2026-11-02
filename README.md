@@ -75,7 +75,7 @@ See [Desktop 0.2 compatibility notes](docs/DESKTOP_0.2.md) for the exact verific
 
 Desktop 0.2.1+ lets plugins register their own pages, so this bundle ships one — click **创作** in the sidebar:
 
-- **生成** — type a prompt, then pick the model (`Kolors`, `FLUX.1 schnell`, `Qwen-Image`, `SenseNova U1 Fast`, or whatever your own endpoint exposes), the canvas ratio (智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9) and a 1K–4K long edge. Tiers above a model's own ceiling are greyed out instead of being silently ignored.
+- **生成** — type a prompt, then pick the model (`Kolors`, `Qwen-Image`, `Z-Image Turbo`, `SenseNova U1 Fast`, or whatever your own endpoint exposes), the canvas ratio (智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9) and a 1K–4K long edge. Tiers above a model's own ceiling are greyed out instead of being silently ignored.
 - **作品** — everything generated in this workspace; click a thumbnail to reuse its prompt and settings.
 - **生图 Key** — paste a key per provider. It is written to `~/.dsh/secrets/media-tools.env` (mode 600), never leaves the machine, and is not used for anything but generation. Any OpenAI-compatible endpoint can be added as a custom provider.
 

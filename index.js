@@ -133,8 +133,9 @@ const PROVIDERS = [
     docs: 'https://cloud.siliconflow.cn',
     models: [
       { id: 'Kwai-Kolors/Kolors', label: 'Kolors', desc: '快手可图，中文语义准', maxEdge: 1024 },
-      { id: 'black-forest-labs/FLUX.1-schnell', label: 'FLUX.1 schnell', desc: '出图最快，风格偏写实', maxEdge: 1024 },
       { id: 'Qwen/Qwen-Image', label: 'Qwen-Image', desc: '通义，画面里的文字写得好', maxEdge: 1024 },
+      { id: 'Tongyi-MAI/Z-Image-Turbo', label: 'Z-Image Turbo', desc: '通义，出图快', maxEdge: 1024 },
+      { id: 'Tongyi-MAI/Z-Image', label: 'Z-Image', desc: '通义，画质更细', maxEdge: 1024 },
     ],
   },
   {
