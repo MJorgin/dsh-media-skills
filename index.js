@@ -139,6 +139,14 @@ const PROVIDERS = [
     ],
   },
   {
+    id: 'pollinations', label: 'Pollinations', env: '', role: '生图 · 免 Key',
+    baseUrl: 'https://image.pollinations.ai/prompt', model: 'flux',
+    docs: 'https://pollinations.ai', keyless: true,
+    models: [
+      { id: 'flux', label: 'Flux（免 Key）', desc: '不用注册，每 45 秒一张', maxEdge: 768 },
+    ],
+  },
+  {
     id: 'gemini', label: 'Gemini', env: 'GEMINI_API_KEY', role: '识图 · 可选',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash',
     docs: 'https://aistudio.google.com/apikey',
@@ -243,7 +251,8 @@ export function mediaStatus() {
         })),
         override.model,
       ),
-      configured: key !== '',
+      configured: provider.keyless === true || key !== '',
+      keyless: provider.keyless === true,
       keyHint: maskKey(key),
       custom: false,
     }
@@ -255,7 +264,8 @@ export function mediaStatus() {
       models: custom.model === undefined || custom.model === ''
         ? []
         : [{ id: custom.model, label: custom.model, desc: '自定义提供方', maxEdge: 4096 }],
-      configured: Boolean(custom.key), keyHint: maskKey(custom.key ?? ''), custom: true,
+      configured: true, keyless: custom.key === undefined || custom.key === '',
+      keyHint: maskKey(custom.key ?? ''), custom: true,
     })
   }
   return {
@@ -285,7 +295,7 @@ export function saveProvider(input) {
     else delete providers[id].model
     settings.providers = providers
     writeSettings(settings)
-    if (key !== '') writeSecret(preset.env, key)
+    if (key !== '' && preset.env !== '') writeSecret(preset.env, key)
     return { ok: true }
   }
 
@@ -347,16 +357,26 @@ export function resolveProvider(id, model) {
   const picked = models.find((item) => item.id === model) ?? models.find((item) => item.id === target.model) ?? null
   const chosen = picked?.id ?? target.model
   const modelLabel = picked?.label ?? target.label
+  if (target.keyless === true && target.custom !== true) {
+    // Keyless presets (Pollinations) take their own URL shape and never send a key.
+    return {
+      label: target.label,
+      model: chosen,
+      modelLabel,
+      env: { MEDIA_API_URL: target.baseUrl, MEDIA_MODEL: chosen },
+    }
+  }
   if (target.custom) {
     const row = (Array.isArray(settings.custom) ? settings.custom : []).find((item) => item.id === target.id)
-    if (row === undefined || row.key === undefined || row.key === '') throw new Error(`${target.label} 还没配置 Key。`)
+    if (row === undefined) throw new Error(`${target.label} 还没配置地址。`)
+    const key = row.key === undefined ? '' : String(row.key).trim()
     return {
       label: target.label,
       model: chosen,
       modelLabel,
       env: {
         MEDIA_API_URL: joinEndpoint(row.baseUrl),
-        MEDIA_API_KEY: row.key,
+        ...(key === '' ? {} : { MEDIA_API_KEY: key }),
         MEDIA_MODEL: chosen,
       },
     }

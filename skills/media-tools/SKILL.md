@@ -39,7 +39,13 @@ MEDIA_MODEL=other-model    python3 scripts/generate.py "..." out.png 16:9   # �
 MEDIA_API_URL=https://api.example.com/v1/images/generations \
 MEDIA_API_KEY=sk-... MEDIA_MODEL=my-model \
 python3 scripts/generate.py "..." out.png 1024x1024
+
+# 免 Key 的 Pollinations（同一 IP 每 45 秒一张，最大 768×768，右下角带它的小 logo）
+MEDIA_API_URL=https://image.pollinations.ai/prompt \
+python3 scripts/generate.py "..." out.jpg 1024x576
 ```
+
+自定义端点不填 `MEDIA_API_KEY` 时不发 `Authorization` 头，所以像 Pollinations 这种不需要 Key 的服务也能直接接。
 
 尺寸可以写比例简写（`16:9`）、精确像素（`1024x576`），或者不传 —— 不传时由服务商决定画布大小。
 

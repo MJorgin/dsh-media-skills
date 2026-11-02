@@ -77,7 +77,8 @@ Desktop 0.2.1+ lets plugins register their own pages, so this bundle ships one �
 
 - **生成** — type a prompt, then pick the model (`Kolors`, `Qwen-Image`, `Z-Image Turbo`, `SenseNova U1 Fast`, or whatever your own endpoint exposes), the canvas ratio (智能 / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9) and a 1K–4K long edge. Tiers above a model's own ceiling are greyed out instead of being silently ignored.
 - **作品** — everything generated in this workspace; click a thumbnail to reuse its prompt and settings.
-- **生图 Key** — paste a key per provider. It is written to `~/.dsh/secrets/media-tools.env` (mode 600), never leaves the machine, and is not used for anything but generation. Any OpenAI-compatible endpoint can be added as a custom provider.
+- **生图 Key** — paste a key per provider. It is written to `~/.dsh/secrets/media-tools.env` (mode 600), never leaves the machine, and is not used for anything but generation. Any OpenAI-compatible endpoint can be added as a custom provider, key optional.
+- **No key at all?** Pick **Pollinations** — it needs no signup and no key (one image per IP every 45 seconds, up to 768×768, small logo in the corner). Cloudflare Workers AI is the better free option: 10,000 neurons a day is roughly 170 flux-1-schnell images.
 
 The panel and the `media-tools` skill call the same `scripts/generate.py`, so the model you pick in the panel is exactly the one the skill uses.
 

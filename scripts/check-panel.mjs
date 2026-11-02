@@ -80,6 +80,26 @@ test('a custom provider carries its own endpoint and model', () => {
   assert.match(provider.env.MEDIA_API_URL, /^https:\/\/api\.cloudflare\.com\/.*\/ai\/run\/@cf\//)
 })
 
+test('the keyless provider needs no key and keeps its own url shape', () => {
+  const provider = mediaStatus().providers.find((item) => item.id === 'pollinations')
+  assert.ok(provider !== undefined, 'pollinations missing from the table')
+  assert.equal(provider.keyless, true)
+  assert.equal(provider.configured, true)
+  const resolved = resolveProvider('pollinations', 'flux')
+  assert.equal(resolved.env.MEDIA_API_URL, 'https://image.pollinations.ai/prompt')
+  assert.equal(resolved.env.MEDIA_API_KEY, undefined)
+  assert.equal(resolved.env.MEDIA_MODEL, 'flux')
+})
+
+test('a custom provider without a key still resolves', () => {
+  writeFileSync(join(home, 'media-desk.json'), JSON.stringify({
+    custom: [{ id: 'open', label: 'Open', baseUrl: 'https://image.pollinations.ai/prompt', model: 'flux', key: '' }],
+  }))
+  const provider = resolveProvider('open', 'flux')
+  assert.equal(provider.env.MEDIA_API_KEY, undefined)
+  assert.match(provider.env.MEDIA_API_URL, /pollinations/)
+})
+
 test('joinEndpoint appends the images path once', () => {
   assert.equal(joinEndpoint('https://api.siliconflow.cn/v1'), 'https://api.siliconflow.cn/v1/images/generations')
   assert.equal(joinEndpoint('https://a.example/v1/images/generations'), 'https://a.example/v1/images/generations')

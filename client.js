@@ -22,6 +22,7 @@ window.__ModuleLoader__.load({
 
     const STYLE_ID = 'dsh-media-skills-style'
     const STORE_KEY = 'dsh-media-skills.works'
+    const PICK_KEY = 'dsh-media-skills.pick'
     const PANEL_ID = 'media-desk'
     const TABS = [['generate', '生成'], ['works', '作品'], ['keys', '生图 Key']]
 
@@ -127,7 +128,8 @@ window.__ModuleLoader__.load({
 .dshm-cta:disabled { background: var(--dsw-alias-bg-layer-2, #f2f3f5); color: var(--dsw-alias-label-caption, #adb2b8); cursor: not-allowed; border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12)); }
 
 .dshm-shot { border-radius: 12px; overflow: hidden; background: var(--dsw-alias-bg-layer-2, #f2f3f5); aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
-.dshm-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dshm-shot a { display: block; width: 100%; height: 100%; }
+.dshm-shot img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .dshm-caption { margin-top: 12px; }
 .dshm-caption h4 { margin: 0 0 4px; font-size: 14px; font-weight: 500; }
 .dshm-caption p { margin: 0; font-size: 12.5px; line-height: 1.65; color: var(--dsw-alias-label-tertiary, #81858c); }
@@ -221,6 +223,16 @@ window.__ModuleLoader__.load({
       } catch { return [] }
     }
 
+    /** The picker choice from last visit; a corrupt or absent record reads as empty. */
+    function readPick() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(PICK_KEY) ?? '{}')
+        return typeof raw === 'object' && raw !== null ? raw : {}
+      } catch {
+        return {}
+      }
+    }
+
     function saveWorks(works) {
       try { localStorage.setItem(STORE_KEY, JSON.stringify(works.slice(0, 60))) } catch { /* storage blocked */ }
     }
@@ -255,6 +267,14 @@ window.__ModuleLoader__.load({
         : [(long * ratio.w) / ratio.h, long]
       const snap = (n) => Math.max(8, Math.round(n / 8) * 8)
       return `${snap(w)}x${snap(h)}`
+    }
+
+    /** The frame follows a finished picture's own ratio; unknown sizes fall back to 16:9. */
+    function ratioOfSize(size) {
+      const match = /^(\d+)x(\d+)$/.exec(String(size ?? ''))
+      if (match === null) return 16 / 9
+      const [w, h] = [Number(match[1]), Number(match[2])]
+      return h > 0 ? w / h : 16 / 9
     }
 
     function ShieldIcon() {
@@ -372,20 +392,24 @@ window.__ModuleLoader__.load({
             return h('div', { key: provider.id, className: 'dshm-krow', 'data-off': String(!provider.configured) },
               h('div', { className: 'kh' },
                 h('b', null, provider.label),
-                h('span', null, provider.configured ? `已配置 ${provider.keyHint ?? ''}`.trim() : '未配置')),
+                h('span', null, provider.keyless === true
+                  ? '免 Key'
+                  : provider.configured ? `已配置 ${provider.keyHint ?? ''}`.trim() : '未配置')),
               h('div', { className: 'kf' },
                 h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
                   h('input', { className: 'dshm-input', value: draft.baseUrl, onChange: (e) => edit(provider.id, { baseUrl: e.target.value }) })),
                 h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
                   h('input', { className: 'dshm-input', value: draft.model, onChange: (e) => edit(provider.id, { model: e.target.value }) }))),
-              h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? 'API Key（留空表示不改）' : 'API Key'),
-                h('div', { className: 'dshm-keywrap' },
-                  h('input', { className: 'dshm-input', type: reveal[provider.id] === true ? 'text' : 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) }),
-                  h('button', { className: 'dshm-eye', type: 'button', title: reveal[provider.id] === true ? '隐藏' : '显示', onClick: () => toggleReveal(provider.id) },
-                    h(EyeIcon, { open: reveal[provider.id] === true })))),
+              provider.keyless === true
+                ? h('div', { className: 'dshm-lab' }, '这个提供方不需要 Key，地址和模型填好就能直接用。')
+                : h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? 'API Key（留空表示不改）' : 'API Key'),
+                    h('div', { className: 'dshm-keywrap' },
+                      h('input', { className: 'dshm-input', type: reveal[provider.id] === true ? 'text' : 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) }),
+                      h('button', { className: 'dshm-eye', type: 'button', title: reveal[provider.id] === true ? '隐藏' : '显示', onClick: () => toggleReveal(provider.id) },
+                        h(EyeIcon, { open: reveal[provider.id] === true })))),
               h('div', { className: 'dshm-kfoot' },
                 provider.docs
-                  ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, '获取 Key ↗')
+                  ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, provider.keyless === true ? '官网 ↗' : '获取 Key ↗')
                   : h('span', null, ''),
                 h('button', { className: 'dshm-save', disabled: saving === provider.id, onClick: () => save(provider) },
                   saving === provider.id ? '保存中…' : '保存')))
@@ -400,9 +424,9 @@ window.__ModuleLoader__.load({
                     h('input', { className: 'dshm-input', placeholder: '模型 ID', value: form.model, onChange: (e) => setForm({ ...form, model: e.target.value }) }))),
                 h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
                   h('input', { className: 'dshm-input', placeholder: 'https://api.example.com/v1', value: form.baseUrl, onChange: (e) => setForm({ ...form, baseUrl: e.target.value }) })),
-                h('div', null, h('label', { className: 'dshm-lab' }, 'API Key'),
+                h('div', null, h('label', { className: 'dshm-lab' }, 'API Key（服务不需要就留空）'),
                   h('div', { className: 'dshm-keywrap' },
-                    h('input', { className: 'dshm-input', type: reveal.custom === true ? 'text' : 'password', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) }),
+                    h('input', { className: 'dshm-input', type: reveal.custom === true ? 'text' : 'password', placeholder: '没有就留空', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) }),
                     h('button', { className: 'dshm-eye', type: 'button', title: reveal.custom === true ? '隐藏' : '显示', onClick: () => toggleReveal('custom') },
                       h(EyeIcon, { open: reveal.custom === true })))),
                 h('div', { className: 'dshm-kfoot' },
@@ -422,16 +446,21 @@ window.__ModuleLoader__.load({
       const [error, setError] = React.useState(null)
       const [works, setWorks] = React.useState(loadWorks)
       const [current, setCurrent] = React.useState(() => loadWorks()[0] ?? null)
-      const [providerId, setProviderId] = React.useState('')
-      const [modelId, setModelId] = React.useState('')
-      const [ratio, setRatio] = React.useState(RATIOS[3])
-      const [tier, setTier] = React.useState('1K')
+      const [providerId, setProviderId] = React.useState(() => readPick().providerId ?? '')
+      const [modelId, setModelId] = React.useState(() => readPick().modelId ?? '')
+      const [ratio, setRatio] = React.useState(() => RATIOS.find((item) => item.id === readPick().ratio) ?? RATIOS[3])
+      const [tier, setTier] = React.useState(() => readPick().tier ?? '1K')
 
       const refresh = React.useCallback(() => {
         setStatusError(null)
         api('/status').then(setStatus).catch((e) => setStatusError(e.message))
       }, [])
-      React.useEffect(refresh, [refresh])
+      React.useEffect(() => { if (tab === 'generate') refresh() }, [tab, refresh])
+      React.useEffect(() => {
+        try {
+          localStorage.setItem(PICK_KEY, JSON.stringify({ providerId, modelId, ratio: ratio.id, tier }))
+        } catch { /* private mode: remembering is a nicety, not a requirement */ }
+      }, [providerId, modelId, ratio, tier])
 
       const limit = status?.quota?.limit ?? 5
       // Quota is per day, not per lifetime: yesterday's work must not lock the panel.
@@ -482,7 +511,7 @@ window.__ModuleLoader__.load({
           h('h1', null, '创作'),
           h('p', null, '生成图片，回看作品')),
         h('span', { className: 'dshm-quota' },
-          statusError !== null ? '无法连接' : `本次还剩 ${left} 张`))
+          statusError !== null ? '无法连接' : status === null ? '读取中…' : `今日还剩 ${left} 张`))
 
       const tabs = h('div', { className: 'dshm-tabs' }, TABS.map(([id, label]) =>
         h('button', { key: id, className: 'dshm-tab', 'data-on': String(tab === id), onClick: () => setTab(id) }, label)))
@@ -495,7 +524,9 @@ window.__ModuleLoader__.load({
                 h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: generate }, '重试')))
           : current !== null
             ? h('div', null,
-                h('div', { className: 'dshm-shot' }, h('img', { src: current.src, alt: current.title })),
+                h('div', { className: 'dshm-shot', style: { aspectRatio: String(ratioOfSize(current.size)) } },
+                  h('a', { href: current.src, target: '_blank', rel: 'noreferrer', title: '在新标签页打开原图' },
+                    h('img', { src: current.src, alt: current.title }))),
                 h('div', { className: 'dshm-caption' },
                   h('h4', null, current.title),
                   h('p', null, `${current.model} · ${current.size} · ${new Date(current.at).toLocaleString('zh-CN', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}`)))
@@ -514,7 +545,7 @@ window.__ModuleLoader__.load({
             }),
             h('div', { className: 'dshm-pickers' },
               h(Picker, {
-                value: active === null ? '未配置模型' : (activeModel?.label ?? active.label),
+                value: status === null ? '读取中…' : active === null ? '未配置模型' : (activeModel?.label ?? active.label),
                 options: imageProviders.length === 0
                   ? [{ id: 'none', label: '先去「生图 Key」配一个', disabled: true }]
                   : imageProviders.flatMap((provider) => modelsOf(provider).map((model) => ({
@@ -543,7 +574,7 @@ window.__ModuleLoader__.load({
               }),
               h('span', { className: 'dshm-size' }, sizeLabel)),
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },
-              busy ? '生成中…' : left === 0 ? '本次配额已用完' : '生成'),
+              busy ? '生成中…' : left === 0 ? '今日配额已用完' : '生成'),
             h('div', { className: 'dshm-hint' }, '⌘⏎ 直接生成。结果只写进本机工作区，不会上传。')),
           h('div', null, right,
             works.length > 0
