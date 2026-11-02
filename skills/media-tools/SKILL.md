@@ -29,7 +29,7 @@ python3 scripts/generate.py "简洁科技感产品发布会背景，深蓝渐变
 
 ## 选择服务商
 
-脚本默认按 key 是否存在自动挑。要指定服务商，用环境变量：
+脚本默认按 key 是否存在自动挑。要指定服务商，用环境变量（面板里选的服务商和模型，走的就是这几个变量）：
 
 ```bash
 MEDIA_PROVIDER=siliconflow python3 scripts/generate.py "..." out.png 16:9   # 指定内置服务商
@@ -40,6 +40,8 @@ MEDIA_API_URL=https://api.example.com/v1/images/generations \
 MEDIA_API_KEY=sk-... MEDIA_MODEL=my-model \
 python3 scripts/generate.py "..." out.png 1024x1024
 ```
+
+尺寸可以写比例简写（`16:9`）、精确像素（`1024x576`），或者不传 —— 不传时由服务商决定画布大小。
 
 自定义端点按 OpenAI 兼容格式发送 `{"model","prompt","size","n"}`，接受 `data[0].url`、`data[0].b64_json`、`images[0].url` 三种返回。
 

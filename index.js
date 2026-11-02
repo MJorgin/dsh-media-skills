@@ -120,19 +120,28 @@ const MEDIA_PREFIX = '/media'
 /** Providers the bundled skills know how to drive. */
 const PROVIDERS = [
   {
-    id: 'sensenova', label: 'SenseNova U1 Fast', env: 'SENSENOVA_API_KEY', role: '生图 · 主用',
+    id: 'sensenova', label: 'SenseNova', env: 'SENSENOVA_API_KEY', role: '生图 · 主用',
     baseUrl: 'https://token.sensenova.ai/v1', model: 'sensenova-u1-fast',
     docs: 'https://platform.sensenova.cn',
+    models: [
+      { id: 'sensenova-u1-fast', label: 'SenseNova U1 Fast', desc: '商汤，出图快，中英文提示都行', maxEdge: 4096 },
+    ],
   },
   {
-    id: 'siliconflow', label: 'SiliconFlow Kolors', env: 'SILICONFLOW_API_KEY', role: '生图 · 备用',
+    id: 'siliconflow', label: 'SiliconFlow', env: 'SILICONFLOW_API_KEY', role: '生图 · 备用',
     baseUrl: 'https://api.siliconflow.cn/v1', model: 'Kwai-Kolors/Kolors',
     docs: 'https://cloud.siliconflow.cn',
+    models: [
+      { id: 'Kwai-Kolors/Kolors', label: 'Kolors', desc: '快手可图，中文语义准', maxEdge: 1024 },
+      { id: 'black-forest-labs/FLUX.1-schnell', label: 'FLUX.1 schnell', desc: '出图最快，风格偏写实', maxEdge: 1024 },
+      { id: 'Qwen/Qwen-Image', label: 'Qwen-Image', desc: '通义，画面里的文字写得好', maxEdge: 1024 },
+    ],
   },
   {
     id: 'gemini', label: 'Gemini', env: 'GEMINI_API_KEY', role: '识图 · 可选',
     baseUrl: 'https://generativelanguage.googleapis.com/v1beta', model: 'gemini-2.0-flash',
     docs: 'https://aistudio.google.com/apikey',
+    models: [],
   },
 ]
 
@@ -202,6 +211,13 @@ function maskKey(key) {
   return key.length <= 4 ? '••••' : `••••${key.slice(-4)}`
 }
 
+/** Keep a model typed into the key page selectable even when it is not in our list. */
+function withOverrideModel(models, override) {
+  const id = typeof override === 'string' ? override.trim() : ''
+  if (id === '' || models.some((model) => model.id === id)) return models
+  return [{ id, label: id, desc: '自定义模型', maxEdge: 4096 }, ...models]
+}
+
 /** Provider table plus the package version, for the panel's 生图 Key tab. */
 export function mediaStatus() {
   const secrets = secretsOf()
@@ -217,6 +233,15 @@ export function mediaStatus() {
       baseUrl: override.baseUrl ?? provider.baseUrl,
       model: override.model ?? provider.model,
       docs: provider.docs,
+      models: withOverrideModel(
+        (provider.models ?? []).map((model) => ({
+          id: model.id,
+          label: model.label,
+          desc: model.desc,
+          maxEdge: model.maxEdge ?? 1024,
+        })),
+        override.model,
+      ),
       configured: key !== '',
       keyHint: maskKey(key),
       custom: false,
@@ -226,6 +251,9 @@ export function mediaStatus() {
     providers.push({
       id: custom.id, label: custom.label, role: '生图 · 自定义',
       baseUrl: custom.baseUrl, model: custom.model, docs: custom.docs ?? '',
+      models: custom.model === undefined || custom.model === ''
+        ? []
+        : [{ id: custom.model, label: custom.model, desc: '自定义提供方', maxEdge: 4096 }],
       configured: Boolean(custom.key), keyHint: maskKey(custom.key ?? ''), custom: true,
     })
   }
@@ -306,7 +334,7 @@ export function originAllowed(req) {
 }
 
 /** Resolve one provider id into the env generate.py needs; throws a readable reason. */
-export function resolveProvider(id) {
+export function resolveProvider(id, model) {
   const settings = readSettings()
   const status = mediaStatus()
   const candidates = status.providers.filter((provider) => provider.role.startsWith('生图'))
@@ -314,20 +342,25 @@ export function resolveProvider(id) {
   const target = wanted ?? candidates.find((provider) => provider.configured)
   if (target === undefined) throw new Error('还没有可用的生图 Key，先去「生图 Key」配置一个。')
   if (!target.configured) throw new Error(`${target.label} 还没配置 Key。`)
+  const models = Array.isArray(target.models) ? target.models : []
+  const picked = models.find((item) => item.id === model) ?? models.find((item) => item.id === target.model) ?? null
+  const chosen = picked?.id ?? target.model
+  const modelLabel = picked?.label ?? target.label
   if (target.custom) {
     const row = (Array.isArray(settings.custom) ? settings.custom : []).find((item) => item.id === target.id)
     if (row === undefined || row.key === undefined || row.key === '') throw new Error(`${target.label} 还没配置 Key。`)
     return {
       label: target.label,
-      model: target.model,
+      model: chosen,
+      modelLabel,
       env: {
         MEDIA_API_URL: joinEndpoint(row.baseUrl),
         MEDIA_API_KEY: row.key,
-        MEDIA_MODEL: target.model,
+        MEDIA_MODEL: chosen,
       },
     }
   }
-  return { label: target.label, model: target.model, env: { MEDIA_PROVIDER: target.id, MEDIA_MODEL: target.model } }
+  return { label: target.label, model: chosen, modelLabel, env: { MEDIA_PROVIDER: target.id, MEDIA_MODEL: chosen } }
 }
 
 /** Append the images path unless the user already pasted a full endpoint. */
@@ -425,7 +458,7 @@ export function createMediaHandler({ workspaceRoot } = {}) {
       const size = String(parsed.size ?? '1024x1024')
       let provider
       try {
-        provider = resolveProvider(String(parsed.provider ?? ''))
+        provider = resolveProvider(String(parsed.provider ?? ''), String(parsed.model ?? ''))
       } catch (error) {
         res.writeHead(400, { 'content-type': 'application/json; charset=utf-8' })
         res.end(JSON.stringify({ ok: false, message: error.message }))
@@ -435,7 +468,7 @@ export function createMediaHandler({ workspaceRoot } = {}) {
       mkdirSync(dir, { recursive: true })
       const out = join(dir, `${Date.now()}.png`)
       const result = await runGenerate({ prompt, size, out, env: provider.env })
-      if (result.ok) result.model = provider.label
+      if (result.ok) result.model = provider.modelLabel ?? provider.label
       res.writeHead(result.ok ? 200 : 502, { 'content-type': 'application/json; charset=utf-8' })
       res.end(JSON.stringify(result))
       return

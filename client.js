@@ -91,6 +91,23 @@ window.__ModuleLoader__.load({
 .dshm-menu button:disabled:hover { background: none; }
 .dshm-menu .off { font-size: 11.5px; color: var(--dsw-alias-label-caption, #adb2b8); }
 .dshm-size { font-size: 12px; color: var(--dsw-alias-label-caption, #adb2b8); }
+.dshm-menu .lab { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.dshm-menu .lab .t { font-size: 13px; }
+.dshm-menu .lab .d { font-size: 11px; color: var(--dsw-alias-label-caption, #adb2b8); white-space: normal; }
+.dshm-menu .ok { color: var(--dsw-alias-label-primary, #232324); font-size: 13px; }
+.dshm-ratios {
+  position: absolute; left: 0; top: 34px; z-index: 30; display: grid; grid-template-columns: repeat(5, 60px); gap: 2px; padding: 6px;
+  background: var(--dsw-alias-bg-elevated, #fff); border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12));
+  border-radius: 12px; box-shadow: 0 10px 28px rgba(0,0,0,.14);
+}
+.dshm-ratio {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; height: 56px; padding: 0;
+  border: 0; border-radius: 8px; background: none; font: inherit; font-size: 11.5px; cursor: pointer;
+  color: var(--dsw-alias-label-tertiary, #81858c);
+}
+.dshm-ratio:hover { background: var(--dsw-alias-bg-layer-2, #f2f3f5); }
+.dshm-ratio[data-on="true"] { background: var(--dsw-alias-bg-layer-2, #f2f3f5); color: var(--dsw-alias-label-primary, #232324); font-weight: 500; }
+.dshm-glyph { border: 1.3px solid currentColor; border-radius: 2.5px; }
 
 .dshm-shield { display: flex; gap: 10px; align-items: flex-start; max-width: 680px; margin: 20px 0 0;
   font-size: 12.5px; line-height: 1.65; color: var(--dsw-alias-label-tertiary, #81858c); }
@@ -213,7 +230,32 @@ window.__ModuleLoader__.load({
       return clean.length > 18 ? `${clean.slice(0, 18)}…` : clean
     }
 
-    const RATIOS = [['1:1', '1024x1024'], ['16:9', '1024x576'], ['9:16', '576x1024'], ['4:3', '1024x768'], ['3:4', '768x1024']]
+    /** Canvases the panel offers; `smart` lets the provider pick its own default. */
+    const RATIOS = [
+      { id: 'smart', label: '智能', w: 0, h: 0 },
+      { id: '1:1', label: '1:1', w: 1, h: 1 },
+      { id: '9:16', label: '9:16', w: 9, h: 16 },
+      { id: '16:9', label: '16:9', w: 16, h: 9 },
+      { id: '3:4', label: '3:4', w: 3, h: 4 },
+      { id: '4:3', label: '4:3', w: 4, h: 3 },
+      { id: '2:3', label: '2:3', w: 2, h: 3 },
+      { id: '3:2', label: '3:2', w: 3, h: 2 },
+      { id: '9:21', label: '9:21', w: 9, h: 21 },
+      { id: '21:9', label: '21:9', w: 21, h: 9 },
+    ]
+    /** Long-edge tiers; the provider's own ceiling wins when it is smaller. */
+    const TIERS = [['1K', 1024], ['2K', 2048], ['4K', 4096]]
+
+    /** WxH for one ratio at one tier, snapped to a multiple of 8; '' means let the provider decide. */
+    function sizeOf(ratio, tier, ceiling) {
+      if (ratio.w === 0) return ''
+      const long = Math.min(TIERS.find(([id]) => id === tier)?.[1] ?? 1024, ceiling ?? 1024)
+      const [w, h] = ratio.w >= ratio.h
+        ? [long, (long * ratio.h) / ratio.w]
+        : [(long * ratio.w) / ratio.h, long]
+      const snap = (n) => Math.max(8, Math.round(n / 8) * 8)
+      return `${snap(w)}x${snap(h)}`
+    }
 
     function ShieldIcon() {
       return h('svg', { width: 16, height: 16, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.6, strokeLinecap: 'round', strokeLinejoin: 'round' },
@@ -247,8 +289,39 @@ window.__ModuleLoader__.load({
                 'data-on': String(option.current === true),
                 onClick: () => { setOpen(false); onPick(option) },
               },
-                h('span', null, option.label),
-                option.hint ? h('span', { className: 'off' }, option.hint) : null)))
+                h('span', { className: 'lab' },
+                  h('span', { className: 't' }, option.label),
+                  option.desc ? h('span', { className: 'd' }, option.desc) : null),
+                option.hint ? h('span', { className: 'off' }, option.hint) : null,
+                option.current === true ? h('i', { className: 'ok' }, '✓') : null)))
+          : null)
+    }
+
+    /** The canvas grid: one glyph per ratio, five to a row. */
+    function RatioPicker({ value, onPick }) {
+      const [open, setOpen] = React.useState(false)
+      React.useEffect(() => {
+        if (!open) return undefined
+        const close = () => setOpen(false)
+        document.addEventListener('mousedown', close)
+        return () => document.removeEventListener('mousedown', close)
+      }, [open])
+      return h('div', { className: 'dshm-pickwrap', onMouseDown: (e) => e.stopPropagation() },
+        h('button', { className: 'dshm-pick', type: 'button', onClick: () => setOpen((v) => !v) },
+          h('span', null, value.label), h('i', { className: 'car' })),
+        open
+          ? h('div', { className: 'dshm-ratios' }, RATIOS.map((ratio) => {
+              const scale = 20 / Math.max(ratio.w, ratio.h, 1)
+              return h('button', {
+                key: ratio.id, type: 'button', className: 'dshm-ratio',
+                'data-on': String(ratio.id === value.id),
+                onClick: () => { setOpen(false); onPick(ratio) },
+              },
+                ratio.w === 0
+                  ? h('span', { className: 'dshm-glyph', style: { width: 20, height: 20, borderStyle: 'dashed' } })
+                  : h('span', { className: 'dshm-glyph', style: { width: `${Math.round(ratio.w * scale)}px`, height: `${Math.round(ratio.h * scale)}px` } }),
+                h('span', null, ratio.label))
+            }))
           : null)
     }
 
@@ -350,7 +423,9 @@ window.__ModuleLoader__.load({
       const [works, setWorks] = React.useState(loadWorks)
       const [current, setCurrent] = React.useState(() => loadWorks()[0] ?? null)
       const [providerId, setProviderId] = React.useState('')
-      const [ratio, setRatio] = React.useState('16:9')
+      const [modelId, setModelId] = React.useState('')
+      const [ratio, setRatio] = React.useState(RATIOS[3])
+      const [tier, setTier] = React.useState('1K')
 
       const refresh = React.useCallback(() => {
         setStatusError(null)
@@ -368,14 +443,26 @@ window.__ModuleLoader__.load({
       const active = imageProviders.find((provider) => provider.id === providerId && provider.configured)
         ?? imageProviders.find((provider) => provider.configured)
         ?? null
-      const size = (RATIOS.find(([id]) => id === ratio) ?? RATIOS[1])[1]
-      const sizeLabel = size.replace('x', '×')
+      const modelsOf = (provider) => Array.isArray(provider?.models) && provider.models.length > 0
+        ? provider.models
+        : [{ id: provider?.model ?? '', label: provider?.label ?? '', desc: '', maxEdge: 1024 }]
+      const activeModel = active === null ? null : (modelsOf(active).find((model) => model.id === modelId) ?? modelsOf(active)[0])
+      const size = active === null ? '' : sizeOf(ratio, tier, activeModel?.maxEdge)
+      // A model swap can leave the tier above what the new model supports; fall back instead of pretending.
+      React.useEffect(() => {
+        const ceiling = activeModel?.maxEdge ?? 1024
+        if ((TIERS.find(([id]) => id === tier)?.[1] ?? 1024) > ceiling) setTier('1K')
+      }, [activeModel, tier])
+      const sizeLabel = size === '' ? '由服务商决定' : size.replace('x', '×')
 
       const generate = React.useCallback(async () => {
         if (busy || empty || left === 0) return
         setBusy(true); setError(null)
         try {
-          const result = await api('/generate', { method: 'POST', body: JSON.stringify({ prompt, size, provider: active?.id ?? '' }) })
+          const result = await api('/generate', {
+            method: 'POST',
+            body: JSON.stringify({ prompt, size, provider: active?.id ?? '', model: activeModel?.id ?? '' }),
+          })
           const work = {
             id: String(Date.now()), title: titleOf(prompt), prompt, size,
             model: result.model ?? active?.label ?? '未知模型', at: Date.now(),
@@ -388,7 +475,7 @@ window.__ModuleLoader__.load({
         } finally {
           setBusy(false)
         }
-      }, [busy, empty, left, prompt, works, active, size])
+      }, [busy, empty, left, prompt, works, active, activeModel, size])
 
       const head = h('div', { className: 'dshm-head' },
         h('div', null,
@@ -427,22 +514,32 @@ window.__ModuleLoader__.load({
             }),
             h('div', { className: 'dshm-pickers' },
               h(Picker, {
-                value: active !== null ? active.label : '未配置模型',
+                value: active === null ? '未配置模型' : (activeModel?.label ?? active.label),
                 options: imageProviders.length === 0
                   ? [{ id: 'none', label: '先去「生图 Key」配一个', disabled: true }]
-                  : imageProviders.map((provider) => ({
-                      id: provider.id,
-                      label: provider.label,
-                      current: active !== null && active.id === provider.id,
-                      hint: provider.configured ? provider.model : '未配置',
+                  : imageProviders.flatMap((provider) => modelsOf(provider).map((model) => ({
+                      id: `${provider.id}|${model.id}`,
+                      label: model.label,
+                      desc: [provider.label, model.desc].filter(Boolean).join(' · '),
+                      current: active !== null && active.id === provider.id && activeModel?.id === model.id,
                       disabled: !provider.configured,
-                    })),
-                onPick: (option) => setProviderId(option.id),
+                    }))),
+                onPick: (option) => {
+                  const [nextProvider, nextModel] = String(option.id).split('|')
+                  setProviderId(nextProvider)
+                  setModelId(nextModel)
+                },
               }),
+              h(RatioPicker, { value: ratio, onPick: setRatio }),
               h(Picker, {
-                value: ratio,
-                options: RATIOS.map(([id, px]) => ({ id, label: id, current: id === ratio, hint: px.replace('x', '×') })),
-                onPick: (option) => setRatio(option.id),
+                value: tier,
+                options: TIERS.map(([id, edge]) => {
+                  const ceiling = activeModel?.maxEdge ?? 1024
+                  return edge > ceiling
+                    ? { id, label: id, hint: `该模型最高 ${ceiling}px`, disabled: true }
+                    : { id, label: id, current: id === tier, hint: `${edge}px 长边` }
+                }),
+                onPick: (option) => setTier(option.id),
               }),
               h('span', { className: 'dshm-size' }, sizeLabel)),
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },

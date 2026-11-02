@@ -83,7 +83,9 @@ def generate_sensenova(prompt, out, size, model=None):
     print("done:", out)
 
 def generate_siliconflow(prompt, out, size, model=None):
-    body = {"model": model or SILICONFLOW_MODEL, "prompt": prompt, "image_size": size, "batch_size": 1}
+    body = {"model": model or SILICONFLOW_MODEL, "prompt": prompt, "batch_size": 1}
+    if size:
+        body["image_size"] = size
     req = urllib.request.Request(SILICONFLOW_URL,
         data=json.dumps(body).encode(),
         headers={"Content-Type": "application/json", "Authorization": "Bearer " + load_key("SILICONFLOW_API_KEY")}, method="POST")
