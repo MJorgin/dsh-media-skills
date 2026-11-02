@@ -82,7 +82,7 @@ SILICONFLOW_API_KEY=...
 - **生图 Key**：プロバイダごとにキーを貼り付け。キーは `~/.dsh/secrets/media-tools.env`（パーミッション 600）に書き込まれ、**アップロードされることはなく**、生成以外には使われません。設定済みのキーは `••••abcd` と表示され、目のアイコンで一時的に確認できます。
 - **キーが 1 つもない場合**：**Flux（免 Key）** を選べばそのまま使えます。Pollinations は登録もキーも不要です（同一 IP で 45 秒に 1 枚、最大 768×768、隅に小さなロゴ）。
 
-デスクトップアプリのサイドバー **Plugins** → 右上 **Add plugin** → **Install a third-party plugin** → パッケージ名 `dsh-media-skills` を入力 → **Install**。完了後にアプリを一度再起動してください（プラグインは起動時に読み込まれます）。ターミナルからでも入れられます：
+デスクトップアプリのサイドバー **Plugins** → 右上 **Add plugin** → パッケージ名 `dsh-media-skills` を入力 → **Install**。完了後にアプリを一度再起動してください（プラグインは起動時に読み込まれます）。ターミナルからでも入れられます：
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills

@@ -87,11 +87,13 @@ The other built-in rows (SenseNova, SiliconFlow) are free-tier-or-cheap third-pa
 
 **1. Install — in the app, no terminal.** Four clicks:
 
-> **插件** → **添加插件** → **安装第三方插件** → 包名 `dsh-media-skills` → **安装**
+> **插件** → **添加插件** → 包名 `dsh-media-skills` → **安装**
+
+<img src="https://raw.githubusercontent.com/MJorgin/dsh-media-skills/main/docs/screenshots/install-dialog.png" alt="The 添加插件 dialog, with dsh-media-skills typed into the package field and 安装 enabled" width="64%">
 
 1. Sidebar → **插件** (Plugins)
-2. Top right → **添加插件** (Add plugin) → **安装第三方插件** (Install a third-party plugin)
-3. In **包名或地址** (package name or address) type `dsh-media-skills`, then click **安装** (Install) — pnpm fetches it, a few seconds
+2. Top right → **添加插件** (Add plugin) — the dialog above opens
+3. Type `dsh-media-skills` into the package field, then click **安装** (Install) — pnpm fetches it, a few seconds
 4. It ends with 「请重启 DSH 使更改生效。」 — that is the normal ending, not an error
 
 Same thing from a terminal, if you prefer:
@@ -100,7 +102,7 @@ Same thing from a terminal, if you prefer:
 dsh plugin --profile desktop add dsh-media-skills
 ```
 
-`latest` is the current release; pin a version (`dsh-media-skills@0.6.2`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
+`latest` is the current release; pin a version (`dsh-media-skills@0.6.3`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
 
 **2. Restart the app** (⌘Q, then open it again). Plugins load at boot — a newly installed page will not appear until you restart. The sidebar then shows a new row: **创作**.
 

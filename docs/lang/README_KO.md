@@ -82,7 +82,7 @@ SILICONFLOW_API_KEY=...
 - **生图 Key**: 제공자별로 키를 붙여넣습니다. 키는 `~/.dsh/secrets/media-tools.env`(권한 600)에 기록되며 **업로드되지 않고** 생성 외에는 쓰이지 않습니다. 저장된 키는 `••••abcd` 로 표시되고 눈 아이콘으로 잠시 확인할 수 있습니다.
 - **키가 하나도 없을 때**: **Flux (免 Key)** 를 고르면 바로 됩니다. Pollinations는 가입도 키도 필요 없습니다(같은 IP에서 45초에 1장, 최대 768×768, 모서리에 작은 로고).
 
-데스크톱 앱 사이드바 **Plugins** → 오른쪽 위 **Add plugin** → **Install a third-party plugin** → 패키지 이름 `dsh-media-skills` 입력 → **Install**. 설치 후 앱을 한 번 재시작하세요(플러그인은 시작할 때 로드됩니다). 터미널에서도 설치할 수 있습니다:
+데스크톱 앱 사이드바 **Plugins** → 오른쪽 위 **Add plugin** → 패키지 이름 `dsh-media-skills` 입력 → **Install**. 설치 후 앱을 한 번 재시작하세요(플러그인은 시작할 때 로드됩니다). 터미널에서도 설치할 수 있습니다:
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills
