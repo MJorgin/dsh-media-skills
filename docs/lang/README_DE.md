@@ -82,7 +82,7 @@ Ab Desktop 0.2.1 darf ein Plugin eine eigene Seite registrieren — dieses Bundl
 - **生图 Key**: pro Anbieter einen Schlüssel einfügen. Er wird nach `~/.dsh/secrets/media-tools.env` geschrieben (Modus 600), **nie hochgeladen** und nur zum Generieren verwendet. Gespeicherte Schlüssel erscheinen als `••••abcd`, das Auge zeigt sie kurz.
 - **Gar kein Schlüssel?** Nimm **Flux (免 Key)** — Pollinations braucht weder Anmeldung noch Schlüssel (ein Bild pro IP alle 45 Sekunden, bis 768×768, kleines Logo).
 
-Ins desktop-Profil installieren und die App einmal neu starten (Plugins laden beim Start):
+In der Desktop-App: Seitenleiste **Plugins** → oben rechts **Add plugin** → **Install a third-party plugin** → Paketnamen `dsh-media-skills` eingeben → **Install**. Danach die App einmal neu starten (Plugins laden beim Start). Alternativ im Terminal:
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills

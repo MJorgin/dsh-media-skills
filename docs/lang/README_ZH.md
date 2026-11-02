@@ -107,7 +107,7 @@ dsh plugin --profile <name> add dsh-media-skills
 - **生图 Key**：每个提供方一行。粘进去的 Key 由插件写进 `~/.dsh/secrets/media-tools.env`（权限 600），**不会上传**，也不会用于生成以外的任何用途；已有的 Key 显示成 `••••abcd`，点小眼睛可临时查看。
 - **一个 Key 都没有？** 选 **Flux（免 Key）** 就能直接用——Pollinations 不用注册、不用 Key（同一 IP 每 45 秒一张，最大 768×768，角落有小 logo）。
 
-装到 desktop profile，然后重启一次应用（插件在启动时加载）：
+在桌面端侧栏 **插件** → 右上角 **添加插件** → **安装第三方插件** → 输入 `dsh-media-skills` → **安装**；装完提示「请重启 DSH 使更改生效。」，重启一次应用（插件在启动时加载）。也可以用命令行：
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills

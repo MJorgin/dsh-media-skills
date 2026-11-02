@@ -82,7 +82,7 @@ A partir do desktop 0.2.1 um plugin pode registrar a própria página; este paco
 - **生图 Key**: cole uma chave por provedor. Ela vai para `~/.dsh/secrets/media-tools.env` (permissão 600), **nunca é enviada** e só serve para gerar. Chaves salvas aparecem como `••••abcd`, com um olho para vê-las por um instante.
 - **Sem nenhuma chave?** Escolha **Flux (免 Key)** — o Pollinations não pede cadastro nem chave (uma imagem por IP a cada 45 segundos, até 768×768, com um logo pequeno).
 
-Instale no perfil desktop e reinicie o app uma vez (plugins carregam na inicialização):
+No app de desktop: barra lateral **Plugins** → **Add plugin** (canto superior direito) → **Install a third-party plugin** → digite `dsh-media-skills` → **Install**. Depois reinicie o app uma vez (plugins carregam na inicialização). Também pelo terminal:
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills

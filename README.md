@@ -85,15 +85,24 @@ The other built-in rows (SenseNova, SiliconFlow) are free-tier-or-cheap third-pa
 
 ## ⚡ Quick start
 
-**1. Install.** In the desktop app: sidebar **插件** → **添加插件** → type `dsh-media-skills`. Or from a terminal:
+**1. Install — in the app, no terminal.** Four clicks:
+
+> **插件** → **添加插件** → **安装第三方插件** → 包名 `dsh-media-skills` → **安装**
+
+1. Sidebar → **插件** (Plugins)
+2. Top right → **添加插件** (Add plugin) → **安装第三方插件** (Install a third-party plugin)
+3. In **包名或地址** (package name or address) type `dsh-media-skills`, then click **安装** (Install) — pnpm fetches it, a few seconds
+4. It ends with 「请重启 DSH 使更改生效。」 — that is the normal ending, not an error
+
+Same thing from a terminal, if you prefer:
 
 ```sh
 dsh plugin --profile desktop add dsh-media-skills
 ```
 
-`latest` is the current release; pin a version (`dsh-media-skills@0.6.1`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
+`latest` is the current release; pin a version (`dsh-media-skills@0.6.2`) if you need to. The GitHub form still works: `add github:MJorgin/dsh-media-skills`.
 
-**2. Restart the app** (⌘Q, then open it again). Plugins load at boot — a newly installed page will not appear until you restart.
+**2. Restart the app** (⌘Q, then open it again). Plugins load at boot — a newly installed page will not appear until you restart. The sidebar then shows a new row: **创作**.
 
 **3. Open 创作** in the sidebar and generate something. With no key configured, pick **Flux（免 Key）** and it will just work.
 
