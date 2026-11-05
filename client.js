@@ -24,7 +24,109 @@ window.__ModuleLoader__.load({
     const STORE_KEY = 'dsh-media-skills.works'
     const PICK_KEY = 'dsh-media-skills.pick'
     const PANEL_ID = 'media-desk'
-    const TABS = [['generate', '生成'], ['works', '作品'], ['keys', '生图 Key']]
+    const NS = 'mediaDesk'
+    const TABS = ['generate', 'works', 'keys']
+    // Both baseline locales live here: the panel is the same page in either
+    // language, so a switch re-renders it through the host's locale service.
+    const COPY = {
+      zh: {
+        panel: '图像', title: '图像', subtitle: '生成图片，回看作品',
+        'tab.generate': '生成', 'tab.works': '作品', 'tab.keys': '生图 Key',
+        'quota.left': '今日还剩 {n} 张', 'quota.none': '今日配额已用完',
+        'state.reading': '读取中…', 'state.offline': '无法连接',
+        'spec.providerDefault': '服务商默认',
+        'key.shield': 'Key 只写进本机 ~/.dsh/secrets/media-tools.env（权限 600），不会上传，也不会用于生成以外的用途。',
+        'key.keyless': '免 Key', 'key.configured': '已配置 {hint}', 'key.missing': '未配置',
+        'label.baseUrl': '地址', 'label.model': '模型', 'label.name': '名称',
+        'key.keylessNote': '这个提供方不需要 Key，地址和模型填好就能直接用。',
+        'key.keep': 'API Key（留空表示不改）', 'key.label': 'API Key', 'key.placeholder': '粘贴你的 Key',
+        'key.show': '显示', 'key.hide': '隐藏',
+        'docs.site': '官网 ↗', 'docs.get': '获取 Key ↗',
+        saving: '保存中…', save: '保存',
+        'custom.title': '自定义提供方', 'custom.compat': 'OpenAI 兼容',
+        'custom.namePlaceholder': '例如 即梦 / 可灵', 'custom.modelPlaceholder': '模型 ID',
+        'key.optional': 'API Key（服务不需要就留空）', 'key.optionalPlaceholder': '没有就留空',
+        cancel: '取消', add: '添加', 'custom.add': '＋ 添加自定义提供方',
+        'size.auto': '由服务商决定', 'model.unknown': '未知模型',
+        'tier.ceiling': '该模型最高 {n}px', 'tier.edge': '{n}px 长边',
+        generate: '生成', 'generate.running': '生成中…',
+        hint: '⌘⏎ 直接生成。结果只写进本机工作区，不会上传。',
+        'placeholder.prompt': '描述你想要的画面，比如「雨夜街角，霓虹倒影，35mm 电影感」',
+        'error.title': '生成失败。', retry: '重试',
+        'empty.works': '暂无作品。', 'empty.works.body': '生成过的图片会按时间排列在这里。',
+        'empty.generate.body': '生成的第一张会出现在这里，可以随时回来复用它的参数。',
+        'go.generate': '去生成', 'work.defaultSize': '默认',
+        'zoom.open': '在新标签页打开', 'zoom.close': '关闭',
+        'action.reuse': '复用参数', 'action.copy': '复制提示词', 'action.copied': '已复制',
+        'action.open': '打开原图', 'action.delete': '删除', 'action.confirmDelete': '确认删除',
+        'action.inWorks': '在作品里看', 'action.openTab': '在新标签页打开原图', 'action.zoom': '放大看',
+        'model.notConfigured': '未配置模型', 'provider.pickFirst': '先去「生图 Key」配一个',
+        'note.busy': '一般十几秒，慢的时候会久一点。',
+        'ratio.smart': '智能', 'detail.title': '选一张看细节。', 'detail.body': '点左边的任意一张。',
+      },
+      en: {
+        panel: 'Images', title: 'Images', subtitle: 'Make pictures, keep them in one place',
+        'tab.generate': 'Generate', 'tab.works': 'Works', 'tab.keys': 'Image key',
+        'quota.left': '{n} left today', 'quota.none': 'Out of quota for today',
+        'state.reading': 'Loading…', 'state.offline': 'Not connected',
+        'spec.providerDefault': 'provider default',
+        'key.shield': 'Keys are written only to ~/.dsh/secrets/media-tools.env (mode 600) on this machine. They are never uploaded, and never used for anything but generating.',
+        'key.keyless': 'No key', 'key.configured': 'Configured {hint}', 'key.missing': 'Not configured',
+        'label.baseUrl': 'Endpoint', 'label.model': 'Model', 'label.name': 'Name',
+        'key.keylessNote': 'This provider needs no key — set the endpoint and model, and you are done.',
+        'key.keep': 'API Key (leave empty to keep the current one)', 'key.label': 'API Key',
+        'key.placeholder': 'Paste your key',
+        'key.show': 'Show', 'key.hide': 'Hide',
+        'docs.site': 'Website ↗', 'docs.get': 'Get a key ↗',
+        saving: 'Saving…', save: 'Save',
+        'custom.title': 'Custom provider', 'custom.compat': 'OpenAI compatible',
+        'custom.namePlaceholder': 'e.g. Dreamina / Kling', 'custom.modelPlaceholder': 'Model ID',
+        'key.optional': 'API Key (leave empty if the service needs none)',
+        'key.optionalPlaceholder': 'Leave empty if none',
+        cancel: 'Cancel', add: 'Add', 'custom.add': '＋ Add a custom provider',
+        'size.auto': 'Set by the provider', 'model.unknown': 'Unknown model',
+        'tier.ceiling': 'This model tops out at {n}px', 'tier.edge': '{n}px long edge',
+        generate: 'Generate', 'generate.running': 'Generating…',
+        hint: '⌘⏎ generates. Images only land in your local workspace — nothing is uploaded.',
+        'placeholder.prompt': 'Describe the picture, e.g. "a rainy street corner, neon reflections, 35mm film look"',
+        'error.title': 'Generation failed.', retry: 'Retry',
+        'empty.works': 'No works yet.', 'empty.works.body': 'Generated images will be listed here, newest first.',
+        'empty.generate.body': 'Your first image will land here — you can reuse its settings any time.',
+        'go.generate': 'Start generating', 'work.defaultSize': 'default',
+        'zoom.open': 'Open in a new tab', 'zoom.close': 'Close',
+        'action.reuse': 'Reuse settings', 'action.copy': 'Copy prompt', 'action.copied': 'Copied',
+        'action.open': 'Open original', 'action.delete': 'Delete', 'action.confirmDelete': 'Confirm delete',
+        'action.inWorks': 'See in Works', 'action.openTab': 'Open the original in a new tab', 'action.zoom': 'Zoom in',
+        'model.notConfigured': 'No model configured', 'provider.pickFirst': 'Set one up in Image key first',
+        'note.busy': 'Usually ten seconds or so; sometimes slower.',
+        'ratio.smart': 'Auto', 'detail.title': 'Pick one to see it here.', 'detail.body': 'Any picture on the left.',
+      },
+    }
+    // Replaced by the host-bound translate() once apply() sees the locale
+    // service; the fallback keeps the bundle renderable on its own.
+    let t = (key, params) => {
+      const template = COPY.zh[key] ?? key
+      if (params === undefined) return template
+      return template.replace(/\{(\w+)\}/g, (match, name) => (name in params ? String(params[name]) : match))
+    }
+    let localeCtx = null
+    // Provider tables arrive from the host in both languages; pick the one the
+    // panel is speaking right now.
+    function englishNow() {
+      if (localeCtx === null || typeof localeCtx.getSnapshot !== 'function') return false
+      try {
+        return String(localeCtx.getSnapshot()?.active ?? 'zh').toLowerCase().startsWith('en')
+      } catch { return false }
+    }
+    // Slot content re-renders when the language changes; the sidebar does the
+    // same for the row label through its own locale subscription.
+    function useLocale() {
+      const [, bump] = React.useState(0)
+      React.useEffect(() => {
+        if (localeCtx === null || typeof localeCtx.subscribe !== 'function') return undefined
+        return localeCtx.subscribe(() => bump((n) => n + 1))
+      }, [])
+    }
 
     const CSS = `
 .dshm-page {
@@ -266,7 +368,7 @@ window.__ModuleLoader__.load({
 
     /** Canvases the panel offers; `smart` lets the provider pick its own default. */
     const RATIOS = [
-      { id: 'smart', label: '智能', w: 0, h: 0 },
+      { id: 'smart', label: '', w: 0, h: 0 }, // label comes from the dictionary
       { id: '1:1', label: '1:1', w: 1, h: 1 },
       { id: '9:16', label: '9:16', w: 9, h: 16 },
       { id: '16:9', label: '16:9', w: 16, h: 9 },
@@ -332,7 +434,7 @@ window.__ModuleLoader__.load({
                 onClick: () => { setOpen(false); onPick(option) },
               },
                 h('span', { className: 'lab' },
-                  h('span', { className: 't' }, option.label),
+                  h('span', { className: 't' }, option.id === 'smart' ? t('ratio.smart') : option.label),
                   option.desc ? h('span', { className: 'd' }, option.desc) : null),
                 option.hint ? h('span', { className: 'off' }, option.hint) : null,
                 option.current === true ? h('i', { className: 'ok' }, '✓') : null)))
@@ -404,7 +506,7 @@ window.__ModuleLoader__.load({
       const id = work === null || work === undefined ? '' : work.id
       React.useEffect(() => { setCopied(false); setConfirming(false) }, [id])
       if (work === null || work === undefined) {
-        return h('div', { className: 'dshm-note' }, h('b', null, '选一张看细节。'), '点左边的任意一张。')
+        return h('div', { className: 'dshm-note' }, h('b', null, t('detail.title')), t('detail.body'))
       }
       const at = new Date(work.at)
       const when = `${at.getFullYear()}/${at.getMonth() + 1}/${at.getDate()} ${String(at.getHours()).padStart(2, '0')}:${String(at.getMinutes()).padStart(2, '0')}`
@@ -427,27 +529,27 @@ window.__ModuleLoader__.load({
       }
       const actions = [
         mode === 'detail' && onReuse !== undefined
-          ? h('button', { key: 'reuse', className: 'dshm-act', onClick: () => onReuse(work) }, '复用参数')
+          ? h('button', { key: 'reuse', className: 'dshm-act', onClick: () => onReuse(work) }, t('action.reuse'))
           : null,
-        h('button', { key: 'copy', className: 'dshm-act', onClick: copy }, copied ? '已复制' : '复制提示词'),
-        h('a', { key: 'open', className: 'dshm-act', href: work.src, target: '_blank', rel: 'noreferrer' }, '打开原图'),
+        h('button', { key: 'copy', className: 'dshm-act', onClick: copy }, copied ? t('action.copied') : t('action.copy')),
+        h('a', { key: 'open', className: 'dshm-act', href: work.src, target: '_blank', rel: 'noreferrer' }, t('action.open')),
         mode === 'detail' && onDelete !== undefined
-          ? h('button', { key: 'del', className: 'dshm-act', 'data-danger': 'true', onClick: remove }, confirming ? '确认删除' : '删除')
-          : onOpen !== undefined ? h('button', { key: 'more', className: 'dshm-act', onClick: onOpen }, '在作品里看') : null,
+          ? h('button', { key: 'del', className: 'dshm-act', 'data-danger': 'true', onClick: remove }, confirming ? t('action.confirmDelete') : t('action.delete'))
+          : onOpen !== undefined ? h('button', { key: 'more', className: 'dshm-act', onClick: onOpen }, t('action.inWorks')) : null,
       ].filter((node) => node !== null)
       return h('div', { className: mode === 'detail' ? 'dshm-detail' : 'dshm-proof' },
         h('div', { className: 'dshm-shot', style: { aspectRatio: String(ratioOfSize(work.size)) } },
           onZoom === undefined
-            ? h('a', { href: work.src, target: '_blank', rel: 'noreferrer', title: '在新标签页打开原图' },
+            ? h('a', { href: work.src, target: '_blank', rel: 'noreferrer', title: t('action.openTab') },
                 h('img', { src: work.src, alt: work.title }))
-            : h('button', { className: 'dshm-shotbtn', type: 'button', title: '放大看', onClick: () => onZoom(work) },
+            : h('button', { className: 'dshm-shotbtn', type: 'button', title: t('action.zoom'), onClick: () => onZoom(work) },
                 h('img', { src: work.src, alt: work.title }))),
         h('div', { className: 'dshm-label' },
           h('div', { className: 'top' },
             h('span', { className: 'dshm-no' }, `No. ${frameNo(index, total)}`),
             h('span', { className: 'dshm-no' }, when)),
           h('div', { className: 'dshm-spec' },
-            `${work.model} · ${work.size === '' || work.size === undefined ? '服务商默认' : String(work.size).replace('x', '×')}`),
+            `${work.model} · ${work.size === '' || work.size === undefined ? t('spec.providerDefault') : String(work.size).replace('x', '×')}`),
           h('p', { className: 'prompt' }, work.prompt),
           h('div', { className: 'dshm-acts' }, actions)))
     }
@@ -492,7 +594,7 @@ window.__ModuleLoader__.load({
 
       return h('div', null,
         h('div', { className: 'dshm-shield' }, h(ShieldIcon),
-          h('span', null, 'Key 只写进本机 ~/.dsh/secrets/media-tools.env（权限 600），不会上传，也不会用于生成以外的用途。')),
+          h('span', null, t('key.shield'))),
         h('div', { className: 'dshm-keys' },
           providers.map((provider) => {
             const draft = draftOf(provider)
@@ -500,51 +602,52 @@ window.__ModuleLoader__.load({
               h('div', { className: 'kh' },
                 h('b', null, provider.label),
                 h('span', null, provider.keyless === true
-                  ? '免 Key'
-                  : provider.configured ? `已配置 ${provider.keyHint ?? ''}`.trim() : '未配置')),
+                  ? t('key.keyless')
+                  : provider.configured ? t('key.configured', { hint: provider.keyHint ?? '' }).trim() : t('key.missing'))),
               h('div', { className: 'kf' },
-                h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
+                h('div', null, h('label', { className: 'dshm-lab' }, t('label.baseUrl')),
                   h('input', { className: 'dshm-input', value: draft.baseUrl, onChange: (e) => edit(provider.id, { baseUrl: e.target.value }) })),
-                h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
+                h('div', null, h('label', { className: 'dshm-lab' }, t('label.model')),
                   h('input', { className: 'dshm-input', value: draft.model, onChange: (e) => edit(provider.id, { model: e.target.value }) }))),
               provider.keyless === true
-                ? h('div', { className: 'dshm-lab' }, '这个提供方不需要 Key，地址和模型填好就能直接用。')
-                : h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? 'API Key（留空表示不改）' : 'API Key'),
+                ? h('div', { className: 'dshm-lab' }, t('key.keylessNote'))
+                : h('div', null, h('label', { className: 'dshm-lab' }, provider.configured ? t('key.keep') : t('key.label')),
                     h('div', { className: 'dshm-keywrap' },
-                      h('input', { className: 'dshm-input', type: reveal[provider.id] === true ? 'text' : 'password', placeholder: provider.configured ? '••••••••' : '粘贴你的 Key', value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) }),
-                      h('button', { className: 'dshm-eye', type: 'button', title: reveal[provider.id] === true ? '隐藏' : '显示', onClick: () => toggleReveal(provider.id) },
+                      h('input', { className: 'dshm-input', type: reveal[provider.id] === true ? 'text' : 'password', placeholder: provider.configured ? '••••••••' : t('key.placeholder'), value: draft.key, onChange: (e) => edit(provider.id, { key: e.target.value }) }),
+                      h('button', { className: 'dshm-eye', type: 'button', title: reveal[provider.id] === true ? t('key.hide') : t('key.show'), onClick: () => toggleReveal(provider.id) },
                         h(EyeIcon, { open: reveal[provider.id] === true })))),
               h('div', { className: 'dshm-kfoot' },
                 provider.docs
-                  ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, provider.keyless === true ? '官网 ↗' : '获取 Key ↗')
+                  ? h('a', { href: provider.docs, target: '_blank', rel: 'noreferrer' }, provider.keyless === true ? t('docs.site') : t('docs.get'))
                   : h('span', null, ''),
                 h('button', { className: 'dshm-save', disabled: saving === provider.id, onClick: () => save(provider) },
-                  saving === provider.id ? '保存中…' : '保存')))
+                  saving === provider.id ? t('saving') : t('save'))))
           }),
           adding
             ? h('div', { className: 'dshm-krow' },
-                h('div', { className: 'kh' }, h('b', null, '自定义提供方'), h('span', null, 'OpenAI 兼容')),
+                h('div', { className: 'kh' }, h('b', null, t('custom.title')), h('span', null, t('custom.compat'))),
                 h('div', { className: 'kf' },
-                  h('div', null, h('label', { className: 'dshm-lab' }, '名称'),
-                    h('input', { className: 'dshm-input', placeholder: '例如 即梦 / 可灵', value: form.label, onChange: (e) => setForm({ ...form, label: e.target.value }) })),
-                  h('div', null, h('label', { className: 'dshm-lab' }, '模型'),
-                    h('input', { className: 'dshm-input', placeholder: '模型 ID', value: form.model, onChange: (e) => setForm({ ...form, model: e.target.value }) }))),
-                h('div', null, h('label', { className: 'dshm-lab' }, '地址'),
+                  h('div', null, h('label', { className: 'dshm-lab' }, t('label.name')),
+                    h('input', { className: 'dshm-input', placeholder: t('custom.namePlaceholder'), value: form.label, onChange: (e) => setForm({ ...form, label: e.target.value }) })),
+                  h('div', null, h('label', { className: 'dshm-lab' }, t('label.model')),
+                    h('input', { className: 'dshm-input', placeholder: t('custom.modelPlaceholder'), value: form.model, onChange: (e) => setForm({ ...form, model: e.target.value }) }))),
+                h('div', null, h('label', { className: 'dshm-lab' }, t('label.baseUrl')),
                   h('input', { className: 'dshm-input', placeholder: 'https://api.example.com/v1', value: form.baseUrl, onChange: (e) => setForm({ ...form, baseUrl: e.target.value }) })),
-                h('div', null, h('label', { className: 'dshm-lab' }, 'API Key（服务不需要就留空）'),
+                h('div', null, h('label', { className: 'dshm-lab' }, t('key.optional')),
                   h('div', { className: 'dshm-keywrap' },
-                    h('input', { className: 'dshm-input', type: reveal.custom === true ? 'text' : 'password', placeholder: '没有就留空', value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) }),
-                    h('button', { className: 'dshm-eye', type: 'button', title: reveal.custom === true ? '隐藏' : '显示', onClick: () => toggleReveal('custom') },
+                    h('input', { className: 'dshm-input', type: reveal.custom === true ? 'text' : 'password', placeholder: t('key.optionalPlaceholder'), value: form.key, onChange: (e) => setForm({ ...form, key: e.target.value }) }),
+                    h('button', { className: 'dshm-eye', type: 'button', title: reveal.custom === true ? t('key.hide') : t('key.show'), onClick: () => toggleReveal('custom') },
                       h(EyeIcon, { open: reveal.custom === true })))),
                 h('div', { className: 'dshm-kfoot' },
-                  h('a', { href: '#', onClick: (e) => { e.preventDefault(); setAdding(false) } }, '取消'),
+                  h('a', { href: '#', onClick: (e) => { e.preventDefault(); setAdding(false) } }, t('cancel')),
                   h('button', { className: 'dshm-save', disabled: saving === 'custom', onClick: addCustom },
-                    saving === 'custom' ? '保存中…' : '添加')))
-            : h('button', { className: 'dshm-addrow', onClick: () => setAdding(true) }, '＋ 添加自定义提供方')),
+                    saving === 'custom' ? t('saving') : t('add'))))
+            : h('button', { className: 'dshm-addrow', onClick: () => setAdding(true) }, t('custom.add'))),
         error !== null ? h('div', { className: 'dshm-err' }, error) : null)
     }
 
     function MediaPage() {
+      useLocale()
       const [tab, setTab] = React.useState('generate')
       const [status, setStatus] = React.useState(null)
       const [statusError, setStatusError] = React.useState(null)
@@ -597,7 +700,7 @@ window.__ModuleLoader__.load({
         const ceiling = activeModel?.maxEdge ?? 1024
         if ((TIERS.find(([id]) => id === tier)?.[1] ?? 1024) > ceiling) setTier('1K')
       }, [activeModel, tier])
-      const sizeLabel = size === '' ? '由服务商决定' : size.replace('x', '×')
+      const sizeLabel = size === '' ? t('size.auto') : size.replace('x', '×')
 
       const generate = React.useCallback(async () => {
         if (busy || empty || left === 0) return
@@ -609,7 +712,7 @@ window.__ModuleLoader__.load({
           })
           const work = {
             id: String(Date.now()), title: titleOf(prompt), prompt, size,
-            model: result.model ?? active?.label ?? '未知模型', at: Date.now(),
+            model: result.model ?? active?.label ?? t('model.unknown'), at: Date.now(),
             src: `/media/file?p=${encodeURIComponent(result.file)}`,
             file: result.file,
             providerId: active?.id ?? '', modelId: activeModel?.id ?? '',
@@ -650,30 +753,30 @@ window.__ModuleLoader__.load({
 
       const head = h('div', { className: 'dshm-head' },
         h('div', null,
-          h('h1', null, '创作'),
-          h('p', null, '生成图片，回看作品')),
+          h('h1', null, t('title')),
+          h('p', null, t('subtitle'))),
         h('span', { className: 'dshm-quota' },
-          statusError !== null ? '无法连接' : status === null ? '读取中…' : `今日还剩 ${left} 张`))
+          statusError !== null ? t('state.offline') : status === null ? t('state.reading') : t('quota.left', { n: left })))
 
-      const tabs = h('div', { className: 'dshm-tabs' }, TABS.map(([id, label]) =>
-        h('button', { key: id, className: 'dshm-tab', 'data-on': String(tab === id), onClick: () => setTab(id) }, label)))
+      const tabs = h('div', { className: 'dshm-tabs' }, TABS.map((id) =>
+        h('button', { key: id, className: 'dshm-tab', 'data-on': String(tab === id), onClick: () => setTab(id) }, t('tab.' + id))))
 
       let body
       if (tab === 'generate') {
         // One result, framed at the ratio that was asked for while it is still running.
         const shape = ratio.w === 0 ? 1 : ratio.w / ratio.h
         const right = error !== null
-          ? h('div', { className: 'dshm-note' }, h('b', null, '生成失败。'), error,
+          ? h('div', { className: 'dshm-note' }, h('b', null, t('error.title')), error,
               h('div', { style: { marginTop: 14 } },
-                h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: generate }, '重试')))
+                h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: generate }, t('retry'))))
           : busy
             ? h('div', null,
                 h('div', { className: 'dshm-shot dshm-skel', style: { aspectRatio: String(shape) } }),
                 h('div', { className: 'dshm-label' },
                   h('div', { className: 'top' },
-                    h('span', { className: 'dshm-no' }, '生成中'),
+                    h('span', { className: 'dshm-no' }, t('generate.running')),
                     h('span', { className: 'dshm-no' }, sizeLabel)),
-                  h('div', { className: 'dshm-spec' }, '一般十几秒，慢的时候会久一点。')))
+                  h('div', { className: 'dshm-spec' }, t('note.busy'))))
             : current !== null
               ? h(Proof, {
                   work: current, mode: 'result', index: 0, total: works.length,
@@ -681,27 +784,27 @@ window.__ModuleLoader__.load({
                   onZoom: setZoom,
                 })
               : h('div', { className: 'dshm-note' },
-                  h('b', null, '暂无作品。'),
-                  '生成的第一张会出现在这里，可以随时回来复用它的参数。')
+                  h('b', null, t('empty.works')),
+                  t('empty.generate.body'))
 
         body = h('div', { className: 'dshm-split' },
           h('div', null,
             h('textarea', {
               className: 'dshm-field',
-              placeholder: '描述你想要的画面，比如「雨夜街角，霓虹倒影，35mm 电影感」',
+              placeholder: t('placeholder.prompt'),
               value: prompt,
               onChange: (e) => setPrompt(e.target.value),
               onKeyDown: (e) => { if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') generate() },
             }),
             h('div', { className: 'dshm-pickers' },
               h(Picker, {
-                value: status === null ? '读取中…' : active === null ? '未配置模型' : (activeModel?.label ?? active.label),
+                value: status === null ? t('state.reading') : active === null ? t('model.notConfigured') : (activeModel?.label ?? active.label),
                 options: imageProviders.length === 0
-                  ? [{ id: 'none', label: '先去「生图 Key」配一个', disabled: true }]
+                  ? [{ id: 'none', label: t('provider.pickFirst'), disabled: true }]
                   : imageProviders.flatMap((provider) => modelsOf(provider).map((model) => ({
                       id: `${provider.id}|${model.id}`,
                       label: model.label,
-                      desc: [provider.label, model.desc].filter(Boolean).join(' · '),
+                      desc: [provider.label, englishNow() ? (model.descEn ?? model.desc) : model.desc].filter(Boolean).join(' · '),
                       current: active !== null && active.id === provider.id && activeModel?.id === model.id,
                       disabled: !provider.configured,
                     }))),
@@ -717,23 +820,23 @@ window.__ModuleLoader__.load({
                 options: TIERS.map(([id, edge]) => {
                   const ceiling = activeModel?.maxEdge ?? 1024
                   return edge > ceiling
-                    ? { id, label: id, hint: `该模型最高 ${ceiling}px`, disabled: true }
-                    : { id, label: id, current: id === tier, hint: `${edge}px 长边` }
+                    ? { id, label: id, hint: t('tier.ceiling', { n: ceiling }), disabled: true }
+                    : { id, label: id, current: id === tier, hint: t('tier.edge', { n: edge }) }
                 }),
                 onPick: (option) => setTier(option.id),
               }),
               h('span', { className: 'dshm-size' }, sizeLabel)),
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },
-              busy ? '生成中…' : left === 0 ? '今日配额已用完' : '生成'),
-            h('div', { className: 'dshm-hint' }, '⌘⏎ 直接生成。结果只写进本机工作区，不会上传。')),
+              busy ? t('generate.running') : left === 0 ? t('quota.none') : t('generate')),
+            h('div', { className: 'dshm-hint' }, t('hint'))),
           h('div', null, right))
       } else if (tab === 'works') {
         const picked = works.find((work) => work.id === selected) ?? works[0] ?? null
         const pickedIndex = picked === null ? -1 : works.findIndex((work) => work.id === picked.id)
         body = works.length === 0
-          ? h('div', { className: 'dshm-note', style: { marginTop: 24 } }, h('b', null, '暂无作品。'), '生成过的图片会按时间排列在这里。',
+          ? h('div', { className: 'dshm-note', style: { marginTop: 24 } }, h('b', null, t('empty.works')), t('empty.works.body'),
               h('div', { style: { marginTop: 14 } },
-                h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: () => setTab('generate') }, '去生成')))
+                h('button', { className: 'dshm-cta', style: { width: 'auto', padding: '0 20px', marginTop: 0 }, onClick: () => setTab('generate') }, t('go.generate'))))
           : h('div', { className: 'dshm-works' },
               h('div', { className: 'dshm-grid' }, works.map((work, index) =>
                 h('button', {
@@ -743,7 +846,7 @@ window.__ModuleLoader__.load({
                 },
                   h('div', { className: 'im' }, h('img', { src: work.src, alt: work.title })),
                   h('div', { className: 't' }, work.title),
-                  h('div', { className: 'm' }, `No. ${frameNo(index, works.length)} · ${work.size === '' ? '默认' : String(work.size).replace('x', '×')}`)))),
+                  h('div', { className: 'm' }, `No. ${frameNo(index, works.length)} · ${work.size === '' ? t('work.defaultSize') : String(work.size).replace('x', '×')}`)))),
               h(Proof, {
                 work: picked, mode: 'detail', index: pickedIndex, total: works.length,
                 onReuse: reuse, onDelete: removeWork, onZoom: setZoom,
@@ -760,17 +863,24 @@ window.__ModuleLoader__.load({
               h('img', { src: zoom.src, alt: zoom.title }),
               h('div', { className: 'dshm-zoombar', onClick: (event) => event.stopPropagation() },
                 h('span', null, zoom.title),
-                h('a', { href: zoom.src, target: '_blank', rel: 'noreferrer' }, '在新标签页打开'),
-                h('button', { type: 'button', onClick: () => setZoom(null) }, '关闭'))))
+                h('a', { href: zoom.src, target: '_blank', rel: 'noreferrer' }, t('zoom.open')),
+                h('button', { type: 'button', onClick: () => setZoom(null) }, t('zoom.close')))))
     }
 
     function apply(ctx) {
       ensureStyles()
+      if (ctx.locale !== undefined) {
+        localeCtx = ctx.locale
+        ctx.effect(() => ctx.locale.register(NS, COPY), 'dsh-media-skills: dictionaries')
+        t = ctx.locale.bind(NS)
+      }
       ctx.slots.inject('sidebar.panellist', () => ctx.slots.register({
         name: 'sidebar.panellist',
         id: PANEL_ID,
         order: 20,
-        label: '创作',
+        // A function keeps the row label in step with the language switch.
+        label: () => t('panel'),
+        locale: NS,
       }, PanelIcon))
       ctx.slots.inject('main', () => ctx.slots.register({
         name: 'main',
@@ -780,7 +890,7 @@ window.__ModuleLoader__.load({
 
     exports.name = 'dsh-media-skills'
     exports.apply = apply
-    exports.inject = ['slots']
+    exports.inject = ['slots', 'locale']
     return module.exports
   },
 })

@@ -1,7 +1,7 @@
 {
   "name": "dsh-media-skills",
-  "version": "0.6.4",
-  "description": "Free image reading and generation for DeepSeek Harness: vision QA, illustration generation, provider fallback, no bundled keys, and a 创作 page in the sidebar (desktop 0.2.1+) with model, ratio and 1K–4K pickers.",
+  "version": "0.7.0",
+  "description": "Free image reading and generation for DeepSeek Harness: vision QA, illustration generation, provider fallback, no bundled keys, and an Images page in the sidebar (desktop 0.2.1+) with model, ratio and 1K–4K pickers, in Chinese or English.",
   "type": "module",
   "main": "index.js",
   "exports": {

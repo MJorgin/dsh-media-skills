@@ -124,7 +124,7 @@ const PROVIDERS = [
     baseUrl: 'https://token.sensenova.ai/v1', model: 'sensenova-u1-fast',
     docs: 'https://platform.sensenova.cn',
     models: [
-      { id: 'sensenova-u1-fast', label: 'SenseNova U1 Fast', desc: '商汤，出图快，中英文提示都行', maxEdge: 4096 },
+      { id: 'sensenova-u1-fast', label: 'SenseNova U1 Fast', desc: '商汤，出图快，中英文提示都行', descEn: 'SenseNova, fast, handles Chinese and English prompts', maxEdge: 4096 },
     ],
   },
   {
@@ -132,10 +132,10 @@ const PROVIDERS = [
     baseUrl: 'https://api.siliconflow.cn/v1', model: 'Kwai-Kolors/Kolors',
     docs: 'https://cloud.siliconflow.cn',
     models: [
-      { id: 'Kwai-Kolors/Kolors', label: 'Kolors', desc: '快手可图，中文语义准', maxEdge: 1024 },
-      { id: 'Qwen/Qwen-Image', label: 'Qwen-Image', desc: '通义，画面里的文字写得好', maxEdge: 1024 },
-      { id: 'Tongyi-MAI/Z-Image-Turbo', label: 'Z-Image Turbo', desc: '通义，出图快', maxEdge: 1024 },
-      { id: 'Tongyi-MAI/Z-Image', label: 'Z-Image', desc: '通义，画质更细', maxEdge: 1024 },
+      { id: 'Kwai-Kolors/Kolors', label: 'Kolors', desc: '快手可图，中文语义准', descEn: 'Kuaishou, strong on Chinese prompts', maxEdge: 1024 },
+      { id: 'Qwen/Qwen-Image', label: 'Qwen-Image', desc: '通义，画面里的文字写得好', descEn: 'Qwen, gets text inside the image right', maxEdge: 1024 },
+      { id: 'Tongyi-MAI/Z-Image-Turbo', label: 'Z-Image Turbo', desc: '通义，出图快', descEn: 'Qwen, fast', maxEdge: 1024 },
+      { id: 'Tongyi-MAI/Z-Image', label: 'Z-Image', desc: '通义，画质更细', descEn: 'Qwen, finer detail', maxEdge: 1024 },
     ],
   },
   {
@@ -143,7 +143,7 @@ const PROVIDERS = [
     baseUrl: 'https://image.pollinations.ai/prompt', model: 'flux',
     docs: 'https://pollinations.ai', keyless: true,
     models: [
-      { id: 'flux', label: 'Flux（免 Key）', desc: '不用注册，每 45 秒一张', maxEdge: 768 },
+      { id: 'flux', label: 'Flux', desc: '不用注册，每 45 秒一张', descEn: 'No signup, one every 45 seconds', maxEdge: 768 },
     ],
   },
   {
@@ -224,7 +224,7 @@ function maskKey(key) {
 function withOverrideModel(models, override) {
   const id = typeof override === 'string' ? override.trim() : ''
   if (id === '' || models.some((model) => model.id === id)) return models
-  return [{ id, label: id, desc: '自定义模型', maxEdge: 4096 }, ...models]
+  return [{ id, label: id, desc: '自定义模型', descEn: 'Custom model', maxEdge: 4096 }, ...models]
 }
 
 /** Provider table plus the package version, for the panel's 生图 Key tab. */
@@ -247,6 +247,7 @@ export function mediaStatus() {
           id: model.id,
           label: model.label,
           desc: model.desc,
+          descEn: model.descEn ?? model.desc,
           maxEdge: model.maxEdge ?? 1024,
         })),
         override.model,

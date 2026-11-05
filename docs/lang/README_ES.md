@@ -71,11 +71,11 @@ GLM_API_KEY=...
 SILICONFLOW_API_KEY=...
 ```
 
-## 🖼️ El panel 创作 (desktop 0.2.1+)
+## 🖼️ El panel Images (desktop 0.2.1+)
 
-<img src="../screenshots/panel-generate.png" alt="El panel 创作: entrada y selectores a la izquierda, tarjeta de resultado a la derecha" width="100%">
+<img src="../screenshots/panel-generate.png" alt="El panel Images: entrada y selectores a la izquierda, tarjeta de resultado a la derecha" width="100%">
 
-Desde el escritorio 0.2.1 un plugin puede registrar su propia página; este paquete trae **创作** en la barra lateral:
+Desde el escritorio 0.2.1 un plugin puede registrar su propia página; este paquete trae **Images** en la barra lateral. El nombre y los textos siguen el idioma de la interfaz de DSH (en chino «图像», en lo demás «Images»):
 
 - **生成**: escribe un prompt (⌘⏎ también genera), elige modelo, proporción y tamaño de 1K a 4K. Los modelos van una fila por modelo, no por proveedor, y hay 10 proporciones (inteligente / 1:1 / 9:16 / 16:9 / 3:4 / 4:3 / 2:3 / 3:2 / 9:21 / 21:9). Los tamaños que superan el límite de un modelo se muestran en gris en lugar de ignorarse. El resultado llega como una tarjeta con número, modelo, tamaño, prompt y acciones.
 - **作品**: todas las imágenes de este espacio de trabajo en una hoja de contactos; haz clic en una para abrir la ficha y reutilizar los ajustes, copiar el prompt, abrir el original o borrarla (también el archivo). Haz clic en la imagen para ampliarla; `Esc` cierra.
