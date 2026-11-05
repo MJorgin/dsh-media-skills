@@ -177,9 +177,10 @@ window.__ModuleLoader__.load({
   font: inherit; font-size: 12.5px; display: inline-flex; align-items: center; gap: 7px;
 }
 .dshm-pick:hover { border-color: var(--dsw-alias-label-caption, #adb2b8); }
+.dshm-pick.glyph { gap: 6px; padding: 0 9px; }
 .dshm-pick .car { width: 6px; height: 6px; border-right: 1.3px solid currentColor; border-bottom: 1.3px solid currentColor; transform: rotate(45deg) translate(-1px, -1px); opacity: .7; }
 .dshm-menu {
-  position: absolute; left: 0; top: 34px; z-index: 30; min-width: 252px; display: grid; padding: 4px;
+  position: absolute; left: 0; top: 34px; z-index: 30; min-width: 252px; display: grid; padding: 6px 4px 8px;
   background: var(--dsw-alias-bg-elevated, #fff); border: 1px solid var(--dsw-alias-border-l2, rgba(0,0,0,.12));
   border-radius: 10px; box-shadow: 0 10px 28px rgba(0,0,0,.14);
 }
@@ -415,16 +416,15 @@ window.__ModuleLoader__.load({
     }
 
     /** A small pill that opens a menu — the panel's only interactive control. */
-    function Picker({ value, options, onPick }) {
-      const [open, setOpen] = React.useState(false)
+    function Picker({ value, options, onPick, open, setOpen }) {
       React.useEffect(() => {
         if (!open) return undefined
         const close = () => setOpen(false)
         document.addEventListener('mousedown', close)
         return () => document.removeEventListener('mousedown', close)
-      }, [open])
+      }, [open, setOpen])
       return h('div', { className: 'dshm-pickwrap', onMouseDown: (e) => e.stopPropagation() },
-        h('button', { className: 'dshm-pick', type: 'button', onClick: () => setOpen((v) => !v) },
+        h('button', { className: 'dshm-pick', type: 'button', onClick: () => setOpen(!open) },
           h('span', null, value), h('i', { className: 'car' })),
         open
           ? h('div', { className: 'dshm-menu' }, options.map((option) =>
@@ -442,17 +442,26 @@ window.__ModuleLoader__.load({
     }
 
     /** The canvas grid: one glyph per ratio, five to a row. */
-    function RatioPicker({ value, onPick }) {
-      const [open, setOpen] = React.useState(false)
+    function RatioPicker({ value, onPick, open, setOpen }) {
       React.useEffect(() => {
         if (!open) return undefined
         const close = () => setOpen(false)
         document.addEventListener('mousedown', close)
         return () => document.removeEventListener('mousedown', close)
-      }, [open])
+      }, [open, setOpen])
+      const pill = value.id === 'smart' ? t('ratio.smart') : value.label
       return h('div', { className: 'dshm-pickwrap', onMouseDown: (e) => e.stopPropagation() },
-        h('button', { className: 'dshm-pick', type: 'button', onClick: () => setOpen((v) => !v) },
-          h('span', null, value.label), h('i', { className: 'car' })),
+        h('button', {
+          className: 'dshm-pick glyph', type: 'button', title: pill, 'aria-label': pill,
+          onClick: () => setOpen(!open),
+        },
+          value.w === 0
+            ? h('span', { className: 'dshm-glyph', style: { width: 13, height: 13, borderStyle: 'dashed' } })
+            : h('span', { className: 'dshm-glyph', style: (() => {
+                const k = 13 / Math.max(value.w, value.h)
+                return { width: Math.max(5, Math.round(value.w * k)), height: Math.max(5, Math.round(value.h * k)) }
+              })() }),
+          h('i', { className: 'car' })),
         open
           ? h('div', { className: 'dshm-ratios' }, RATIOS.map((ratio) => {
               const scale = 20 / Math.max(ratio.w, ratio.h, 1)
@@ -464,7 +473,7 @@ window.__ModuleLoader__.load({
                 ratio.w === 0
                   ? h('span', { className: 'dshm-glyph', style: { width: 20, height: 20, borderStyle: 'dashed' } })
                   : h('span', { className: 'dshm-glyph', style: { width: `${Math.round(ratio.w * scale)}px`, height: `${Math.round(ratio.h * scale)}px` } }),
-                h('span', null, ratio.label))
+                h('span', null, ratio.id === 'smart' ? t('ratio.smart') : ratio.label))
             }))
           : null)
     }
@@ -668,6 +677,8 @@ window.__ModuleLoader__.load({
       const [modelId, setModelId] = React.useState(() => readPick().modelId ?? '')
       const [ratio, setRatio] = React.useState(() => RATIOS.find((item) => item.id === readPick().ratio) ?? RATIOS[3])
       const [tier, setTier] = React.useState(() => readPick().tier ?? '1K')
+      // Only one popover is open at a time; they overlap otherwise.
+      const [openPick, setOpenPick] = React.useState('')
 
       const refresh = React.useCallback(() => {
         setStatusError(null)
@@ -813,8 +824,15 @@ window.__ModuleLoader__.load({
                   setProviderId(nextProvider)
                   setModelId(nextModel)
                 },
+                open: openPick === 'model',
+                setOpen: (next) => setOpenPick(next ? 'model' : ''),
               }),
-              h(RatioPicker, { value: ratio, onPick: setRatio }),
+              h(RatioPicker, {
+                value: ratio,
+                onPick: setRatio,
+                open: openPick === 'ratio',
+                setOpen: (next) => setOpenPick(next ? 'ratio' : ''),
+              }),
               h(Picker, {
                 value: tier,
                 options: TIERS.map(([id, edge]) => {
@@ -824,6 +842,8 @@ window.__ModuleLoader__.load({
                     : { id, label: id, current: id === tier, hint: t('tier.edge', { n: edge }) }
                 }),
                 onPick: (option) => setTier(option.id),
+                open: openPick === 'tier',
+                setOpen: (next) => setOpenPick(next ? 'tier' : ''),
               }),
               h('span', { className: 'dshm-size' }, sizeLabel)),
             h('button', { className: 'dshm-cta', disabled: busy || empty || left === 0, onClick: generate },
