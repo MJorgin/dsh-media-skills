@@ -1,3 +1,5 @@
+> **Version note:** This translation may describe an older release. For the current Images page and setup, see the [English README](../../README.md) or [简体中文](README_ZH.md).
+
 <div align="center">
 
 <img src="../social-preview.png" alt="dsh-media-skills — DeepSeek Harness를 위한 무료 이미지 읽기 및 생성 스킬" width="100%">

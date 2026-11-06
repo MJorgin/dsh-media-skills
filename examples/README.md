@@ -5,8 +5,8 @@ This folder ships two kinds of sample material for verifying `dsh-media-skills`.
 
 ## 🎨 生成示例 · Generated images（`examples/generated/`）
 
-全部由 `media-tools`（SiliconFlow Kolors，免费）生成，使用的提示词如下——你可以复制提示词重新生成，或直接用它们测试读图。
-All generated with `media-tools` (SiliconFlow Kolors, free). Prompts below — regenerate them or use the images to test reading.
+这些示例由 `media-tools` 调用 SiliconFlow Kolors 生成，使用的提示词如下——你可以复制提示词重新生成，或直接用它们测试读图。
+These examples were generated with `media-tools` using SiliconFlow Kolors; current availability and pricing depend on the provider. Prompts below — regenerate them or use the images to test reading.
 
 | 图片 | 提示词 Prompt |
 |---|---|
@@ -27,9 +27,9 @@ When testing, the expected answer: the title, both buttons, all four values with
 
 ## 🚀 怎么用 · How to use
 
-1. **贴图自动转述**：把任意一张直接贴进聊天框（或点图片按钮选择），纯文本模型会收到视觉模型生成的文字描述。
-   **Paste it**: paste any image into the chat (or pick it with the image button) — a text-only model receives the vision model's description.
-2. **vision-review 技能**：把图片放进工作区，说「用 vision-review 检查这张图」。
-   **vision-review skill**: put the image in the workspace and say “read this image with vision-review”.
+1. **原生图片附件**：选择支持图片的聊天模型后，把图片贴进聊天框或用附件按钮选择；纯文本模型无法直接接收图片。
+   **Native image attachments**: select an image-capable chat model, then paste an image or use the attachment control. A text-only model cannot directly receive the image.
+2. **vision-review 技能**：配置视觉服务商后，把图片放进工作区，说「用 vision-review 检查这张图」。
+   **vision-review skill**: configure a vision provider, put the image in the workspace and say “read this image with vision-review”.
 3. **重新生成**：复制上表的提示词，说「用 media-tools 生成：<提示词>」。
    **Regenerate**: copy a prompt above and say “generate with media-tools: <prompt>”.
